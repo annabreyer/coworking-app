@@ -10,7 +10,9 @@ class HomeController extends AbstractController
     #[Route('/', name: 'home')]
     public function index()
     {
-        return $this->redirect('https://coworking-hahnheim.de/');
+
+        echo 'Hello World';
+        //return $this->redirect('https://coworking-hahnheim.de/');
     }
 
 }
