@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\TermsOfUse;
@@ -21,28 +23,13 @@ class TermsOfUseRepository extends ServiceEntityRepository
         parent::__construct($registry, TermsOfUse::class);
     }
 
-    //    /**
-    //     * @return TermsOfUse[] Returns an array of TermsOfUse objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?TermsOfUse
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findLatest(): ?TermsOfUse
+    {
+        return $this->createQueryBuilder('t')
+            ->orderBy('t.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleResult()
+        ;
+    }
 }

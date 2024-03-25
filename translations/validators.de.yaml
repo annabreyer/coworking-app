@@ -1,0 +1,2 @@
+The password fields must match.: 'Die Passwörter müssen übereinstimmen.'
+Your password should be at least {{ limit }} characters.: 'Dein Passwort sollte mindestens {{ limit }} Zeichen lang sein.'

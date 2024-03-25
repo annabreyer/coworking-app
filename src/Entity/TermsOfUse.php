@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TermsOfUseRepository;
@@ -7,10 +9,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: TermsOfUseRepository::class)]
 class TermsOfUse
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -80,27 +85,5 @@ class TermsOfUse
     public function getUserTermsOfUses(): Collection
     {
         return $this->userTermsOfUses;
-    }
-
-    public function addUserTermsOfUse(UserTermsOfUse $userTermsOfUse): static
-    {
-        if (!$this->userTermsOfUses->contains($userTermsOfUse)) {
-            $this->userTermsOfUses->add($userTermsOfUse);
-            $userTermsOfUse->setTermsOfUse($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserTermsOfUse(UserTermsOfUse $userTermsOfUse): static
-    {
-        if ($this->userTermsOfUses->removeElement($userTermsOfUse)) {
-            // set the owning side to null (unless already changed)
-            if ($userTermsOfUse->getTermsOfUse() === $this) {
-                $userTermsOfUse->setTermsOfUse(null);
-            }
-        }
-
-        return $this;
     }
 }

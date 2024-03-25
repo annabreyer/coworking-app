@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -7,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -16,10 +19,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use TimestampableEntity;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $lastName = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
@@ -36,9 +49,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\OneToMany(targetEntity: UserTermsOfUse::class, mappedBy: 'user')]
-    private Collection $acceptedTermsOfUse;
-
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $acceptedCodeOfConduct = null;
 
@@ -46,7 +56,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $acceptedDataProtection = null;
 
     #[ORM\Column(type: 'boolean')]
-    private $isVerified = false;
+    private bool $isVerified = false;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isActive = true;
+
+    #[ORM\OneToMany(targetEntity: UserTermsOfUse::class, mappedBy: 'user')]
+    private Collection $acceptedTermsOfUse;
 
     public function __construct()
     {
@@ -107,7 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -138,9 +154,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function addAcceptedTermsOfUse(UserTermsOfUse $acceptedTermsOfUse): static
     {
-        if (!$this->acceptedTermsOfUse->contains($acceptedTermsOfUse)) {
+        if (
+            false    === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
+            && $this === $acceptedTermsOfUse->getUser()
+        ) {
             $this->acceptedTermsOfUse->add($acceptedTermsOfUse);
-            $acceptedTermsOfUse->setUser($this);
         }
 
         return $this;
@@ -148,12 +166,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeAcceptedTermsOfUse(UserTermsOfUse $acceptedTermsOfUse): static
     {
-        if ($this->acceptedTermsOfUse->removeElement($acceptedTermsOfUse)) {
-            // set the owning side to null (unless already changed)
-            if ($acceptedTermsOfUse->getUser() === $this) {
-                $acceptedTermsOfUse->setUser(null);
-            }
-        }
+        $this->acceptedTermsOfUse->removeElement($acceptedTermsOfUse);
 
         return $this;
     }
@@ -192,5 +205,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isVerified = $isVerified;
 
         return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): static
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getBirthdate(): ?\DateTimeInterface
+    {
+        return $this->birthdate;
+    }
+
+    public function setBirthdate(?\DateTimeInterface $birthdate): static
+    {
+        $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): void
+    {
+        $this->isActive = $isActive;
     }
 }

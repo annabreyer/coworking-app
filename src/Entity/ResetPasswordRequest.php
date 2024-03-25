@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ResetPasswordRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
@@ -11,6 +14,7 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;
+    use TimestampableEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,6 +27,10 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
 
     public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
+        if (!$user instanceof User) {
+            throw new \InvalidArgumentException('User must be an instance of ' . User::class);
+        }
+
         $this->user = $user;
         $this->initialize($expiresAt, $selector, $hashedToken);
     }
@@ -34,6 +42,6 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
 
     public function getUser(): object
     {
-        return $this->user;
+        return (object) $this->user;
     }
 }
