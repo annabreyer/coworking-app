@@ -1,11 +1,5 @@
-<h1>{% trans %}Hi! Please confirm your email!{% endtrans %}</h1>
+{% extends 'email.base.html.twig' %}
 
-<p>
-    {% trans %}Please confirm your email address by clicking the following link:{% endtrans %} <br><br>
-    <a href="{{ signedUrl|raw }}">{% trans %}Confirm my Email{% endtrans %}</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
-
-<p>
-    Cheers!
-</p>
+{% block link %}
+    <a href="{{ signedUrl|raw }}">{{ texts.button }}</a>.
+{% endblock %}

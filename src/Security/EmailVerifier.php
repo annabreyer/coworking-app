@@ -21,7 +21,7 @@ class EmailVerifier
     ) {
     }
 
-    public function sendEmailConfirmation(string $verifyEmailRouteName, User $user, TemplatedEmail $email): void
+    public function getEmailConfirmationContext(string $verifyEmailRouteName, User $user): array
     {
         if (null === $user->getId() || null === $user->getEmail()) {
             throw new \Exception('This user does not have a valid ID or email');
@@ -33,14 +33,11 @@ class EmailVerifier
             $user->getEmail()
         );
 
-        $context                         = $email->getContext();
         $context['signedUrl']            = $signatureComponents->getSignedUrl();
         $context['expiresAtMessageKey']  = $signatureComponents->getExpirationMessageKey();
         $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
 
-        $email->context($context);
-
-        $this->mailer->send($email);
+        return $context;
     }
 
     /**

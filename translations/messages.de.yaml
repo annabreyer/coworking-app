@@ -1,10 +1,6 @@
 You should agree to our terms: 'Bitte akzeptiere die Allgemeinen Geschäftsbedingungen.'
 You should agree to our code of conduct: 'Bitte akzeptiere unseren Verhaltenskodex.'
 You should agree to our data protection agreement: 'Bitte akzeptiere unsere Datenschutzbestimmungen.'
-Please Confirm your Email: 'Bitte bestätige Deine E-Mail-Adresse.'
-Hi! Please confirm your email!: 'Hallo! Bitte bestätige Deine E-Mail-Adresse!'
-Please confirm your email address by clicking the following link: 'Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst:'
-Confirm my Email: 'Meine E-Mail-Adresse bestätigen'
 Log in!: 'Anmelden!'
 Login: 'Anmelden'
 Sign in: 'Anmelden'
@@ -43,3 +39,9 @@ email.reset-password.salutation: Hallo %firstName%!
 email.reset-password.instructions: Um Dein Passwort zurückzusetzen, besuche bitte den folgenden Link
 email.reset-password.explanation: 'Dieser Link ist %timeLimit% lang gültig'
 email.reset-password.signature: Viele Grüße!
+email.confirm-email.subject: Bitte bestätige Deine E-Mail-Adresse
+email.confirm-email.salutation: Hallo %firstName%!
+email.confirm-email.instructions: Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst
+email.confirm-email.explanation: 'Dieser Link ist %timeLimit% lang gültig'
+email.confirm-email.signature: Viele Grüße!
+email.confirm-email.button: E-Mail-Adresse bestätigen
