@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -34,13 +34,15 @@ class PasswordForgottenService
             ->context([
                 'resetToken' => $resetToken,
                 'texts'      => [
-                    'salutation'   => $this->translator->trans('email.reset-password.salutation',
-                        ['%firstName%' => $user->getFirstName()]),
+                    'salutation' => $this->translator->trans(
+                        'email.reset-password.salutation',
+                        ['%firstName%' => $user->getFirstName()]
+                    ),
                     'instructions' => $this->translator->trans('email.reset-password.instructions'),
                     'explanation'  => $this->translator->trans('email.reset-password.explanation', [
                         '%timeLimit%' => $timeLimit,
                     ]),
-                    'signature'    => $this->translator->trans('email.reset-password.signature'),
+                    'signature' => $this->translator->trans('email.reset-password.signature'),
                 ],
             ])
         ;

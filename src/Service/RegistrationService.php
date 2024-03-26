@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -61,12 +61,17 @@ class RegistrationService
         $standardContext = $this->getStandardEmailContext($this->translator, 'confirm-email');
         $context         = array_merge($specificContext, $standardContext);
 
-        $context['texts']['salutation']  = $this->translator->trans('email.confirm-email.salutation',
-            ['%firstName%' => $user->getFirstName()]);
+        $context['texts']['salutation'] = $this->translator->trans(
+            'email.confirm-email.salutation',
+            ['%firstName%' => $user->getFirstName()]
+        );
         $context['texts']['button']      = $this->translator->trans('email.confirm-email.button');
         $context['texts']['explanation'] = $this->translator->trans('email.confirm-email.explanation', [
-            '%timeLimit%' => $this->translator->trans($context['expiresAtMessageKey'],
-                $context['expiresAtMessageData'], 'VerifyEmailBundle'),
+            '%timeLimit%' => $this->translator->trans(
+                $context['expiresAtMessageKey'],
+                $context['expiresAtMessageData'],
+                'VerifyEmailBundle'
+            ),
         ]);
 
         $email = (new TemplatedEmail())

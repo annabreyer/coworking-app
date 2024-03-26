@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -98,13 +98,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string)$this->email;
+        return (string) $this->email;
     }
 
     /**
      * @return list<string>
-     * @see UserInterface
      *
+     * @see UserInterface
      */
     public function getRoles(): array
     {
@@ -160,7 +160,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function addAcceptedTermsOfUse(UserTermsOfUse $acceptedTermsOfUse): static
     {
         if (
-            false === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
+            false    === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
             && $this === $acceptedTermsOfUse->getUser()
         ) {
             $this->acceptedTermsOfUse->add($acceptedTermsOfUse);

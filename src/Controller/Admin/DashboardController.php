@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use App\Entity\TermsOfUse;
@@ -25,7 +27,6 @@ class DashboardController extends AbstractDashboardController
     {
         return parent::configureCrud()
                      ->showEntityActionsInlined();
-
     }
 
     public function configureDashboard(): Dashboard

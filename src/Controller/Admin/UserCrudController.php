@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use App\Entity\User;
@@ -29,7 +31,7 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('firstName')
                        ->hideOnIndex()
         ;
-        yield textField::new('lastName')
+        yield TextField::new('lastName')
                        ->hideOnIndex()
         ;
         yield EmailField::new('email');
