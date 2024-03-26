@@ -9,9 +9,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 trait EmailContextTrait
 {
     /**
-     * @param TranslatorInterface $translator
-     * @param string              $emailTranslationKey
-     *
      * @return array<string, mixed>
      */
     public function getStandardEmailContext(TranslatorInterface $translator, string $emailTranslationKey): array

@@ -19,10 +19,8 @@ class EmailVerifier
     }
 
     /**
-     * @param string $verifyEmailRouteName
-     * @param User   $user
-     *
      * @return array<string, mixed>
+     *
      * @throws \Exception
      */
     public function getEmailConfirmationContext(string $verifyEmailRouteName, User $user): array
