@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserAction;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -28,6 +29,12 @@ class DashboardController extends AbstractDashboardController
     {
         return parent::configureCrud()
                      ->showEntityActionsInlined();
+    }
+
+    public function configureActions(): Actions
+    {
+        return parent::configureActions()
+            ->add(Crud::PAGE_INDEX, 'detail');
     }
 
     public function configureDashboard(): Dashboard

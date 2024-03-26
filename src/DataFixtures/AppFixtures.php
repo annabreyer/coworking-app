@@ -6,6 +6,7 @@ namespace App\DataFixtures;
 
 use App\Entity\TermsOfUse;
 use App\Entity\User;
+use App\Entity\UserTermsOfUse;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -31,9 +32,17 @@ class AppFixtures extends Fixture
 
     private function loadUser(ObjectManager $manager): void
     {
+        $birthDate =new \DateTime('1978-06-30');
+        $otherDate = new \DateTime('last week');
+
         $user = new User();
         $user->setEmail('user.one@annabreyer.dev');
-
+        $user->setMobilePhone($this->faker->mobileNumber);
+        $user->setFirstName($this->faker->firstName);
+        $user->setLastName($this->faker->lastName);
+        $user->setBirthdate($birthDate);
+        $user->setAcceptedDataProtection($otherDate);
+        $user->setAcceptedCodeOfConduct($otherDate);
         $password = $this->hasher->hashPassword($user, 'Passw0rd');
         $user->setPassword($password);
 
@@ -41,6 +50,11 @@ class AppFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('user1', $user);
+
+        $userTermsOfUse = new UserTermsOfUse($user, $this->getReference('terms-of-use-1.0'));
+        $userTermsOfUse->setAcceptedOn($otherDate);
+        $manager->persist($userTermsOfUse);
+        $manager->flush();
     }
 
     private function loadTermsOfUse(ObjectManager $manager): void

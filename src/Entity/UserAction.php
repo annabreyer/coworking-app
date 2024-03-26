@@ -19,7 +19,7 @@ class UserAction
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $form = null;
 
     #[ORM\Column]
