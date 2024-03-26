@@ -13,7 +13,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -77,9 +76,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->acceptedTermsOfUse   = new ArrayCollection();
+        $this->acceptedTermsOfUse    = new ArrayCollection();
         $this->resetPasswordRequests = new ArrayCollection();
-        $this->userActions = new ArrayCollection();
+        $this->userActions           = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -312,5 +311,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
 }

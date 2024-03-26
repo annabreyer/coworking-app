@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
@@ -12,6 +14,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class UserActionSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var string[]
+     */
     private array $subscribedMethods;
 
     public function __construct(
@@ -26,23 +31,23 @@ class UserActionSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             RequestEvent::class => 'onKernelRequest',
         ];
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
 
-        if (false === in_array($request->getMethod(), $this->subscribedMethods, true)) {
+        if (false === \in_array($request->getMethod(), $this->subscribedMethods, true)) {
             return;
         }
 
         if (preg_match('/admin/', $request->getRequestUri())) {
-            //@todo
+            // @todo
         }
 
         $user = $this->security->getUser();
@@ -58,7 +63,7 @@ class UserActionSubscriber implements EventSubscriberInterface
         $data  = $request->request->all();
         $match = preg_grep('/form/', array_keys($data));
 
-        if (false === empty($match)) {
+        if (false !== $match && false === empty($match)) {
             $formName = $match[0];
             $data     = $data[$formName];
         }
@@ -78,10 +83,9 @@ class UserActionSubscriber implements EventSubscriberInterface
 
     public function saveAdminRequest(User $user, Request $request): void
     {
-        $match = preg_grep('/ea/', array_keys($data));
-        if (false === empty($match)) {
-            $formName = $match[0];
-        }
+//        $match = preg_grep('/ea/', array_keys($data));
+//        if (false === empty($match)) {
+//            $formName = $match[0];
+//        }
     }
-
 }

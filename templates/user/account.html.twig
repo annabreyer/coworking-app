@@ -1,2 +1,3 @@
 <a href="{{ path('user_edit', {'id': app.user.id}) }}">{% trans %} Edit my data {% endtrans %}</a>
-<p>To change your passwort, please request a passwort reset via the password forgotten function.</p>
+<p>{% trans %}To change your passwort, please request a passwort reset via the password forgotten function.{% endtrans %}</p>
+<p>{% trans with {'%email%' : supportEmail } %}To close your account, please send an Email to %email%{% endtrans %}</p>

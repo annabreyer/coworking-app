@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -14,12 +16,13 @@ class UserController extends AbstractController
     #[Route('/user', name: 'user_show')]
     public function showUser(): Response
     {
-        $user = $this->getUser();
+        $user  = $this->getUser();
+        $email = $this->getParameter('support_email');
 
         return $this->render('user/account.html.twig', [
-            'user' => $user,
+            'user'         => $user,
+            'supportEmail' => $email,
         ]);
-
     }
 
     #[Route('/user/edit', name: 'user_edit')]

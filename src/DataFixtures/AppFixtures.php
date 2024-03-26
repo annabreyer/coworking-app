@@ -32,7 +32,7 @@ class AppFixtures extends Fixture
 
     private function loadUser(ObjectManager $manager): void
     {
-        $birthDate =new \DateTime('1978-06-30');
+        $birthDate = new \DateTime('1978-06-30');
         $otherDate = new \DateTime('last week');
 
         $user = new User();

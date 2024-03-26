@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UserActionsRepository;
@@ -22,6 +24,9 @@ class UserAction
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $form = null;
 
+    /**
+     * @var array<mixed, mixed>
+     */
     #[ORM\Column]
     private array $data = [];
 
@@ -56,12 +61,17 @@ class UserAction
 
         return $this;
     }
-
+    /**
+     * @return array<mixed, mixed>
+     */
     public function getData(): array
     {
         return $this->data;
     }
 
+    /**
+     * @param array<mixed, mixed> $data
+     */
     public function setData(array $data): static
     {
         $this->data = $data;
@@ -83,6 +93,12 @@ class UserAction
 
     public function getDataString(): string
     {
-        return json_encode($this->data);
+        $encodedData = json_encode($this->data);
+
+        if (false === $encodedData) {
+            return '';
+        }
+
+        return $encodedData;
     }
 }
