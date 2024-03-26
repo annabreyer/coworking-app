@@ -61,6 +61,7 @@ class UserAction
 
         return $this;
     }
+
     /**
      * @return array<mixed, mixed>
      */
