@@ -6,7 +6,7 @@ Login: 'Anmelden'
 Sign in: 'Anmelden'
 Register: 'Registrieren'
 Registration: 'Registrierung'
-You are logged in as %app.user.userIdentifier%: 'Du bist als %app.user.userIdentifier% angemeldet'
+You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
 Please sign in: 'Bitte melde Dich an'
 Email: 'E-Mail'
 Password: 'Passwort'
@@ -45,3 +45,4 @@ email.confirm-email.instructions: Bitte bestätige Deine E-Mail-Adresse, indem D
 email.confirm-email.explanation: 'Dieser Link ist %timeLimit% lang gültig'
 email.confirm-email.signature: Viele Grüße!
 email.confirm-email.button: E-Mail-Adresse bestätigen
+Your account has been created. Please check your email for a verification link.: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'

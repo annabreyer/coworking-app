@@ -10,9 +10,15 @@
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
 
+        {% for message in app.flashes('success') %}
+            <div class="flash-success">
+                {{ message|trans }}
+            </div>
+        {% endfor %}
+
         {% if app.user %}
             <div class="mb-3">
-                {{ 'You are logged in as %app.user.userIdentifier%'|trans({'%app.user.userIdentifier%': app.user.userIdentifier})}},
+                {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}},
                 <a href="{{ path('app_logout') }}">Logout</a>
             </div>
         {% endif %}
