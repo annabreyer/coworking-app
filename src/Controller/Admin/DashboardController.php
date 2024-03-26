@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\TermsOfUse;
 use App\Entity\User;
+use App\Entity\UserAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -40,5 +41,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('User', 'fas fa-user', User::class);
         yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
+        yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
     }
 }

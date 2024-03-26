@@ -72,10 +72,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string')]
     private ?string $mobilePhone = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserAction::class)]
+    private Collection $userActions;
+
     public function __construct()
     {
         $this->acceptedTermsOfUse   = new ArrayCollection();
         $this->resetPasswordRequests = new ArrayCollection();
+        $this->userActions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -278,4 +282,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, UserAction>
+     */
+    public function getUserActions(): Collection
+    {
+        return $this->userActions;
+    }
+
+    public function addUserAction(UserAction $userAction): static
+    {
+        if (!$this->userActions->contains($userAction)) {
+            $this->userActions->add($userAction);
+            $userAction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAction(UserAction $userAction): static
+    {
+        if ($this->userActions->removeElement($userAction)) {
+            // set the owning side to null (unless already changed)
+            if ($userAction->getUser() === $this) {
+                $userAction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

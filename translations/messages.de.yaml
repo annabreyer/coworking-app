@@ -48,3 +48,7 @@ email.confirm-email.explanation: 'Dieser Link ist %timeLimit% lang gültig'
 email.confirm-email.signature: Viele Grüße!
 email.confirm-email.button: E-Mail-Adresse bestätigen
 Your account has been created. Please check your email for a verification link.: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'
+user.account: Benutzerkonto
+save: Speichern
+Edit my data: Meine Daten bearbeiten
+To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'
