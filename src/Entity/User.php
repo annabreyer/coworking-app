@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -20,6 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -61,12 +62,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
-    #[ORM\OneToMany(targetEntity: UserTermsOfUse::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserTermsOfUse::class, cascade: ['persist', 'remove'])]
     private Collection $acceptedTermsOfUse;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ResetPasswordRequest::class, cascade: ['persist', 'remove'])]
+    private Collection $resetPasswordRequest;
 
     public function __construct()
     {
-        $this->acceptedTermsOfUse = new ArrayCollection();
+        $this->acceptedTermsOfUse   = new ArrayCollection();
+        $this->resetPasswordRequest = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,13 +98,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
+     * @return list<string>
      * @see UserInterface
      *
-     * @return list<string>
      */
     public function getRoles(): array
     {
@@ -155,7 +160,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function addAcceptedTermsOfUse(UserTermsOfUse $acceptedTermsOfUse): static
     {
         if (
-            false    === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
+            false === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
             && $this === $acceptedTermsOfUse->getUser()
         ) {
             $this->acceptedTermsOfUse->add($acceptedTermsOfUse);
@@ -251,5 +256,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): void
     {
         $this->isActive = $isActive;
+    }
+
+    public function getFullName(): string
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
 }

@@ -11,6 +11,7 @@
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "2.19.3",
+        "easycorp/easyadmin-bundle": "^4.9",
         "fakerphp/faker": "^1.23",
         "gedmo/doctrine-extensions": "^3.15",
         "phpdocumentor/reflection-docblock": "^5.3",

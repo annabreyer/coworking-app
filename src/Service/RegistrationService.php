@@ -73,7 +73,7 @@ class RegistrationService
             ->to(new Address($email))
             ->subject($this->translator->trans('email.confirm-email.subject'))
             ->context($context)
-            ->htmlTemplate('registration/confirmation_email.html.twig')
+            ->htmlTemplate('registration/email_confirmation.html.twig')
         ;
 
         $this->mailer->send($email);
