@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Service;
 
@@ -25,14 +25,23 @@ class PasswordForgottenService
             throw new \LogicException('User must have an email');
         }
 
-        $emailAddress = new Address($user->getEmail());
-        $subject      = $this->translator->trans('Your password reset request');
-        $email        = (new TemplatedEmail())
-            ->to($emailAddress)
-            ->subject($subject)
+        $timeLimit = $this->translator->trans($resetToken->getExpirationMessageKey(), $resetToken->getExpirationMessageData(), 'ResetPasswordBundle');
+
+        $email = (new TemplatedEmail())
+            ->to(new Address($user->getEmail()))
+            ->subject($this->translator->trans('email.reset-password.subject'))
             ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
+                'texts'      => [
+                    'salutation'   => $this->translator->trans('email.reset-password.salutation',
+                        ['%firstName%' => $user->getFirstName()]),
+                    'instructions' => $this->translator->trans('email.reset-password.instructions'),
+                    'explanation'  => $this->translator->trans('email.reset-password.explanation', [
+                        '%timeLimit%' => $timeLimit,
+                    ]),
+                    'signature'    => $this->translator->trans('email.reset-password.signature'),
+                ],
             ])
         ;
 

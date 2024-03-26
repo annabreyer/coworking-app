@@ -31,7 +31,6 @@ Reset password: 'Passwort zurücksetzen'
 Enter your email address, and we will send you a link to reset your password.: 'Gib Deine E-Mail-Adresse ein, und wir senden Dir einen Link zum Zurücksetzen Deines Passworts.'
 Send password reset email: 'E-Mail zum Zurücksetzen des Passworts senden'
 Your email address has been verified.: 'Deine E-Mail-Adresse wurde bestätigt.'
-Your password reset request: 'Deine Anfrage zum Zurücksetzen des Passworts'
 If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.: Sofern ein Konto mit Deiner E-Mail-Adresse existiert, wurde soeben eine E-Mail gesendet, die einen Link enthält, den Du zum Zurücksetzen Deines Passworts verwenden kannst.
 This link will expire in %timeLimit%: 'Dieser Link ist %timeLimit% lang gültig'
 If you don't receive an email please check your spam folder or <a href="%url%">try again</a>: Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder <a href="%url%">versuche es erneut</a>
@@ -39,3 +38,8 @@ Password Reset Email Sent: 'Die E-Mail zum Zurücksetzen Deines Passworts wurde 
 First name: 'Vorname'
 Last name: 'Nachname'
 Birth date: 'Geburtstag'
+email.reset-password.subject: Dein Passwort zurücksetzen
+email.reset-password.salutation: Hallo %firstName%!
+email.reset-password.instructions: Um Dein Passwort zurückzusetzen, besuche bitte den folgenden Link
+email.reset-password.explanation: 'Dieser Link ist %timeLimit% lang gültig'
+email.reset-password.signature: Viele Grüße!
