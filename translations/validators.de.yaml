@@ -1,2 +1,4 @@
 The password fields must match.: 'Die Passwörter müssen übereinstimmen.'
 Your password should be at least {{ limit }} characters.: 'Dein Passwort sollte mindestens {{ limit }} Zeichen lang sein.'
+Please enter your phone number in international format, e.g. +491745124442': 'Bitte gib Deine Telefonnummer im internationalen Format ein, z.B. +491745124442'
+Please enter your phone number in international format: 'Bitte gib Deine Telefonnummer im internationalen Format ein'

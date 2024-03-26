@@ -35,6 +35,7 @@ class UserCrudController extends AbstractCrudController
                        ->hideOnIndex()
         ;
         yield EmailField::new('email');
+        yield TextField::new('mobilePhone');
         yield DateField::new('birthdate');
         yield BooleanField::new('isActive');
         yield BooleanField::new('isVerified');
