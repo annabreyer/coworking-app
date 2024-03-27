@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\User;
 use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
-use App\Security\EmailVerifier;
+use App\Service\EmailVerifier;
 use App\Service\RegistrationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
@@ -54,8 +56,8 @@ class RegistrationServiceTest extends KernelTestCase
 
         $registrationService->registerUser($user, $plainPassword);
 
-        $this->assertNotNull($user->getAcceptedDataProtection());
-        $this->assertNotNull($user->getAcceptedCodeOfConduct());
+        self::assertNotNull($user->getAcceptedDataProtection());
+        self::assertNotNull($user->getAcceptedCodeOfConduct());
     }
 
     public function testRegisterUserChecksIfDataProtectionIsAlreadyAccepted(): void
@@ -102,20 +104,28 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testSendRegistrationEmailSendsEmail(): void
     {
-        $mailer            = static::getContainer()->get(MailerInterface::class);
-        $emailVerifier     = $this->createConfiguredMock(EmailVerifier::class,
+        $mailer        = static::getContainer()->get(MailerInterface::class);
+        $emailVerifier = $this->createConfiguredMock(
+            EmailVerifier::class,
             ['getEmailConfirmationContext' => [
                 'signedUrl'            => 'signedUrl',
                 'expiresAtMessageKey'  => 'ExpirationMessageKey',
                 'expiresAtMessageData' => ['ExpirationMessageData'],
-            ]])
+            ]]
+        )
         ;
         $translator        = $this->createMock(TranslatorInterface::class);
         $userManager       = $this->createMock(UserManager::class);
         $termsOfUseManager = $this->createMock(UserTermsOfUseManager::class);
 
-        $registrationService = new RegistrationService($userManager, $emailVerifier, $this->entityManager, $translator,
-            $mailer, $termsOfUseManager);
+        $registrationService = new RegistrationService(
+            $userManager,
+            $emailVerifier,
+            $this->entityManager,
+            $translator,
+            $mailer,
+            $termsOfUseManager
+        );
 
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $registrationService->sendRegistrationEmail($user);
@@ -131,7 +141,13 @@ class RegistrationServiceTest extends KernelTestCase
         $userManager       = $this->createMock(UserManager::class);
         $termsOfUseManager = $this->createMock(UserTermsOfUseManager::class);
 
-        return new RegistrationService($userManager, $emailVerifier, $this->entityManager, $translator,
-            $mailer, $termsOfUseManager);
+        return new RegistrationService(
+            $userManager,
+            $emailVerifier,
+            $this->entityManager,
+            $translator,
+            $mailer,
+            $termsOfUseManager
+        );
     }
 }

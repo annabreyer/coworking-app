@@ -46,12 +46,12 @@ class UserActionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (preg_match('/admin/', $request->getRequestUri())) {
-            // @todo
-        }
-
         $user = $this->security->getUser();
         if (null === $user || false === $user instanceof User) {
+            return;
+        }
+
+        if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SUPER_ADMIN')) {
             return;
         }
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Security;
+namespace App\Service;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +26,7 @@ class EmailVerifier
     public function getEmailConfirmationContext(string $verifyEmailRouteName, User $user): array
     {
         if (null === $user->getId() || null === $user->getEmail()) {
-            throw new \Exception('This user does not have a valid ID or email');
+            throw new \Exception('This user does not have a valid Id or email');
         }
 
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
@@ -34,7 +34,6 @@ class EmailVerifier
             (string) $user->getId(),
             $user->getEmail(),
             ['id' => $user->getId()]
-
         );
 
         $context['signedUrl']            = $signatureComponents->getSignedUrl();
@@ -50,7 +49,7 @@ class EmailVerifier
     public function handleEmailConfirmation(Request $request, User $user): void
     {
         if (null === $user->getId() || null === $user->getEmail()) {
-            throw new \Exception('This user does not have a valid ID or email');
+            throw new \Exception('This user does not have a valid Id or email');
         }
 
         $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), (string) $user->getId(), $user->getEmail());

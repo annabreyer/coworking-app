@@ -25,7 +25,7 @@ class PasswordForgottenService
     public function sendPasswordForgottenEmail(User $user, ResetPasswordToken $resetToken): void
     {
         if (null === $user->getEmail()) {
-            throw new \LogicException('User must have an email');
+            throw new \LogicException('User email is required to send password forgotten email');
         }
 
         $timeLimit = $this->translator->trans(

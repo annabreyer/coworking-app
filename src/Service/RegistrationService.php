@@ -7,7 +7,6 @@ namespace App\Service;
 use App\Entity\User;
 use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
-use App\Security\EmailVerifier;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -28,6 +27,7 @@ class RegistrationService
         private UserTermsOfUseManager $userTermsOfUseManager
     ) {
     }
+
     public function registerUser(User $user, string $plainPassword): void
     {
         if (null === $user->getPassword()) {
@@ -73,11 +73,9 @@ class RegistrationService
         $this->mailer->send($email);
     }
 
-
-
     private function saveCodeOfConductAcceptance(User $user): void
     {
-        if (null !== $user->getAcceptedCodeOfConduct()){
+        if (null !== $user->getAcceptedCodeOfConduct()) {
             throw new \LogicException('User Registration is finished. User already accepted the code of conduct');
         }
 
@@ -92,7 +90,7 @@ class RegistrationService
 
     private function saveDataProtectionAcceptance(User $user): void
     {
-        if (null !== $user->getAcceptedDataProtection()){
+        if (null !== $user->getAcceptedDataProtection()) {
             throw new \LogicException('User Registration is finished. User already accepted the data protection policy');
         }
 

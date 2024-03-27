@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -8,14 +10,12 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
-
     public function __construct(
         private UserPasswordHasherInterface $userPasswordHasher,
         private EntityManagerInterface $entityManager
-    )
-    {
-
+    ) {
     }
+
     public function saveUserPassword(User $user, string $plainPassword): void
     {
         $user->setPassword(
@@ -25,7 +25,7 @@ class UserManager
             )
         );
 
-        if ($user->getCreatedAt() === null) {
+        if (null === $user->getCreatedAt()) {
             $this->entityManager->persist($user);
         }
 

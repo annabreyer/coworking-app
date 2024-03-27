@@ -69,6 +69,23 @@ class AppFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('justRegisteredUser', $user);
+
+        $birthDate = new \DateTime('1981-05-12');
+
+        $user = new User();
+        $user->setEmail('admin@annabreyer.dev');
+        $user->setMobilePhone($this->faker->mobileNumber());
+        $user->setFirstName('Anna');
+        $user->setLastName('Breyer');
+        $user->setBirthdate($birthDate);
+        $password = $this->hasher->hashPassword($user, 'Passw0rd');
+        $user->setPassword($password);
+        $user->setRoles(['ROLE_SUPER_ADMIN']);
+
+        $manager->persist($user);
+        $manager->flush();
+
+        $this->addReference('admin', $user);
     }
 
     private function loadTermsOfUse(ObjectManager $manager): void

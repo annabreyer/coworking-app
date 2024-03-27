@@ -26,6 +26,10 @@ class UserTermsOfUseManager
         $userTermsOfUse = new UserTermsOfUse($user, $currentTermsOfUse);
         $userTermsOfUse->setAcceptedOn(new \DateTime());
 
+        if (null === $user->getId()) {
+            $this->entityManager->persist($user);
+        }
+
         $this->entityManager->persist($userTermsOfUse);
         $this->entityManager->flush();
     }
