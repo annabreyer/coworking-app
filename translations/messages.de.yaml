@@ -7,7 +7,7 @@ Sign in: 'Anmelden'
 Register: 'Registrieren'
 Registration: 'Registrierung'
 Please enter your phone number in international format, e.g. +491745124442': 'Bitte gib Deine Telefonnummer im internationalen Format ein, z.B. +491745124442'
-Please enter your phone number in international format: 'Bitte gib Deine Telefonnummer im internationalen Format ein'
+Please enter your phone number in international format. : 'Bitte gib Deine Telefonnummer im internationalen Format ein'
 You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
 Please sign in: 'Bitte melde Dich an'
 Email: 'E-Mail'
@@ -53,3 +53,4 @@ save: Speichern
 Edit my data: Meine Daten bearbeiten
 To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'
 To close your account, please send an Email to %email%: 'Um Dein Konto zu schließen, sende bitte eine E-Mail an %email%'
+Mobile phone: 'Handynummer'
