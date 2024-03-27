@@ -65,8 +65,8 @@ class RegistrationServiceTest extends KernelTestCase
         ]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
-        $user          = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
-        $plainPassword = 'Passw0rd';
+        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
+        $plainPassword       = 'Passw0rd';
         $user->setAcceptedDataProtection(new \DateTime());
 
         $this->expectException(\LogicException::class);
@@ -81,8 +81,8 @@ class RegistrationServiceTest extends KernelTestCase
         ]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
-        $user          = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
-        $plainPassword = 'Passw0rd';
+        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
+        $plainPassword       = 'Passw0rd';
         $user->setAcceptedCodeOfConduct(new \DateTime());
 
         $this->expectException(\LogicException::class);
@@ -90,6 +90,38 @@ class RegistrationServiceTest extends KernelTestCase
         $registrationService->registerUser($user, $plainPassword);
     }
 
+    public function testSendRegistrationEmailThrowsExceptionIfUserHasNoEmail(): void
+    {
+        $registrationService = $this->getRegistrationServiceWithEntityManager();
+        $user                = new User();
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('User email is required to send registration email');
+        $registrationService->sendRegistrationEmail($user);
+    }
+
+    public function testSendRegistrationEmailSendsEmail(): void
+    {
+        $mailer            = static::getContainer()->get(MailerInterface::class);
+        $emailVerifier     = $this->createConfiguredMock(EmailVerifier::class,
+            ['getEmailConfirmationContext' => [
+                'signedUrl'            => 'signedUrl',
+                'expiresAtMessageKey'  => 'ExpirationMessageKey',
+                'expiresAtMessageData' => ['ExpirationMessageData'],
+            ]])
+        ;
+        $translator        = $this->createMock(TranslatorInterface::class);
+        $userManager       = $this->createMock(UserManager::class);
+        $termsOfUseManager = $this->createMock(UserTermsOfUseManager::class);
+
+        $registrationService = new RegistrationService($userManager, $emailVerifier, $this->entityManager, $translator,
+            $mailer, $termsOfUseManager);
+
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $registrationService->sendRegistrationEmail($user);
+
+        $this->assertEmailCount(1);
+    }
 
     private function getRegistrationServiceWithEntityManager(): RegistrationService
     {
