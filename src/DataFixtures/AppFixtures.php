@@ -25,21 +25,21 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $this->loadTermsOfUse($manager);
-        $this->loadUser($manager);
+        $this->loadUsers($manager);
 
         $manager->flush();
     }
 
-    private function loadUser(ObjectManager $manager): void
+    private function loadUsers(ObjectManager $manager): void
     {
         $birthDate = new \DateTime('1978-06-30');
         $otherDate = new \DateTime('last week');
 
         $user = new User();
         $user->setEmail('user.one@annabreyer.dev');
-        $user->setMobilePhone($this->faker->mobileNumber);
-        $user->setFirstName($this->faker->firstName);
-        $user->setLastName($this->faker->lastName);
+        $user->setMobilePhone($this->faker->mobileNumber());
+        $user->setFirstName($this->faker->firstName());
+        $user->setLastName($this->faker->lastName());
         $user->setBirthdate($birthDate);
         $user->setAcceptedDataProtection($otherDate);
         $user->setAcceptedCodeOfConduct($otherDate);
@@ -51,10 +51,24 @@ class AppFixtures extends Fixture
 
         $this->addReference('user1', $user);
 
-        $userTermsOfUse = new UserTermsOfUse($user, $this->getReference('terms-of-use-1.0'));
+        $userTermsOfUse = new UserTermsOfUse($user, $this->getReference('terms-of-use-1.0', TermsOfUse::class));
         $userTermsOfUse->setAcceptedOn($otherDate);
         $manager->persist($userTermsOfUse);
         $manager->flush();
+
+        $birthDate = new \DateTime('1978-07-30');
+
+        $user = new User();
+        $user->setEmail('just.registered@annabreyer.dev');
+        $user->setMobilePhone($this->faker->mobileNumber());
+        $user->setFirstName($this->faker->firstName());
+        $user->setLastName($this->faker->lastName());
+        $user->setBirthdate($birthDate);
+
+        $manager->persist($user);
+        $manager->flush();
+
+        $this->addReference('justRegisteredUser', $user);
     }
 
     private function loadTermsOfUse(ObjectManager $manager): void

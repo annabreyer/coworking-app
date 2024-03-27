@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\User;
+use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
 use App\Security\EmailVerifier;
 use App\Trait\EmailContextTrait;
@@ -12,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationService
@@ -20,33 +20,22 @@ class RegistrationService
     use EmailContextTrait;
 
     public function __construct(
+        private UserManager $userManager,
         private EmailVerifier $emailVerifier,
-        private UserPasswordHasherInterface $userPasswordHasher,
         private EntityManagerInterface $entityManager,
-        private UserTermsOfUseManager $userTermsOfUseManager,
         private TranslatorInterface $translator,
-        private MailerInterface $mailer
+        private MailerInterface $mailer,
+        private UserTermsOfUseManager $userTermsOfUseManager
     ) {
     }
-
-    public function saveUserFromRegistrationForm(User $user, string $plainPassword): void
+    public function registerUser(User $user, string $plainPassword): void
     {
-        // encode the plain password
-        $user->setPassword(
-            $this->userPasswordHasher->hashPassword(
-                $user,
-                $plainPassword
-            )
-        );
+        if (null === $user->getPassword()) {
+            $this->userManager->saveUserPassword($user, $plainPassword);
+        }
 
-        $now = new \DateTimeImmutable('now');
-        $user->setAcceptedDataProtection($now);
-        $user->setAcceptedCodeOfConduct($now);
-
-        $this->entityManager->persist($user);
-
-        $this->entityManager->flush();
-
+        $this->saveCodeOfConductAcceptance($user);
+        $this->saveDataProtectionAcceptance($user);
         $this->userTermsOfUseManager->saveAcceptanceTermsOfUse($user);
     }
 
@@ -82,5 +71,37 @@ class RegistrationService
         ;
 
         $this->mailer->send($email);
+    }
+
+
+
+    private function saveCodeOfConductAcceptance(User $user): void
+    {
+        if (null !== $user->getAcceptedCodeOfConduct()){
+            throw new \LogicException('User Registration is finished. User already accepted the code of conduct');
+        }
+
+        $user->setAcceptedCodeOfConduct(new \DateTime());
+
+        if (null === $user->getId()) {
+            $this->entityManager->persist($user);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    private function saveDataProtectionAcceptance(User $user): void
+    {
+        if (null !== $user->getAcceptedDataProtection()){
+            throw new \LogicException('User Registration is finished. User already accepted the data protection policy');
+        }
+
+        $user->setAcceptedDataProtection(new \DateTime());
+
+        if (null === $user->getId()) {
+            $this->entityManager->persist($user);
+        }
+
+        $this->entityManager->flush();
     }
 }

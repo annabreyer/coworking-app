@@ -27,7 +27,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, RegistrationService $registrationManager, Security $security): ?Response
+    public function register(Request $request, RegistrationService $registrationService, Security $security): ?Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -36,8 +36,8 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('plainPassword')->getData();
 
-            $registrationManager->saveUserFromRegistrationForm($user, $plainPassword);
-            $registrationManager->sendRegistrationEmail($user);
+            $registrationService->registerUser($user, $plainPassword);
+            $registrationService->sendRegistrationEmail($user);
 
             $this->addFlash('success', 'Your account has been created. Please check your email for a verification link.');
 
