@@ -21,28 +21,13 @@ class BusinessDayRepository extends ServiceEntityRepository
         parent::__construct($registry, BusinessDay::class);
     }
 
-//    /**
-//     * @return BusinessDay[] Returns an array of BusinessDay objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('b.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?BusinessDay
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findLastBusinessDay(): ?BusinessDay
+    {
+        return $this->createQueryBuilder('b')
+            ->orderBy('b.date', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

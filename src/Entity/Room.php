@@ -26,6 +26,9 @@ class Room
     #[ORM\OneToMany(mappedBy: 'room', targetEntity: WorkStation::class)]
     private Collection $workStations;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $capacity = null;
+
     public function __construct()
     {
         $this->workStations = new ArrayCollection();
@@ -88,5 +91,22 @@ class Room
         }
 
         return $this;
+    }
+
+    public function getCapacity(): ?int
+    {
+        return $this->capacity;
+    }
+
+    public function setCapacity(?int $capacity): static
+    {
+        $this->capacity = $capacity;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }

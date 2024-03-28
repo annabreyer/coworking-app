@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: BusinessDayRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_DATE', fields: ['date'])]
 class BusinessDay
 {
     use TimestampableEntity;
@@ -89,5 +90,15 @@ class BusinessDay
         }
 
         return $this;
+    }
+
+    public function getWeekDayLong()
+    {
+        return $this->date->format('l');
+    }
+
+    public function getWeekDayShort()
+    {
+        return $this->date->format('D');
     }
 }

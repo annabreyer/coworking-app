@@ -23,6 +23,9 @@ class WorkStation
     #[ORM\ManyToOne(inversedBy: 'workStations')]
     private ?Room $room = null;
 
+    #[ORM\Column]
+    private bool $isOpen = true;
+
     #[ORM\OneToMany(mappedBy: 'workStation', targetEntity: Booking::class, orphanRemoval: true)]
     private Collection $bookings;
 
@@ -88,5 +91,14 @@ class WorkStation
         }
 
         return $this;
+    }
+    public function isOpen(): bool
+    {
+        return $this->isOpen;
+    }
+
+    public function setIsOpen(bool $isOpen): void
+    {
+        $this->isOpen = $isOpen;
     }
 }
