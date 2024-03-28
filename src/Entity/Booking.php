@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use App\Repository\BookingRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
 {
+    use TimestampableEntity;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
