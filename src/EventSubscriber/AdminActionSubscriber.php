@@ -39,7 +39,7 @@ class AdminActionSubscriber implements EventSubscriberInterface
             throw new \LogicException('Currently logged in user is not an instance of User?!');
         }
 
-        $normalizedUser = $this->serializer->normalize($user, 'json');
+        $normalizedUser = $this->serializer->normalize($user, null, ['groups' => 'admin_action']);
 
         $adminAction = new AdminAction();
         $adminAction

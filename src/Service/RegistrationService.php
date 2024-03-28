@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Entity\User;
 use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
+use App\Service\Security\EmailVerifier;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;

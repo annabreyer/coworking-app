@@ -13,6 +13,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -21,26 +22,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableEntity;
 
+    #[Groups(['admin_action'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $firstName = null;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $lastName = null;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $birthdate = null;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
+    #[Groups(['admin_action'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -56,9 +63,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $acceptedDataProtection = null;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
@@ -68,6 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ResetPasswordRequest::class, cascade: ['persist', 'remove'])]
     private Collection $resetPasswordRequests;
 
+    #[Groups(['admin_action'])]
     #[ORM\Column(type: 'string')]
     private ?string $mobilePhone = null;
 
