@@ -87,6 +87,7 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame('/user/edit', $userAction->getRequestUri());
         self::assertSame($user, $userAction->getUser());
         self::assertSame($testdata, $userAction->getData());
+        self::assertSame('POST', $userAction->getMethod());
     }
 
     public function testLoggedInUserPutActionIsSaved(): void
@@ -107,6 +108,8 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame('/user/edit', $userAction->getRequestUri());
         self::assertSame($user, $userAction->getUser());
         self::assertSame($testdata, $userAction->getData());
+        self::assertSame('PUT', $userAction->getMethod());
+
     }
 
     public function testLoggedInUserPatchActionIsSaved(): void
@@ -127,6 +130,8 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame('/user/edit', $userAction->getRequestUri());
         self::assertSame($user, $userAction->getUser());
         self::assertSame($testdata, $userAction->getData());
+        self::assertSame('PATCH', $userAction->getMethod());
+
     }
 
     public function testLoggedInUserDeleteActionIsSaved(): void
@@ -147,5 +152,7 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame('/user/edit', $userAction->getRequestUri());
         self::assertSame($user, $userAction->getUser());
         self::assertSame($testdata, $userAction->getData());
+        self::assertSame('DELETE', $userAction->getMethod());
+
     }
 }

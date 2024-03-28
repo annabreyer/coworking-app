@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller\Admin;
 
@@ -8,6 +8,7 @@ use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -24,9 +25,19 @@ class UserCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
                      ->hideOnForm()
+                     ->hideOnDetail()
         ;
         yield TextField::new('fullName')
                        ->hideOnForm()
+                       ->hideOnDetail()
+        ;
+        yield ChoiceField::new('roles')
+                         ->allowMultipleChoices()
+                         ->setChoices(['ROLE_USER'        => 'ROLE_USER',
+                                       'ROLE_ADMIN'       => 'ROLE_ADMIN',
+                                       'ROLE_SUPER_ADMIN' => 'ROLE_SUPER_ADMIN',
+                         ])
+                         ->hideOnIndex()
         ;
         yield TextField::new('firstName')
                        ->hideOnIndex()

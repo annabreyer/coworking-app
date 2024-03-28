@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use App\Entity\AdminAction;
 use App\Entity\User;
 use App\Entity\UserAction;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,7 +48,7 @@ class UserActionSubscriber implements EventSubscriberInterface
         }
 
         $user = $this->security->getUser();
-        if (null === $user || false === $user instanceof User) {
+        if (false === $user instanceof User) {
             return;
         }
 
@@ -63,7 +64,7 @@ class UserActionSubscriber implements EventSubscriberInterface
         $data  = $request->request->all();
         $match = preg_grep('/form/', array_keys($data));
 
-        if (false !== $match && false === empty($match)) {
+        if (false === empty($match)) {
             $formName = $match[0];
             $data     = $data[$formName];
         }
@@ -71,6 +72,7 @@ class UserActionSubscriber implements EventSubscriberInterface
         $action = new UserAction();
         $action->setUser($user);
         $action->setRequestUri($request->getRequestUri());
+        $action->setMethod($request->getMethod());
         $action->setData($data);
 
         if (isset($formName)) {
@@ -79,13 +81,5 @@ class UserActionSubscriber implements EventSubscriberInterface
 
         $this->entityManager->persist($action);
         $this->entityManager->flush();
-    }
-
-    public function saveAdminRequest(User $user, Request $request): void
-    {
-        //        $match = preg_grep('/ea/', array_keys($data));
-        //        if (false === empty($match)) {
-        //            $formName = $match[0];
-        //        }
     }
 }

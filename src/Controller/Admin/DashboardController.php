@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Entity\AdminAction;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -49,5 +51,12 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('User', 'fas fa-user', User::class);
         yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
+        yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
+    }
+
+    public function configureAssets(): Assets
+    {
+        return parent::configureAssets()
+                     ->addCssFile('css/admin.css');
     }
 }

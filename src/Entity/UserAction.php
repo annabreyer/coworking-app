@@ -33,6 +33,9 @@ class UserAction
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $requestUri = null;
 
+    #[ORM\Column(length: 10)]
+    private ?string $method = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -101,5 +104,17 @@ class UserAction
         }
 
         return $encodedData;
+    }
+
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
+
+    public function setMethod(string $method): static
+    {
+        $this->method = $method;
+
+        return $this;
     }
 }

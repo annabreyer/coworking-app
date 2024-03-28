@@ -74,11 +74,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserAction::class)]
     private Collection $userActions;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AdminAction::class)]
+    private Collection $adminActions;
+
     public function __construct()
     {
         $this->acceptedTermsOfUse    = new ArrayCollection();
         $this->resetPasswordRequests = new ArrayCollection();
         $this->userActions           = new ArrayCollection();
+        $this->adminActions          = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -306,6 +310,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($userAction->getUser() === $this) {
                 $userAction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AdminAction>
+     */
+    public function getAdminActions(): Collection
+    {
+        return $this->adminActions;
+    }
+
+    public function addAdminAction(AdminAction $adminAction): static
+    {
+        if (!$this->adminActions->contains($adminAction)) {
+            $this->adminActions->add($adminAction);
+            $adminAction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAdminAction(AdminAction $adminAction): static
+    {
+        if ($this->adminActions->removeElement($adminAction)) {
+            // set the owning side to null (unless already changed)
+            if ($adminAction->getUser() === $this) {
+                $adminAction->setUser(null);
             }
         }
 
