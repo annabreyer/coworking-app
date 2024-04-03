@@ -29,8 +29,11 @@ class Room
     #[ORM\Column(nullable: true)]
     private ?int $capacity = null;
 
+    #[ORM\OneToMany(mappedBy: 'room', targetEntity: Booking::class, orphanRemoval: true)]
+    private Collection $bookings;
     public function __construct()
     {
+        $this->bookings = new ArrayCollection();
         $this->workStations = new ArrayCollection();
     }
 
@@ -108,5 +111,34 @@ class Room
     public function __toString(): string
     {
         return $this->name;
+    }
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+
+    public function addBooking(Booking $booking): static
+    {
+        if (false === $this->bookings->contains($booking)) {
+            $this->bookings->add($booking);
+            $booking->setRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBooking(Booking $booking): static
+    {
+        if ($this->bookings->removeElement($booking)) {
+            // set the owning side to null (unless already changed)
+            if ($booking->getRoom() === $this) {
+                $booking->setRoom(null);
+            }
+        }
+
+        return $this;
     }
 }

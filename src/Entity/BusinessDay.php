@@ -50,7 +50,7 @@ class BusinessDay
         return $this;
     }
 
-    public function isIsOpen(): bool
+    public function isOpen(): bool
     {
         return $this->isOpen;
     }

@@ -12,6 +12,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 class WorkStation
 {
     use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -92,6 +93,7 @@ class WorkStation
 
         return $this;
     }
+
     public function isOpen(): bool
     {
         return $this->isOpen;

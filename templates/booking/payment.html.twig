@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Booking'|trans }}{% endblock %}
+
+{% block body %}
+    You have made the following booking:
+
+    <ul>
+        <li>Room: {{ booking.room.name }}</li>
+        <li>Date: {{ booking.businessDay.date|date('Y-m-d') }}</li>
+    </ul>
+{% endblock %}

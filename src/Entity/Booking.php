@@ -24,8 +24,12 @@ class Booking
     private ?BusinessDay $businessDay = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?WorkStation $workStation = null;
+
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Room $room = null;
 
     public function getId(): ?int
     {
@@ -66,5 +70,15 @@ class Booking
         $this->workStation = $workStation;
 
         return $this;
+    }
+
+    public function getRoom(): ?Room
+    {
+        return $this->room;
+    }
+
+    public function setRoom(?Room $room): void
+    {
+        $this->room = $room;
     }
 }

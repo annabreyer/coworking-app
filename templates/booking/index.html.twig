@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Booking'|trans }}{% endblock %}
+
+
+{% block body %}
+<h1>{{ 'Booking'|trans }}</h1>
+
+{% for error in app.flashes('error') %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+{% endfor %}
+
+        <form method="post" action="{{ path('booking_step_date') }}">
+        <label for="date">{{ 'Date'|trans }}</label>
+        <input type="date" id="date" name="date"
+               max="{{ lastDay }}"
+               min="{{ firstDay }}"
+               value="{{ date }}">
+        <input type="hidden" name="token" value="{{ csrf_token('date') }}">
+        </form>
+
+        {% if step == 2 %}
+        <form method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
+        <label for="room">{{ 'Room'|trans }}</label>
+                <select id="room" name="room">
+                    {% for option in bookingOption %}
+                        <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }}>
+                            {{ option.roomName }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">{{ 'Book'|trans }}</button>
+            {% endif %}
+            <input type="hidden" name="token" value="{{ csrf_token('room') }}">
+        </form>
+
+    <script>
+        document.getElementById('date').addEventListener('change', function () {
+            this.form.submit();
+        });
+    </script>
+{% endblock %}
