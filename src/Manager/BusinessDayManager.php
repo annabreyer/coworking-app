@@ -22,7 +22,7 @@ class BusinessDayManager
         $startDate = $startDate ? $startDate->getDate() : new \DateTime();
 
         $interval = new \DateInterval('P1D');
-        $dateRange = new \DatePeriod($startDate, $interval, $endDate);
+        $dateRange = new \DatePeriod($startDate, $interval, $endDate->modify('+1 day'));
 
         foreach ($dateRange as $date) {
             if ($this->businessDayRepository->findOneBy(['date' => $date])) {

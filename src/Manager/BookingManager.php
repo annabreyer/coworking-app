@@ -27,9 +27,6 @@ class BookingManager
         $this->entityManager->persist($booking);
         $this->entityManager->flush();
 
-        //@todo send Email to me for booking
-
         return $booking;
     }
-
 }

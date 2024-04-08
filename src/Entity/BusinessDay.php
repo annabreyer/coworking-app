@@ -101,4 +101,11 @@ class BusinessDay
     {
         return $this->date->format('D');
     }
+
+    public function getBookingsForRoom(Room $room)
+    {
+        return $this->bookings->filter(
+            fn (Booking $booking) => $booking->getRoom() === $room
+        );
+    }
 }

@@ -54,7 +54,7 @@ class Room
         return $this;
     }
 
-    public function isIsOpen(): bool
+    public function isOpen(): bool
     {
         return $this->isOpen;
     }

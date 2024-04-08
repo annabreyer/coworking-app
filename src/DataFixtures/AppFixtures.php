@@ -1,9 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\DataFixtures;
 
+use App\Entity\Booking;
+use App\Entity\BusinessDay;
+use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserTermsOfUse;
@@ -26,6 +29,9 @@ class AppFixtures extends Fixture
     {
         $this->loadTermsOfUse($manager);
         $this->loadUsers($manager);
+        $this->loadBusinessDays($manager);
+        $this->loadRooms($manager);
+        $this->loadBookings($manager);
 
         $manager->flush();
     }
@@ -99,5 +105,79 @@ class AppFixtures extends Fixture
         $manager->persist($termsOfUse);
         $manager->flush();
         $this->addReference('terms-of-use-1.0', $termsOfUse);
+    }
+
+    private function loadBusinessDays(ObjectManager $manager): void
+    {
+        $startDate = new \DateTime('2024-01-01');
+        $endDate   = new \DateTime('2024-06-01');
+        $interval  = new \DateInterval('P1D');
+        $dateRange = new \DatePeriod($startDate, $interval, $endDate);
+
+        foreach ($dateRange as $date) {
+            $businessDay = new BusinessDay();
+            $businessDay->setDate($date);
+
+            $manager->persist($businessDay);
+            $this->addReference('businessDay-' . $date->format('Y-m-d'), $businessDay);
+
+            if ($date->format('N') > 5) {
+                $businessDay->setIsOpen(false);
+            }
+        }
+
+        $manager->flush();
+    }
+
+    public function loadRooms(ObjectManager $manager)
+    {
+        $room = new Room();
+        $room->setName('Room 1');
+        $room->setCapacity(6);
+
+        $manager->persist($room);
+
+        $room2 = new Room();
+        $room2->setName('Room 2');
+        $room2->setCapacity(0);
+
+        $manager->persist($room2);
+
+        $room3 = new Room();
+        $room3->setName('Room 3');
+        $room3->setCapacity(2);
+
+        $manager->persist($room3);
+        $manager->flush();
+
+        $this->addReference('room1', $room);
+        $this->addReference('room3', $room3);
+    }
+
+    public function loadBookings(ObjectManager $manager)
+    {
+        $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
+        $room        = $this->getReference('room1', Room::class);
+
+        for ($i = 0; $i < $room->getCapacity(); $i++) {
+            $booking = new Booking();
+            $booking->setBusinessDay($businessDay);
+            $booking->setRoom($room);
+            $booking->setUser($this->getReference('user1', User::class));
+
+            $manager->persist($booking);
+        }
+
+        $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
+        $room3       = $this->getReference('room3', Room::class);
+
+        $booking = new Booking();
+        $booking->setBusinessDay($businessDay);
+        $booking->setRoom($room3);
+        $booking->setUser($this->getReference('user1', User::class));
+
+        $manager->persist($booking);
+
+        $manager->flush();
     }
 }
