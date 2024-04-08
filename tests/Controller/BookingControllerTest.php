@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -21,7 +23,7 @@ class BookingControllerTest extends WebTestCase
      */
     protected $databaseTool;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
     }
@@ -41,7 +43,7 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking');
         $this->assertResponseIsSuccessful();
-        $this->assertCount(1, $crawler->filter('h1'));
+        self::assertCount(1, $crawler->filter('h1'));
     }
 
     public function testStepDateTemplateContainsDatepicker(): void
@@ -59,7 +61,7 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking');
         $this->assertResponseIsSuccessful();
-        $this->assertCount(1, $crawler->filter('input[type="date"]'));
+        self::assertCount(1, $crawler->filter('input[type="date"]'));
     }
 
     public function testStepDateTemplateDatepickerIsSetOnCurrentDay()
@@ -79,9 +81,9 @@ class BookingControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/booking');
         $this->assertResponseIsSuccessful();
         $datepicker = $crawler->filter('input[type="date"]');
-        $this->assertCount(1, $datepicker);
-        $this->assertSame('2024-05-01', $datepicker->attr('value'));
-        $this->assertSame('2024-05-01', $datepicker->attr('min'));
+        self::assertCount(1, $datepicker);
+        self::assertSame('2024-05-01', $datepicker->attr('value'));
+        self::assertSame('2024-05-01', $datepicker->attr('min'));
     }
 
     public function testStepDateTemplateDatepickerMaxMatchesDatabase()
@@ -100,8 +102,8 @@ class BookingControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/booking');
         $this->assertResponseIsSuccessful();
         $datepicker = $crawler->filter('input[type="date"]');
-        $this->assertCount(1, $datepicker);
-        $this->assertSame('2024-05-31', $datepicker->attr('max'));
+        self::assertCount(1, $datepicker);
+        self::assertSame('2024-05-31', $datepicker->attr('max'));
     }
 
     public function testStepDatePostErrorWithInvalidCsrfToken(): void
@@ -273,7 +275,7 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $this->assertResponseIsSuccessful();
-        $this->assertCount(1, $crawler->filter('h1'));
+        self::assertCount(1, $crawler->filter('h1'));
     }
 
     public function testStepRoomTemplateContainsDatePickerAndSelect(): void
@@ -294,9 +296,9 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $this->assertResponseIsSuccessful();
-        $this->assertCount(2, $crawler->filter('form'));
-        $this->assertCount(1, $crawler->filter('input[type="date"]'));
-        $this->assertCount(1, $crawler->filter('select'));
+        self::assertCount(2, $crawler->filter('form'));
+        self::assertCount(1, $crawler->filter('input[type="date"]'));
+        self::assertCount(1, $crawler->filter('select'));
     }
 
     public function testStepRoomTemplateSelectOptionIsDisabledIfFullyBooked(): void
@@ -319,7 +321,7 @@ class BookingControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $this->assertResponseIsSuccessful();
         $selectOption = $crawler->filter('option');
-        $this->assertSame('', $selectOption->attr('disabled'));
+        self::assertSame('', $selectOption->attr('disabled'));
     }
 
     public function testStepRoomPostErrorWithInvalidCsrfToken(): void
@@ -508,7 +510,7 @@ class BookingControllerTest extends WebTestCase
                          ])
         ;
 
-        $this->assertNotNull($booking);
+        self::assertNotNull($booking);
         $this->assertResponseRedirects('/booking/' . $booking->getId() . '/payment');
     }
 
@@ -556,9 +558,8 @@ class BookingControllerTest extends WebTestCase
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
-
 
         $date        = new \DateTimeImmutable('2024-04-01');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
@@ -571,19 +572,16 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getId() . '/payment';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();
-        $this->assertCount(2, $crawler->filter('li'));
+        self::assertCount(2, $crawler->filter('li'));
     }
-
-
-
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        unset($this->databaseTool);
+        $this->databaseTool = null;
     }
 }

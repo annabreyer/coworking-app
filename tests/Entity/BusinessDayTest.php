@@ -1,11 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Room;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class BusinessDayTest extends KernelTestCase
@@ -18,7 +19,7 @@ class BusinessDayTest extends KernelTestCase
         $booking->setRoom($room);
         $businessDay->addBooking($booking);
 
-        $this->assertIsIterable($businessDay->getBookingsForRoom($room));
+        self::assertIsIterable($businessDay->getBookingsForRoom($room));
     }
 
     public function testGetBookingsForRoomReturnsCorrectRoom(): void
@@ -29,7 +30,7 @@ class BusinessDayTest extends KernelTestCase
         $booking->setRoom($room);
         $businessDay->addBooking($booking);
 
-        $this->assertCount(1, $businessDay->getBookingsForRoom($room));
-        $this->assertSame($booking, $businessDay->getBookingsForRoom($room)[0]);
+        self::assertCount(1, $businessDay->getBookingsForRoom($room));
+        self::assertSame($booking, $businessDay->getBookingsForRoom($room)[0]);
     }
 }
