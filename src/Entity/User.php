@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -88,6 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $adminActions;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Booking::class, orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
     private Collection $bookings;
 
     public function __construct()
@@ -96,7 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->resetPasswordRequests = new ArrayCollection();
         $this->userActions           = new ArrayCollection();
         $this->adminActions          = new ArrayCollection();
-        $this->bookings = new ArrayCollection();
+        $this->bookings              = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -123,7 +124,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -185,7 +186,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function addAcceptedTermsOfUse(UserTermsOfUse $acceptedTermsOfUse): static
     {
         if (
-            false    === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
+            false === $this->acceptedTermsOfUse->contains($acceptedTermsOfUse)
             && $this === $acceptedTermsOfUse->getUser()
         ) {
             $this->acceptedTermsOfUse->add($acceptedTermsOfUse);

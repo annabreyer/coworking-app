@@ -18,10 +18,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class BookingController extends AbstractController
 {
     public function __construct(
-        private BookingService $bookingService,
-        private BusinessDayRepository $businessDayRepository,
-        private RoomRepository $roomRepository,
-        private ClockInterface $clock
+        private readonly BookingService $bookingService,
+        private readonly BookingManager $bookingManager,
+        private readonly BusinessDayRepository $businessDayRepository,
+        private readonly RoomRepository $roomRepository,
+        private readonly ClockInterface $clock,
+        private readonly string $timeLimitCancelBooking
     ) {
     }
 
@@ -33,7 +35,7 @@ class BookingController extends AbstractController
         }
 
         $response       = new Response();
-        $submittedToken = $request->getPayload()->get('token');
+        $submittedToken = $request->getPayload()->get('token_date');
 
         if (false === $this->isCsrfTokenValid('date', $submittedToken)) {
             $this->addFlash('error', 'Invalid CSRF Token');
@@ -85,8 +87,7 @@ class BookingController extends AbstractController
     #[Route('/booking/{businessDay}/room', name: 'booking_step_room', methods: ['GET', 'POST'])]
     public function bookingStepRoom(
         Request $request,
-        BusinessDay $businessDay,
-        BookingManager $bookingManager
+        BusinessDay $businessDay
     ): Response {
         if (false === $request->isMethod('POST')) {
             return $this->renderStepRoom(new Response(), $businessDay);
@@ -137,25 +138,40 @@ class BookingController extends AbstractController
             return $this->renderStepRoom($response, $businessDay);
         }
 
-        $booking = $bookingManager->saveBooking($user, $businessDay, $room);
+        $booking = $this->bookingManager->saveBooking($user, $businessDay, $room);
         //@todo send email for booking
 
         return $this->redirectToRoute('booking_step_payment', ['booking' => $booking->getId()]);
     }
 
-    #[Route('/booking/{booking}/payment', name: 'booking_step_payment')]
-    public function bookingStepThree(
-        Request $request,
-        Booking $booking,
-    ): Response {
-
-        if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+    #[Route('/booking/{booking}/cancel', name: 'booking_cancel', methods: ['POST'])]
+    public function cancelBooking(Booking $booking, Request $request): Response
+    {
+        $user = $this->getUser();
+        if ($user !== $booking->getUser()) {
+            throw $this->createAccessDeniedException('You are not allowed to cancel this booking.');
         }
 
-        return $this->render('booking/payment.html.twig', [
-            'booking' => $booking,
-        ]);
+        $bookingId = $request->request->get('bookingId');
+        if ($bookingId !== $booking->getId()){
+            $this->addFlash('error', 'Booking can not be cancelled.');
+            return $this->redirect($request->headers->get('referer'));        }
+
+        if ($booking->getBusinessDay()->getDate() < $this->clock->now()) {
+            $this->addFlash('error', 'Booking is already in the past. It can not be cancelled.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        if (false === $this->bookingManager->canBookingBeCancelled($booking)) {
+            $this->addFlash('error', sprintf('Bookings can only be cancelled %s before their date.', $this->timeLimitCancelBooking));
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        $bookingDate = $booking->getBusinessDay()->getDate();
+        $this->bookingManager->cancelBooking($booking);
+        $this->addFlash('success', sprintf('Booking for date %s has been cancelled', $bookingDate->format('Y-m-d')));
+
+        return $this->redirect($request->headers->get('referer'));
     }
 
     private function renderStepDate(Response $response, \DateTimeImmutable $dateTime): Response

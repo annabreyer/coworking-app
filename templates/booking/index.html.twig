@@ -14,7 +14,7 @@
         <label for="date">{{ 'Date'|trans }}</label>
         <input type="date" id="date" name="date"
                max="{{ lastDay }}"
-               min="{{ date }}"
+               min="{{ firstDay }}"
                value="{{ date }}">
         <input type="hidden" name="token_date" value="{{ csrf_token('date') }}">
     </form>

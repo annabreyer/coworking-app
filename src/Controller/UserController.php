@@ -1,18 +1,21 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller;
 
 use App\Form\UserDataFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class UserController extends AbstractController
 {
+    use ClockAwareTrait;
+
     #[Route('/user', name: 'user_show')]
     public function showUser(): Response
     {
@@ -41,6 +44,17 @@ class UserController extends AbstractController
 
         return $this->render('user/edit_user.html.twig', [
             'userForm' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/user/bookings', name: 'user_bookings')]
+    public function showUserBookings(): Response
+    {
+        $user = $this->getUser();
+
+        return $this->render('user/bookings.html.twig', [
+            'user' => $user,
+            'now'  => $this->now(),
         ]);
     }
 }
