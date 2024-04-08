@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\AdminAction;
+use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Room;
 use App\Entity\TermsOfUse;
@@ -60,6 +61,7 @@ class DashboardController extends AbstractDashboardController
         Yield MenuItem::linkToCrud('BusinessDays', 'fas fa-calendar', BusinessDay::class);
         yield MenuItem::linkToCrud('Room', 'fas fa-door-open', Room::class);
         yield MenuItem::linkToCrud('Workstation', 'fas fa-chair', WorkStation::class);
+        yield MenuItem::linkToCrud('Booking', 'fas fa-file-contract', Booking::class);
     }
 
     public function configureAssets(): Assets

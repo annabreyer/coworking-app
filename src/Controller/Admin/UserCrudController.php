@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -33,9 +34,10 @@ class UserCrudController extends AbstractCrudController
         ;
         yield ChoiceField::new('roles')
                          ->allowMultipleChoices()
-                         ->setChoices(['ROLE_USER'        => 'ROLE_USER',
-                                       'ROLE_ADMIN'       => 'ROLE_ADMIN',
-                                       'ROLE_SUPER_ADMIN' => 'ROLE_SUPER_ADMIN',
+                         ->setChoices([
+                             'ROLE_USER'        => 'ROLE_USER',
+                             'ROLE_ADMIN'       => 'ROLE_ADMIN',
+                             'ROLE_SUPER_ADMIN' => 'ROLE_SUPER_ADMIN',
                          ])
                          ->hideOnIndex()
         ;
@@ -60,6 +62,12 @@ class UserCrudController extends AbstractCrudController
         yield AssociationField::new('acceptedTermsOfUse')
                               ->hideOnForm()
                               ->hideOnIndex()
+        ;
+        yield CollectionField::new('bookings')
+                             ->renderExpanded()
+                             ->setEntryIsComplex()
+                             ->useEntryCrudForm()
+                             ->setFormTypeOption('label', false)
         ;
     }
 }

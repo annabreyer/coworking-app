@@ -108,4 +108,9 @@ class BusinessDay
             fn (Booking $booking) => $booking->getRoom() === $room
         );
     }
+
+    public function __toString(): string
+    {
+        return $this->date->format('Y-m-d');
+    }
 }
