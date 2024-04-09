@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\EventSubscriber;
 
+use App\Repository\BusinessDayRepository;
 use App\Repository\UserActionsRepository;
 use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 class UserActionSubscriberTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     protected function setUp(): void
     {
         parent::setUp();
@@ -151,5 +154,32 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame($user, $userAction->getUser());
         self::assertSame($testdata, $userAction->getData());
         self::assertSame('DELETE', $userAction->getMethod());
+    }
+
+    public function testExcludedUriIsExcluded()
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-05-10');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+
+        $crawler = $client->request('GET', '/booking');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->setValues(['date' => '2024-05-10']);
+        $client->submit($form);;
+
+        $this->assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
+        $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $testUser]);
+        self::assertNull($userAction);
     }
 }

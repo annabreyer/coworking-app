@@ -20,6 +20,11 @@ class UserActionSubscriber implements EventSubscriberInterface
      */
     private array $subscribedMethods;
 
+    /**
+     * @var string[]
+     */
+    private array $excludedUri;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private Security $security
@@ -29,6 +34,11 @@ class UserActionSubscriber implements EventSubscriberInterface
             Request::METHOD_PUT,
             Request::METHOD_PATCH,
             Request::METHOD_DELETE,
+        ];
+
+
+        $this->excludedUri = [
+            '/booking',
         ];
     }
 
@@ -47,6 +57,10 @@ class UserActionSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if (\in_array($request->getRequestUri(), $this->excludedUri, true)) {
+            return;
+        }
+
         $user = $this->security->getUser();
         if (false === $user instanceof User) {
             return;
@@ -54,6 +68,10 @@ class UserActionSubscriber implements EventSubscriberInterface
 
         if ($this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SUPER_ADMIN')) {
             return;
+        }
+
+        if ($this->security->isGranted('ROLE_USER')) {
+            $this->saveUserRequest($user, $request);
         }
 
         $this->saveUserRequest($user, $request);
