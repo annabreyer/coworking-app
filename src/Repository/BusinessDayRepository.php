@@ -31,10 +31,10 @@ class BusinessDayRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findBusinessDaysAfterDate(\DateTimeInterface $date)
+    public function findBusinessDaysStartingWithDate(\DateTimeInterface $date)
     {
         return $this->createQueryBuilder('b')
-            ->where('b.date > :date')
+            ->where('b.date >= :date')
             ->setParameter('date', $date)
             ->orderBy('b.date', 'ASC')
             ->getQuery()

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
@@ -106,7 +106,7 @@ class BookingControllerTest extends WebTestCase
         self::assertSame('2024-05-31', $datepicker->attr('max'));
     }
 
-    public function testStepDatePostErrorWithInvalidCsrfToken(): void
+    public function testStepDateFormSubmitErrorWithInvalidCsrfToken(): void
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -119,12 +119,18 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $client->request('POST', '/booking', ['token' => 'invalid']);
+        $crawler = $client->request('GET', '/booking');
+
+        $form = $crawler->filter('form')->form();
+        $form->getPhpValues();
+        $form->setValues(['token_date' => 'invalid']);
+        $client->submit($form);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
     }
 
-    public function testStepDatePostErrorWithNoDateSelected(): void
+    public function testStepDateFormSubmitErrorWithNoDateSelected(): void
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -138,14 +144,17 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
 
-        $client->request('POST', '/booking', ['token' => $token]);
+        $form = $crawler->filter('form')->form();
+        $form->getPhpValues();
+        $form->setValues(['date' => '']);
+        $client->submit($form);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'No date selected');
     }
 
-    public function testStepDatePostErrorWithWrongDateFormat(): void
+    public function testStepDateFormSubmitErrorWithWrongDateFormat(): void
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -159,14 +168,16 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->getPhpValues();
+        $form->setValues(['date' => 'March first last year']);
+        $client->submit($form);
 
-        $client->request('POST', '/booking', ['token' => $token, 'date' => 'March first last year']);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Invalid date format');
     }
 
-    public function testStepDatePostErrorWithDateInThePast(): void
+    public function testStepDateFormSubmitErrorWithDateInThePast(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -181,14 +192,16 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->getPhpValues();
+        $form->setValues(['date' => '2024-02-01']);
+        $client->submit($form);
 
-        $client->request('POST', '/booking', ['token' => $token, 'date' => '2024-02-01']);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Date must be in the future');
     }
 
-    public function testStepDatePostErrorWithNoBusinessDay(): void
+    public function testStepDateFormSubmitErrorWithNoBusinessDay(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -203,14 +216,16 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->getPhpValues();
+        $form->setValues(['date' => '2024-12-01']);
+        $client->submit($form);;
 
-        $client->request('POST', '/booking', ['token' => $token, 'date' => '2024-12-01']);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Requested Date is not a business da');
     }
 
-    public function testStepDatePostErrorWithClosedBusinessDay(): void
+    public function testStepDateFormSubmitErrorWithClosedBusinessDay(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -225,15 +240,17 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
-
+        $form    = $crawler->filter('#form-date')->form();
+        $form->getPhpValues();
         // 2024-05-12 is a Sunday
-        $client->request('POST', '/booking', ['token' => $token, 'date' => '2024-05-12']);
+        $form->setValues(['date' => '2024-05-12']);
+        $client->submit($form);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Requested Date is not a business da');
     }
 
-    public function testStepDatePostSuccessfullAndRedirect(): void
+    public function testStepDateFormSubmitSuccessfullAndRedirect(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -246,14 +263,15 @@ class BookingControllerTest extends WebTestCase
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
         $client->loginUser($testUser);
-
-        $crawler = $client->request('GET', '/booking');
-        $token   = $crawler->filter('input[name="token_date"]')->attr('value');
 
         $date        = new \DateTimeImmutable('2024-05-10');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
 
-        $client->request('POST', '/booking', ['token' => $token, 'date' => '2024-05-10']);
+        $crawler = $client->request('GET', '/booking');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->setValues(['date' => '2024-05-10']);
+        $client->submit($form);;
+
         $this->assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
     }
 
@@ -296,7 +314,8 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $this->assertResponseIsSuccessful();
-        self::assertCount(2, $crawler->filter('form'));
+        self::assertCount(1, $crawler->filter('#form-date'));
+        self::assertCount(1, $crawler->filter('#form-room'));
         self::assertCount(1, $crawler->filter('input[type="date"]'));
         self::assertCount(1, $crawler->filter('select'));
     }
@@ -324,7 +343,7 @@ class BookingControllerTest extends WebTestCase
         self::assertSame('', $selectOption->attr('disabled'));
     }
 
-    public function testStepRoomPostErrorWithInvalidCsrfToken(): void
+    public function testStepRoomFormSubmitErrorWithInvalidCsrfToken(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -341,12 +360,16 @@ class BookingControllerTest extends WebTestCase
         $date        = new \DateTimeImmutable('2024-04-01');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
 
-        $client->request('POST', '/booking/' . $businessDay->getId() . '/room', ['token' => 'invalid']);
+        $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
+        $form    = $crawler->filter('#form-room')->form();
+        $form->setValues(['token' => 'invalid']);
+        $client->submit($form);;
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
     }
 
-    public function testStepRoomPostErrorWithEmptyRoom(): void
+    public function testStepRoomFormSubmitErrorWithEmptyRoom(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -365,14 +388,15 @@ class BookingControllerTest extends WebTestCase
 
         $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
+        $form    = $crawler->filter('#form-room')->form();
+        $form->disableValidation();
+        $client->submit($form);
 
-        $client->request('POST', $uri, ['token' => $token, 'room' => '']);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'No room selected');
     }
 
-    public function testStepRoomPostErrorWithWrongValueForRoom(): void
+    public function testStepRoomFormSubmitErrorWithWrongValueForRoom(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -391,40 +415,45 @@ class BookingControllerTest extends WebTestCase
 
         $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
+        $form    = $crawler->filter('#form-room')->form();
+        $form->disableValidation();
+        $form->setValues(['room' => 'invalid']);
+        $client->submit($form);
 
-        $client->request('POST', $uri, ['token' => $token, 'room' => 'test']);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'No room selected');
-    }
-
-    public function testStepRoomPostErrorWithNotExistingRoom(): void
-    {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
-        $client->loginUser($testUser);
-
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-
-        $uri     = '/booking/' . $businessDay->getId() . '/room';
-        $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
-
-        $client->request('POST', $uri, ['token' => $token, 'room' => 99999]);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Unknown room selected');
     }
 
-    public function testStepRoomPostErrorWithNoCapacity(): void
+    public function testStepRoomFormSubmitErrorWithNotExistingRoom(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+
+        $uri = '/booking/' . $businessDay->getId() . '/room';
+
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('#form-room')->form();
+        $form->disableValidation();
+        $form->setValues(['room' => 99999]);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Unknown room selected');
+    }
+
+    public function testStepRoomFormSubmitErrorWithNoCapacity(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -444,14 +473,30 @@ class BookingControllerTest extends WebTestCase
 
         $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
+        $form    = $crawler->filter('#form-room')->form();
 
-        $client->request('POST', $uri, ['token' => $token, 'room' => $room->getID()]);
+        /*
+        This code does not work. Select can only be done by Room Name, but then the backend code does not work,
+        because it expects the Room ID.
+        $form['room']->disableValidation();
+        $form['room']->select($room->getName());
+        $form['room']->setValue(strval($room->getID()));
+        $client->submit($form);
+
+        so instead we do a POST request with the room ID
+        */
+
+        $token = $form->get('token')->getValue();
+        $client->request('POST', $uri, [
+            'room'  => $room->getID(),
+            'token' => $token,
+        ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Room is already fully booked');
     }
 
-    public function testStepRoomPostErrorFullyBooked(): void
+    public function testStepRoomFormSubmitErrorFullyBooked(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -471,14 +516,30 @@ class BookingControllerTest extends WebTestCase
 
         $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
+        $form    = $crawler->filter('#form-room')->form();
 
-        $client->request('POST', $uri, ['token' => $token, 'room' => $room->getID()]);
+        /*
+        This code does not work. Select can only be done by Room Name, but then the backend code does not work,
+        because it expects the Room ID.
+        $form['room']->disableValidation();
+        $form['room']->select($room->getName());
+        $form['room']->setValue(strval($room->getID()));
+        $client->submit($form);
+
+        so instead we do a POST request with the room ID
+        */
+
+        $token = $form->get('token')->getValue();
+        $client->request('POST', $uri, [
+            'room'  => $room->getID(),
+            'token' => $token,
+        ]);
+
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Room is already fully booked');
     }
 
-    public function testStepRoomPostSuccessfullAndRedirect(): void
+    public function testStepRoomFormSubmitSuccessfullAndRedirect(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -496,11 +557,10 @@ class BookingControllerTest extends WebTestCase
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
 
-        $uri     = '/booking/' . $businessDay->getId() . '/room';
-        $crawler = $client->request('GET', $uri);
-        $token   = $crawler->filter('input[name="token"]')->attr('value');
-
-        $client->request('POST', $uri, ['token' => $token, 'room' => $room->getID()]);
+        $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
+        $form    = $crawler->filter('#form-room')->form();
+        $form->setValues(['room' => $room->getID()]);
+        $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)
                          ->findOneBy([
@@ -514,7 +574,7 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseRedirects('/booking/' . $booking->getId() . '/payment');
     }
 
-    public function testStepPaymentChecksIfBookingUserIsConnectedUser(): void
+    public function testCancelBookingChecksUser()
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -545,38 +605,6 @@ class BookingControllerTest extends WebTestCase
         $client->request('GET', $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-    }
-
-    public function testStepPaymentRendersTemplateOnGet(): void
-    {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $client->loginUser($bookingUser);
-
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $bookingUser,
-                             ])
-        ;
-
-        $uri     = '/booking/' . $booking->getId() . '/payment';
-        $crawler = $client->request('GET', $uri);
-
-        $this->assertResponseIsSuccessful();
-        self::assertCount(2, $crawler->filter('li'));
     }
 
     protected function tearDown(): void

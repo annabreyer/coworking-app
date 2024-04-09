@@ -10,7 +10,7 @@
         <div class="alert alert-danger" role="alert">{{ error }}</div>
     {% endfor %}
 
-    <form method="post" action="{{ path('booking_step_date') }}">
+    <form id="form-date" method="post" action="{{ path('booking_step_date') }}">
         <label for="date">{{ 'Date'|trans }}</label>
         <input type="date" id="date" name="date"
                max="{{ lastDay }}"
@@ -20,7 +20,7 @@
     </form>
 
     {% if step == 2 %}
-        <form method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
+        <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
             <label for="room">{{ 'Room'|trans }}</label>
             <select id="room" name="room">
                 {% for option in bookingOption %}
