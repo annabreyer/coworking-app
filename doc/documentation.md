@@ -66,3 +66,21 @@ Rooms can be opened or closed and also created or deleted.
 
 ### Booking
 Bookings can be created, edited and deleted. 
+
+
+# Payment System
+
+A booking can be paid by voucher, Paypal or bank transfer.
+Each booking generates an invoice. 
+Vouchers can be bought, invoice is issued. 
+
+A booking has an invoice. 
+An invoice can have several payments. 
+
+A payment can be either a voucher or a transaction.
+
+A transaction (actual money transfer) can be a bank transfer or a paypal.
+A transaction can have several payments. 
+Transactions mirror the bank account / paypal account. 
+
+Incoming money is one transaction, and it can be split into several payments, in order to attach it to the correct invoice.

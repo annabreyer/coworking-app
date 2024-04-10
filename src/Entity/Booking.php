@@ -31,6 +31,9 @@ class Booking
     #[ORM\JoinColumn(nullable: false)]
     private ?Room $room = null;
 
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    private ?Invoice $invoice = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -80,5 +83,17 @@ class Booking
     public function setRoom(?Room $room): void
     {
         $this->room = $room;
+    }
+
+    public function getInvoice(): ?Invoice
+    {
+        return $this->invoice;
+    }
+
+    public function setInvoice(?Invoice $invoice): static
+    {
+        $this->invoice = $invoice;
+
+        return $this;
     }
 }
