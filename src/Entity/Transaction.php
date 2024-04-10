@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
@@ -14,7 +16,7 @@ class Transaction
 {
     use TimestampableEntity;
     public const TRANSACTION_TYPE_BANK_TRANSFER = 'bank_transfer';
-    public const TRANSACTION_TYPE_PAYPAL = 'paypal';
+    public const TRANSACTION_TYPE_PAYPAL        = 'paypal';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -42,7 +44,7 @@ class Transaction
     {
         return [
             self::TRANSACTION_TYPE_BANK_TRANSFER => self::TRANSACTION_TYPE_BANK_TRANSFER,
-            self::TRANSACTION_TYPE_PAYPAL => self::TRANSACTION_TYPE_PAYPAL,
+            self::TRANSACTION_TYPE_PAYPAL        => self::TRANSACTION_TYPE_PAYPAL,
         ];
     }
 
@@ -58,7 +60,7 @@ class Transaction
 
     public function setType(string $type): static
     {
-        if (false ===  in_array($type, self::getTransactionTypes())) {
+        if (false === \in_array($type, self::getTransactionTypes(), true)) {
             throw new \InvalidArgumentException('Invalid transaction type');
         }
 

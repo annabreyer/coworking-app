@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -159,7 +159,7 @@ class AppFixtures extends Fixture
         $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
         $room        = $this->getReference('room1', Room::class);
 
-        for ($i = 0; $i < $room->getCapacity(); $i++) {
+        for ($i = 0; $i < $room->getCapacity(); ++$i) {
             $booking = new Booking();
             $booking->setBusinessDay($businessDay);
             $booking->setRoom($room);

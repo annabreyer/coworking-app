@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -219,7 +219,7 @@ class BookingControllerTest extends WebTestCase
         $form    = $crawler->filter('#form-date')->form();
         $form->getPhpValues();
         $form->setValues(['date' => '2024-12-01']);
-        $client->submit($form);;
+        $client->submit($form);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Requested Date is not a business da');
@@ -270,7 +270,7 @@ class BookingControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/booking');
         $form    = $crawler->filter('#form-date')->form();
         $form->setValues(['date' => '2024-05-10']);
-        $client->submit($form);;
+        $client->submit($form);
 
         $this->assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
     }
@@ -363,7 +363,7 @@ class BookingControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $form    = $crawler->filter('#form-room')->form();
         $form->setValues(['token' => 'invalid']);
-        $client->submit($form);;
+        $client->submit($form);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
@@ -675,7 +675,7 @@ class BookingControllerTest extends WebTestCase
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects('/user/bookings');
-        $this->assertNull($booking->getId());
+        self::assertNull($booking->getId());
     }
 
     public function testCancelBookingChecksBookingIdInUrlAndPostMatch()
@@ -709,10 +709,10 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseRedirects();
 
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
-        $this->assertNotNull($notCancelledBooking);
+        self::assertNotNull($notCancelledBooking);
 
         $session = $client->getRequest()->getSession();
-        $this->assertContains('Booking can not be cancelled.', $session->getFlashBag()->get('error'));
+        self::assertContains('Booking can not be cancelled.', $session->getFlashBag()->get('error'));
     }
 
     public function testCancelBookingChecksBookingIsInTheFuture()
@@ -746,12 +746,12 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseRedirects();
 
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
-        $this->assertNotNull($notCancelledBooking);
+        self::assertNotNull($notCancelledBooking);
 
-        $limit = static::getContainer()->getParameter('time_limit_cancel_booking_days');
-        $session = $client->getRequest()->getSession();
+        $limit           = static::getContainer()->getParameter('time_limit_cancel_booking_days');
+        $session         = $client->getRequest()->getSession();
         $expectedMessage = sprintf('Bookings can only be cancelled %s before their date.', $limit);
-        $this->assertContains($expectedMessage, $session->getFlashBag()->get('error'));
+        self::assertContains($expectedMessage, $session->getFlashBag()->get('error'));
     }
 
     public function testCancelBookingSuccessfullNotifiesAdmin(): void
@@ -780,16 +780,16 @@ class BookingControllerTest extends WebTestCase
         ;
 
         $bookingDate = $booking->getBusinessDay()->getDate();
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri         = '/booking/' . $booking->getId() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects();
-        $this->assertNull($booking->getId());
+        self::assertNull($booking->getId());
 
         $this->assertEmailCount(1);
 
         $email = $this->getMailerMessage();
-        $this->assertEmailTextBodyContains($email, strval($bookingDate->format('d/m/Y')));
+        $this->assertEmailTextBodyContains($email, (string) $bookingDate->format('d/m/Y'));
     }
 
     protected function tearDown(): void

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Manager\BusinessDayManager;
@@ -31,21 +33,21 @@ class BusinessDaysCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io      = new SymfonyStyle($input, $output);
         $endDate = $input->getArgument('endDate');
 
         if ($endDate) {
             $io->note(sprintf('You passed an argument: %s', $endDate));
             $date = \DateTimeImmutable::createFromFormat('Ymd', $endDate);
 
-            if (false === $date){
+            if (false === $date) {
                 $io->error('Invalid date format. Please use Ymd');
 
                 return Command::FAILURE;
             }
         } else {
             $today = $this->clock->now();
-            $date = $today->modify('+6 months');
+            $date  = $today->modify('+6 months');
         }
 
         $io->note(sprintf('BusinessDays will be generated until: %s', $date->format('Ymd')));

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\BusinessDayRepository;
@@ -105,7 +107,7 @@ class BusinessDay
     public function getBookingsForRoom(Room $room)
     {
         return $this->bookings->filter(
-            fn (Booking $booking) => $booking->getRoom() === $room
+            static fn (Booking $booking) => $booking->getRoom() === $room
         );
     }
 

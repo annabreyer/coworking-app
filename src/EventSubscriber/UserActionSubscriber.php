@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
-use App\Entity\AdminAction;
 use App\Entity\User;
 use App\Entity\UserAction;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,7 +34,6 @@ class UserActionSubscriber implements EventSubscriberInterface
             Request::METHOD_PATCH,
             Request::METHOD_DELETE,
         ];
-
 
         $this->excludedUri = [
             '/booking',

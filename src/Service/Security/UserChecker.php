@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Service\Security;
 
@@ -9,7 +11,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserChecker implements UserCheckerInterface
 {
-
     public function checkPostAuth(UserInterface $user): void
     {
         if (false === $user instanceof User) {

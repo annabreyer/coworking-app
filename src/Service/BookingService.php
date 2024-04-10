@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -19,7 +21,7 @@ class BookingService
     {
         $rooms = $this->roomRepository->findAllOpen();
 
-        if (0 === count($rooms)) {
+        if (0 === \count($rooms)) {
             throw new \Exception('No rooms available');
         }
 
@@ -48,7 +50,7 @@ class BookingService
         return $room->getCapacity() - $bookingCount;
     }
 
-    //@todo: make this method
+    // @todo: make this method
     private function getWorkStations(Room $room): array
     {
         $workStations          = $room->getWorkStations();
@@ -61,5 +63,4 @@ class BookingService
 
         return $availableWorkStations;
     }
-
 }

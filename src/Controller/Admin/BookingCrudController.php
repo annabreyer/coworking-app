@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use App\Entity\Booking;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class BookingCrudController extends AbstractCrudController
 {
@@ -24,6 +24,5 @@ class BookingCrudController extends AbstractCrudController
         yield AssociationField::new('businessDay');
         yield AssociationField::new('user');
         yield AssociationField::new('room');
-
     }
 }

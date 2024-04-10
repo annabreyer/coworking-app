@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\PaymentRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -71,7 +71,7 @@ class Payment
 
     public function setType(string $type): static
     {
-        if (false === in_array($type, self::getPaymentTypes())) {
+        if (false === \in_array($type, self::getPaymentTypes(), true)) {
             throw new \InvalidArgumentException('Invalid payment type');
         }
 

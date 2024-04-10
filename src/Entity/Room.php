@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\RoomRepository;
@@ -31,9 +33,10 @@ class Room
 
     #[ORM\OneToMany(mappedBy: 'room', targetEntity: Booking::class, orphanRemoval: true)]
     private Collection $bookings;
+
     public function __construct()
     {
-        $this->bookings = new ArrayCollection();
+        $this->bookings     = new ArrayCollection();
         $this->workStations = new ArrayCollection();
     }
 
@@ -112,6 +115,7 @@ class Room
     {
         return $this->name;
     }
+
     /**
      * @return Collection<int, Booking>
      */

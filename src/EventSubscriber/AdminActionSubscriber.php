@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
@@ -12,7 +14,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class AdminActionSubscriber implements EventSubscriberInterface
 {
-
     public function __construct(
         private EntityManagerInterface $entityManager,
         private Security $security,
@@ -27,15 +28,15 @@ class AdminActionSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function saveAdminAction(AfterEntityUpdatedEvent $event):void
+    public function saveAdminAction(AfterEntityUpdatedEvent $event): void
     {
         $user = $event->getEntityInstance();
-        if (false === $user Instanceof User) {
+        if (false === $user instanceof User) {
             return;
         }
 
         $adminUser = $this->security->getUser();
-        if (false === $adminUser Instanceof User) {
+        if (false === $adminUser instanceof User) {
             throw new \LogicException('Currently logged in user is not an instance of User?!');
         }
 
@@ -50,5 +51,4 @@ class AdminActionSubscriber implements EventSubscriberInterface
         $this->entityManager->persist($adminAction);
         $this->entityManager->flush();
     }
-
 }

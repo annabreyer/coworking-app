@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -12,13 +14,12 @@ use Symfony\Component\Clock\ClockAwareTrait;
 class BookingManager
 {
     use ClockAwareTrait;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly string $timeLimitCancelBooking
-    )
-    {
+    ) {
     }
-
 
     public function saveBooking(User $user, BusinessDay $businessDay, Room $room): Booking
     {
@@ -46,13 +47,13 @@ class BookingManager
         $now   = $this->now();
         $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking);
 
-        if ($now < $limit){
+        if ($now < $limit) {
             throw new \LogicException('Time limit cancel booking is wrongly configured');
         }
 
         $interval = $limit->diff($booking->getBusinessDay()->getDate());
 
-        if ($interval->days >= $this->timeLimitCancelBooking){
+        if ($interval->days >= $this->timeLimitCancelBooking) {
             return true;
         }
 

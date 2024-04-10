@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -31,10 +33,10 @@ class AdminMailerService
         $context = [
             'text' => sprintf(
                 'Es wurde eine neue Buchung für den %s getätigt',
-                $booking->getBusinessDay()->getDate()->format('d/m/Y')),
-            'link' => $link
+                $booking->getBusinessDay()->getDate()->format('d/m/Y')
+            ),
+            'link' => $link,
         ];
-
 
         $this->sendEmail($subject, $context);
     }
@@ -46,7 +48,7 @@ class AdminMailerService
             'text' => sprintf(
                 'Es wurde eine neue Buchung gecancelt. Buchungsdatum: %s',
                 $bookingDate->format('d/m/Y')
-            )
+            ),
         ];
 
         $this->sendEmail($subject, $context);

@@ -57,8 +57,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
         yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
-        yield MenuItem::section('Room Administration', );
-        Yield MenuItem::linkToCrud('BusinessDays', 'fas fa-calendar', BusinessDay::class);
+        yield MenuItem::section('Room Administration');
+        yield MenuItem::linkToCrud('BusinessDays', 'fas fa-calendar', BusinessDay::class);
         yield MenuItem::linkToCrud('Room', 'fas fa-door-open', Room::class);
         yield MenuItem::linkToCrud('Workstation', 'fas fa-chair', WorkStation::class);
         yield MenuItem::linkToCrud('Booking', 'fas fa-file-contract', Booking::class);

@@ -14,6 +14,7 @@ use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 class UserActionSubscriberTest extends WebTestCase
 {
     use ClockSensitiveTrait;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -176,7 +177,7 @@ class UserActionSubscriberTest extends WebTestCase
         $crawler = $client->request('GET', '/booking');
         $form    = $crawler->filter('#form-date')->form();
         $form->setValues(['date' => '2024-05-10']);
-        $client->submit($form);;
+        $client->submit($form);
 
         $this->assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $testUser]);

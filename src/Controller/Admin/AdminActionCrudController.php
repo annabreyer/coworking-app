@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use App\Entity\AdminAction;
@@ -25,7 +27,7 @@ class AdminActionCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_INDEX, 'edit')
             ->remove(Crud::PAGE_DETAIL, 'edit')
             ->remove(Crud::PAGE_DETAIL, 'delete')
-            ;
+        ;
     }
 
     public function configureFields(string $pageName): iterable

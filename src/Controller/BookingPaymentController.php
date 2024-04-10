@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -15,7 +17,6 @@ class BookingPaymentController extends AbstractController
         Request $request,
         Booking $booking,
     ): Response {
-
         if ($this->getUser() !== $booking->getUser()) {
             throw $this->createAccessDeniedException('You are not allowed to view this booking');
         }
@@ -24,5 +25,4 @@ class BookingPaymentController extends AbstractController
             'booking' => $booking,
         ]);
     }
-
 }

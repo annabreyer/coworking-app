@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -21,7 +23,7 @@ class BusinessDayManager
         $startDate = $this->businessDayRepository->findLastBusinessDay();
         $startDate = $startDate ? $startDate->getDate() : new \DateTime();
 
-        $interval = new \DateInterval('P1D');
+        $interval  = new \DateInterval('P1D');
         $dateRange = new \DatePeriod($startDate, $interval, $endDate->modify('+1 day'));
 
         foreach ($dateRange as $date) {
@@ -35,7 +37,7 @@ class BusinessDayManager
                 $this->publicHolidayService->isGermanPublicHoliday($date)
                 || $date->format('N') > 5
             ) {
-               $businessDay->setIsOpen(false);
+                $businessDay->setIsOpen(false);
             }
         }
 
@@ -55,5 +57,4 @@ class BusinessDayManager
 
         return $businessDay;
     }
-
 }
