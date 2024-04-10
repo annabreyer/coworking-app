@@ -8,9 +8,12 @@ use App\Entity\BusinessDay;
 use App\Repository\BusinessDayRepository;
 use App\Service\PublicHolidayService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Clock\ClockAwareTrait;
 
 class BusinessDayManager
 {
+    use ClockAwareTrait;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private BusinessDayRepository $businessDayRepository,
@@ -18,13 +21,9 @@ class BusinessDayManager
     ) {
     }
 
-    public function generateBusinessDaysUntil(\DateTimeInterface $endDate)
+    public function generateBusinessDaysUntil(\DateTimeInterface $endDate): void
     {
-        $startDate = $this->businessDayRepository->findLastBusinessDay();
-        $startDate = $startDate ? $startDate->getDate() : new \DateTime();
-
-        $interval  = new \DateInterval('P1D');
-        $dateRange = new \DatePeriod($startDate, $interval, $endDate->modify('+1 day'));
+        $dateRange = $this->getDateRange($endDate);
 
         foreach ($dateRange as $date) {
             if ($this->businessDayRepository->findOneBy(['date' => $date])) {
@@ -44,7 +43,7 @@ class BusinessDayManager
         $this->entityManager->flush();
     }
 
-    public function createBusinessDay(\DateTimeInterface $date, bool $flush = true)
+    public function createBusinessDay(\DateTimeInterface $date, bool $flush = true): BusinessDay
     {
         $businessDay = new BusinessDay();
         $businessDay->setDate($date);
@@ -56,5 +55,22 @@ class BusinessDayManager
         }
 
         return $businessDay;
+    }
+
+    private function getDateRange(\DateTimeInterface $endDate): \DatePeriod
+    {
+        $lastBusinessDay = $this->businessDayRepository->findLastBusinessDay();
+        $endDate         = new \DateTimeImmutable($endDate->format('Y-m-d') . '+ 1 day');
+        $interval        = new \DateInterval('P1D');
+
+        if (null === $lastBusinessDay) {
+            return new \DatePeriod($this->now(), $interval, $endDate);
+        }
+
+        if (null === $lastBusinessDay->getDate()) {
+            return new \DatePeriod($this->now(), $interval, $endDate);
+        }
+
+        return new \DatePeriod($lastBusinessDay->getDate(), $interval, $endDate);
     }
 }

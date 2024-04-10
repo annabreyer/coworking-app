@@ -25,7 +25,7 @@ class BookingRepository extends ServiceEntityRepository
 
     public function countBookingsForRoomOnDay(int $roomId, \DateTimeInterface $date): int
     {
-        return $this->createQueryBuilder('b')
+        $count = $this->createQueryBuilder('b')
             ->select('COUNT(b.id)')
             ->join('b.room', 'r')
             ->join('b.businessDay', 'bd')
@@ -36,5 +36,7 @@ class BookingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+
+        return (int) $count;
     }
 }

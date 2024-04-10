@@ -22,6 +22,10 @@ class AdminMailerService
 
     public function notifyAdminAboutBooking(Booking $booking): void
     {
+        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+            throw new \LogicException('Booking has no business day');
+        }
+
         $link = $this->adminUrlGenerator
             ->setController(BookingCrudController::class)
             ->setAction(Action::DETAIL)
@@ -54,6 +58,9 @@ class AdminMailerService
         $this->sendEmail($subject, $context);
     }
 
+    /**
+     * @param array <string, mixed> $context
+     */
     private function sendEmail(string $subject, array $context): void
     {
         $email = (new TemplatedEmail())

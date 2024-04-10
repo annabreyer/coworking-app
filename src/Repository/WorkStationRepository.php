@@ -22,13 +22,4 @@ class WorkStationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, WorkStation::class);
     }
-
-    public function findAllOpen()
-    {
-        return $this->createQueryBuilder('w')
-            ->where('w.isOpen = true')
-            ->getQuery()
-            ->getResult()
-        ;
-    }
 }

@@ -60,11 +60,17 @@ class AdminAction
         return $this;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getData(): array
     {
         return $this->data;
     }
 
+    /**
+     * @param mixed[] $data
+     */
     public function setData(array $data): static
     {
         $this->data = $data;
@@ -74,6 +80,12 @@ class AdminAction
 
     public function getDataString(): string
     {
-        return json_encode($this->data);
+        $json = json_encode($this->data);
+
+        if (false === $json) {
+            throw new \RuntimeException('Could not encode data to JSON');
+        }
+
+        return $json;
     }
 }

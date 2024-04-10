@@ -40,6 +40,9 @@ class Transaction
         $this->payments = new ArrayCollection();
     }
 
+    /**
+     * @return array<string>
+     */
     public static function getTransactionTypes(): array
     {
         return [

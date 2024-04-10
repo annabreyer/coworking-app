@@ -94,17 +94,25 @@ class BusinessDay
         return $this;
     }
 
-    public function getWeekDayLong()
+    public function getWeekDayLong(): string
     {
+        if (null === $this->date) {
+            return '';
+        }
+
         return $this->date->format('l');
     }
 
-    public function getWeekDayShort()
+    public function getWeekDayShort(): string
     {
+        if (null === $this->date) {
+            return '';
+        }
+
         return $this->date->format('D');
     }
 
-    public function getBookingsForRoom(Room $room)
+    public function getBookingsForRoom(Room $room): Collection
     {
         return $this->bookings->filter(
             static fn (Booking $booking) => $booking->getRoom() === $room
@@ -113,6 +121,10 @@ class BusinessDay
 
     public function __toString(): string
     {
+        if (null === $this->date) {
+            return '';
+        }
+
         return $this->date->format('Y-m-d');
     }
 }

@@ -38,7 +38,7 @@ class BookingController extends AbstractController
         }
 
         $response       = new Response();
-        $submittedToken = $request->getPayload()->get('token_date');
+        $submittedToken = $request->getPayload()->getString('token_date');
 
         if (false === $this->isCsrfTokenValid('date', $submittedToken)) {
             $this->addFlash('error', 'Invalid CSRF Token');
@@ -47,7 +47,7 @@ class BookingController extends AbstractController
             return $this->renderStepDate($response, $this->clock->now());
         }
 
-        $date = $request->request->get('date');
+        $date = $request->request->getString('date');
         if (empty($date)) {
             $this->addFlash('error', 'No date selected');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
@@ -103,7 +103,7 @@ class BookingController extends AbstractController
             throw new \Exception('User is not an instance of User ?!');
         }
 
-        $submittedToken = $request->getPayload()->get('token');
+        $submittedToken = $request->getPayload()->getString('token');
 
         if (false === $this->isCsrfTokenValid('room', $submittedToken)) {
             $this->addFlash('error', 'Invalid CSRF Token');
@@ -172,6 +172,10 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('user_bookings');
         }
 
+        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+            throw new \Exception('Persisted Booking has no BusinessDay ?!');
+        }
+
         $bookingDate = $booking->getBusinessDay()->getDate();
         $this->bookingManager->cancelBooking($booking);
 
@@ -184,25 +188,62 @@ class BookingController extends AbstractController
 
     private function renderStepDate(Response $response, \DateTimeImmutable $dateTime): Response
     {
-        $businessDays = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDayCount = \count($businessDays);
+        if (0 === \count($businessDays)) {
+            throw new \Exception('No BusinessDays found ?!');
+        }
+
+        if (false === isset($businessDays[$businessDayCount - 1])) {
+            throw new \Exception('No Last BusinessDay found ?!');
+        }
+
+        if (null === $businessDays[0]->getDate()) {
+            throw new \Exception('First BusinessDay has no Date ?!');
+        }
+
+        if (null === $businessDays[$businessDayCount - 1]->getDate()) {
+            throw new \Exception('Last BusinessDay has no Date ?!');
+        }
 
         return $this->render('booking/index.html.twig', [
             'step'     => 1,
             'firstDay' => $businessDays[0]->getDate()->format('Y-m-d'),
-            'lastDay'  => $businessDays[\count($businessDays) - 1]->getDate()->format('Y-m-d'),
+            'lastDay'  => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
             'date'     => $dateTime->format('Y-m-d'),
         ], $response);
     }
 
     private function renderStepRoom(Response $response, BusinessDay $businessDay): Response
     {
-        $businessDays  = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDayCount = \count($businessDays);
+        if (0 === \count($businessDays)) {
+            throw new \Exception('No BusinessDays found ?!');
+        }
+
+        if (false === isset($businessDays[$businessDayCount - 1])) {
+            throw new \Exception('No Last BusinessDay found ?!');
+        }
+
+        if (null === $businessDays[0]->getDate()) {
+            throw new \Exception('First BusinessDay has no Date ?!');
+        }
+
+        if (null === $businessDays[$businessDayCount - 1]->getDate()) {
+            throw new \Exception('Last BusinessDay has no Date ?!');
+        }
+
+        if (null === $businessDay->getDate()) {
+            throw new \Exception('BusinessDay has no Date ?!');
+        }
+
         $bookingOption = $this->bookingService->generateAvailableBookingOptionsForDay($businessDay, false);
 
         return $this->render('booking/index.html.twig', [
             'step'          => 2,
             'firstDay'      => $businessDays[0]->getDate()->format('Y-m-d'),
-            'lastDay'       => $businessDays[\count($businessDays) - 1]->getDate()->format('Y-m-d'),
+            'lastDay'       => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
             'bookingOption' => $bookingOption,
             'date'          => $businessDay->getDate()->format('Y-m-d'),
             'businessDay'   => $businessDay,

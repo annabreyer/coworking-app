@@ -7,3 +7,5 @@ parameters:
         - public/
         - src/
         - tests/
+    excludePaths:
+        - src/DataFixtures

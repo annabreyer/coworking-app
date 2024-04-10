@@ -113,6 +113,10 @@ class Room
 
     public function __toString(): string
     {
+        if (null === $this->name) {
+            return '';
+        }
+
         return $this->name;
     }
 

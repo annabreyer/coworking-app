@@ -10,14 +10,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityUpdatedEvent;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class AdminActionSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private Security $security,
-        private SerializerInterface $serializer
+        private NormalizerInterface $normalizer
     ) {
     }
 
@@ -40,7 +40,11 @@ class AdminActionSubscriber implements EventSubscriberInterface
             throw new \LogicException('Currently logged in user is not an instance of User?!');
         }
 
-        $normalizedUser = $this->serializer->normalize($user, null, ['groups' => 'admin_action']);
+        $normalizedUser = $this->normalizer->normalize($user, null, ['groups' => 'admin_action']);
+
+        if (false === \is_array($normalizedUser)) {
+            throw new \LogicException('Normalized user is not an array?!');
+        }
 
         $adminAction = new AdminAction();
         $adminAction

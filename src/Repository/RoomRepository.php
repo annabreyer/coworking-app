@@ -23,7 +23,10 @@ class RoomRepository extends ServiceEntityRepository
         parent::__construct($registry, Room::class);
     }
 
-    public function findAllOpen()
+    /**
+     * @return Room[]
+     */
+    public function findAllOpen(): array
     {
         return $this->createQueryBuilder('r')
             ->where('r.isOpen = true')

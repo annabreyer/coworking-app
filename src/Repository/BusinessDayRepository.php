@@ -33,7 +33,10 @@ class BusinessDayRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findBusinessDaysStartingWithDate(\DateTimeInterface $date)
+    /**
+     * @return BusinessDay[]
+     */
+    public function findBusinessDaysStartingWithDate(\DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('b')
             ->where('b.date >= :date')

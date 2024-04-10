@@ -44,6 +44,10 @@ class BookingManager
 
     public function canBookingBeCancelled(Booking $booking): bool
     {
+        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+            throw new \LogicException('Business day or date is missing');
+        }
+
         $now   = $this->now();
         $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking);
 

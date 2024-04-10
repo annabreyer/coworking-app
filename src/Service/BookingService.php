@@ -17,6 +17,11 @@ class BookingService
     ) {
     }
 
+    /**
+     * @return array<mixed, mixed>
+     *
+     * @throws \Exception
+     */
     public function generateAvailableBookingOptionsForDay(BusinessDay $businessDay, bool $includeWorkstations): array
     {
         $rooms = $this->roomRepository->findAllOpen();
@@ -45,22 +50,26 @@ class BookingService
 
     private function getAvailableRoomCapacityOnBusinessDay(Room $room, BusinessDay $businessDay): int
     {
+        if (null === $room->getId()) {
+            throw new \Exception('Can not get available Room Capacity on Business Day. Room ID is null');
+        }
+
+        if (null === $businessDay->getDate()) {
+            throw new \Exception('Can not get available Room Capacity on Business Day. BusinessDay date is null');
+        }
+
         $bookingCount = $this->bookingRepository->countBookingsForRoomOnDay($room->getId(), $businessDay->getDate());
 
         return $room->getCapacity() - $bookingCount;
     }
 
-    // @todo: make this method
+    /**
+     * @return array<mixed, mixed>
+     */
     private function getWorkStations(Room $room): array
     {
-        $workStations          = $room->getWorkStations();
-        $availableWorkStations = [];
-        foreach ($workStations as $workStation) {
-            if ($workStation->isOpen()) {
-                $availableWorkStations[] = $workStation;
-            }
-        }
+        // @todo: make this method
 
-        return $availableWorkStations;
+        return [];
     }
 }

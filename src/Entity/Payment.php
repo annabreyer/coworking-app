@@ -39,6 +39,9 @@ class Payment
     #[ORM\ManyToOne(inversedBy: 'payment')]
     private ?Transaction $transaction = null;
 
+    /**
+     * @return array<string>
+     */
     public static function getPaymentTypes(): array
     {
         return [

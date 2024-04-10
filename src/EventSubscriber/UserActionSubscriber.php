@@ -80,7 +80,7 @@ class UserActionSubscriber implements EventSubscriberInterface
         $data  = $request->request->all();
         $match = preg_grep('/form/', array_keys($data));
 
-        if (false === empty($match)) {
+        if (false !== $match && false === empty($match)) {
             $formName = $match[0];
             $data     = $data[$formName];
         }
