@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
+use App\Service\AdminMailerService;
 use App\Service\BookingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
@@ -87,7 +88,8 @@ class BookingController extends AbstractController
     #[Route('/booking/{businessDay}/room', name: 'booking_step_room', methods: ['GET', 'POST'])]
     public function bookingStepRoom(
         Request $request,
-        BusinessDay $businessDay
+        BusinessDay $businessDay,
+        AdminMailerService $adminMailerService
     ): Response {
         if (false === $request->isMethod('POST')) {
             return $this->renderStepRoom(new Response(), $businessDay);
@@ -139,14 +141,13 @@ class BookingController extends AbstractController
         }
 
         $booking = $this->bookingManager->saveBooking($user, $businessDay, $room);
-
-        //@todo send email for booking
+        $adminMailerService->notifyAdminAboutBooking($booking);
 
         return $this->redirectToRoute('booking_step_payment', ['booking' => $booking->getId()]);
     }
 
     #[Route('/booking/{booking}/cancel', name: 'booking_cancel', methods: ['POST'])]
-    public function cancelBooking(Booking $booking, Request $request): Response
+    public function cancelBooking(Booking $booking, Request $request, AdminMailerService $adminMailerService): Response
     {
         $user = $this->getUser();
         if ($user !== $booking->getUser()) {
@@ -154,30 +155,27 @@ class BookingController extends AbstractController
         }
 
         $bookingId = $request->request->get('bookingId');
-        if ($bookingId !== $booking->getId()) {
+        if ($bookingId != $booking->getId()) {
             $this->addFlash('error', 'Booking can not be cancelled.');
 
-            return $this->redirect($request->headers->get('referer'));
-        }
-
-        if ($booking->getBusinessDay()->getDate() < $this->clock->now()) {
-            $this->addFlash('error', 'Booking is already in the past. It can not be cancelled.');
-
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('user_bookings');
         }
 
         if (false === $this->bookingManager->canBookingBeCancelled($booking)) {
             $this->addFlash('error',
                 sprintf('Bookings can only be cancelled %s before their date.', $this->timeLimitCancelBooking));
 
-            return $this->redirect($request->headers->get('referer'));
+            return $this->redirectToRoute('user_bookings');
         }
 
         $bookingDate = $booking->getBusinessDay()->getDate();
         $this->bookingManager->cancelBooking($booking);
+
+        $adminMailerService->notifyAdminAboutBookingCancellation($bookingDate);
+
         $this->addFlash('success', sprintf('Booking for date %s has been cancelled', $bookingDate->format('Y-m-d')));
 
-        return $this->redirect($request->headers->get('referer'));
+        return $this->redirectToRoute('user_bookings');
     }
 
     private function renderStepDate(Response $response, \DateTimeImmutable $dateTime): Response

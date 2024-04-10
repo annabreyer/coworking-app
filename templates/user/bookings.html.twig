@@ -9,20 +9,25 @@
         <div class="alert alert-success" role="alert">{{ message|trans }}</div>
     {% endfor %}
 
+    {% for error in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
+
     <div class="mb-3">
         <a href="{{ path('booking_step_date') }}" class="btn btn-primary">New booking</a>
     </div>
 
     {% for booking in user.bookings %}
+        <div>
         {{ booking.businessDay.date|date('Y-m-d') }}
         {{ booking.room.name }}
-        {% if booking.businessDay.date > now %}
+        {% if booking.businessDay.date > limit %}
             <form action="{{ path('booking_cancel', {booking: booking.id })}}" method="post">
                 <input type="hidden" name="bookingId" value="{{ booking.id }}">
 
                 <button type="submit">Cancel</button>
             </form>
-
         {% endif %}
+        </div>
     {% endfor %}
 {% endblock %}

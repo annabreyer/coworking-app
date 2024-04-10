@@ -50,11 +50,14 @@ class UserController extends AbstractController
     #[Route('/user/bookings', name: 'user_bookings')]
     public function showUserBookings(): Response
     {
-        $user = $this->getUser();
+        $user                   = $this->getUser();
+        $timeLimitCancelBooking = $this->getParameter('time_limit_cancel_booking_days');
+        $limit                  = $this->now()->modify('-' . $timeLimitCancelBooking);
 
         return $this->render('user/bookings.html.twig', [
-            'user' => $user,
-            'now'  => $this->now(),
+            'user'  => $user,
+            'now'   => $this->now(),
+            'limit' => $limit,
         ]);
     }
 }
