@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'booking.confirmation'|trans }}{% endblock %}
+
+{% block body %}
+    Your invoice has been sent to your email address. You can also download it by clicking the link below:
+    <a href="{{ path('invoice_download', {id: invoice.id}) }}">Download invoice</a>
+{% endblock %}

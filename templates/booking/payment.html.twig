@@ -9,4 +9,14 @@
         <li>Room: {{ booking.room.name }}</li>
         <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
     </ul>
+
+    You can either pay immediately, by Paypal or with a voucher, or receive an invoice.
+
+    <a href="{{ path('booking_payment_paypal', {'booking' : booking.id}) }}"><button>Paypal </button></a>
+    <a href="{{ path('booking_payment_voucher', {'booking' : booking.id}) }}"><button>Voucher </button></a>
+    <a href="{{ path('booking_payment_invoice', {'booking' : booking.id }) }}"><button>Invoice </button></a>
+
+    Payment is due at least 24h before the booking date.
+    Please note that cash payments are not accepted.
+
 {% endblock %}

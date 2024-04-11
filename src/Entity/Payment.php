@@ -30,7 +30,7 @@ class Payment
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\ManyToOne(inversedBy: 'payment')]
+    #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Invoice $invoice = null;
 
     #[ORM\ManyToOne(inversedBy: 'payment')]

@@ -6,6 +6,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
+use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
@@ -32,6 +33,7 @@ class AppFixtures extends Fixture
         $this->loadBusinessDays($manager);
         $this->loadRooms($manager);
         $this->loadBookings($manager);
+        $this->loadPrices($manager);
 
         $manager->flush();
     }
@@ -177,6 +179,30 @@ class AppFixtures extends Fixture
         $booking->setUser($this->getReference('user1', User::class));
 
         $manager->persist($booking);
+
+        $manager->flush();
+    }
+
+    private function loadPrices(ObjectManager $manager)
+    {
+        $priceMonthly = new Price();
+        $priceMonthly->setType(Price::TYPE_MONTHLY)
+            ->setAmount(23000)
+            ->setIsActive(false);
+
+        $manager->persist($priceMonthly);
+
+        $priceSingle = new Price();
+        $priceSingle->setType(Price::TYPE_SINGLE)
+                     ->setAmount(1500);
+
+        $manager->persist($priceSingle);
+
+        $priceVoucher = new Price();
+        $priceVoucher->setType(Price::TYPE_TEN_VOUCHERS)
+                    ->setAmount(13500);
+
+        $manager->persist($priceVoucher);
 
         $manager->flush();
     }

@@ -156,4 +156,14 @@ class Invoice
 
         return $this;
     }
+
+    public function isAlreadyPaid(): bool
+    {
+        $paidAmount = 0;
+        foreach ($this->getPayments() as $payment) {
+            $paidAmount += $payment->getAmount();
+        }
+
+        return $paidAmount >= $this->getAmount();
+    }
 }

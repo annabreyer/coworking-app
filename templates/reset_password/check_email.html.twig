@@ -5,7 +5,7 @@
 {% block body %}
     <p>
         {% trans %}reset_password.email_sent_page.info{% endtrans %}<br />
-        {% trans with {'%timeLimit%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') } %}reset_password.email_sent_page.link.expiration{% endtrans %}
+        {% trans with {'%timeLimit%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') } %}reset_password.email_sent_page.link_expiration{% endtrans %}
     </p>
     <p>
         {{ 'reset_password.email_sent_page.help'|trans({'%url%': path('app_forgot_password_request')})|raw}}.

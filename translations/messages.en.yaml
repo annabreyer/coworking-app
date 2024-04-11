@@ -42,22 +42,23 @@ registration:
   success: 'Your account has been created. Please check your email for a verification link.'
   email_verification:
     email:
-      subject: Bitte bestätige Deine E-Mail-Adresse
-      salutation: Hallo %firstName%!
-      instructions: Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst
-      explanation: 'Dieser Link ist %timeLimit% lang gültig'
-      signature: Viele Grüße!
-      button: E-Mail-Adresse bestätigen
+      subject: 'Please confirm your email address'
+      salutation: 'Hi %firstName%!'
+      instructions: 'Please confirm your email address by clicking on the following link'
+      explanation: 'This link is valid for %timeLimit%'
+      signature: 'Cheers!'
+      button: 'Confirm Email Address'
     success: 'Your email address has been verified.'
 
 #login page
 login:
   page:
     title: 'Log in!'
-    no.account.yet: 'You don't have an account yet?'
+    no_account_yet: 'No account yet?'
     link.register: 'Registration'
   form:
-  title: 'Please sign in'
+    title: 'Please sign in'
+    button: 'Sign in'
 
 #reset passwort
 reset_password:
@@ -74,8 +75,8 @@ reset_password:
   email_sent_page:
     title: 'Password Reset Email Sent'
     info: 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.'
-    link.expiration: 'This link will expire in %timeLimit%'
-    help: 'If you don't receive an email please check your spam folder or <a href="%url%">try again</a>'
+    link_expiration: 'This link will expire in %timeLimit%'
+    help: 'If you do not receive an email please check your spam folder or <a href="%url%">try again</a>'
 
 
 user_account: 'User account'

@@ -34,6 +34,9 @@
         </form>
     {% endif %}
 
+    {%  for price in prices %}
+        {{ price.type|trans }}: {{ price.amount/100 }} EUR<br>
+    {% endfor %}
 
     <script>
         document.getElementById('date').addEventListener('change', function () {

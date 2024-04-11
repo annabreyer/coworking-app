@@ -57,10 +57,11 @@ registration:
 login:
   page:
     title: 'Anmelden!'
-    no.account.yet: 'Du hast noch keinen Account?'
+    no_account_yet: 'Du hast noch keinen Account?'
     link.register: 'Registrierung'
   form:
     title: 'Bitte melde Dich an'
+    button: 'Anmelden'
 
 
 #reset passwort page
@@ -78,8 +79,23 @@ reset_password:
   email_sent_page:
     title: 'Die E-Mail zum Zurücksetzen Deines Passworts wurde gesendet.'
     info: 'Sofern ein Konto mit Deiner E-Mail-Adresse existiert, wurde soeben eine E-Mail gesendet, die einen Link enthält, den Du zum Zurücksetzen Deines Passworts verwenden kannst.'
-    link.expiration: 'Dieser Link ist %timeLimit% lang gültig'
+    link_expiration: 'Dieser Link ist %timeLimit% lang gültig'
     help: Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder <a href="%url%">versuche es erneut</a>
+
+booking:
+  page:
+    title: 'Buchung'
+  confirmation: 'Deine Buchung wurde bestätigt.'
+  invoice:
+    position:
+      description: 'Ein Coworking-Platz am %date% im Raum %room%'
+    paid: 'Bezahlt'
+    email:
+      subject: 'Deine Rechnung'
+      salutation: 'Hallo %firstName%!'
+      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum'
+      explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
+      signature: 'Vielen Dank!'
 
 #homepage TODO
 You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'

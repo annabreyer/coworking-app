@@ -6,6 +6,11 @@
 parameters:
   support_email: 'office@coworking-hahnheim.de'
   time_limit_cancel_booking_days: '1 day'
+  invoice_directory: '%kernel.project_dir%/private/invoice'
+  invoice_template_path: '%invoice_directory%/template.pdf'
+  invoice_starting_number: CO0001
+  client_number_prefix: 'CO000'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -14,6 +19,10 @@ services:
         bind:
           $timeLimitCancelBooking: '%time_limit_cancel_booking_days%'
           $supportEmail: '%support_email%'
+          $invoiceTemplatePath: '%invoice_template_path%'
+          $invoiceStartingNumber: '%invoice_starting_number%'
+          $invoiceDirectory: '%invoice_directory%'
+          $invoiceClientNumberPrefix: '%client_number_prefix%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

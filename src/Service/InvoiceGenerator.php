@@ -1,0 +1,172 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Entity\Booking;
+use App\Entity\Invoice;
+use setasign\Fpdi\Tfpdf\Fpdi;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+class InvoiceGenerator
+{
+    private Fpdi $pdf;
+
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private Filesystem $filesystem,
+        private readonly string $invoiceTemplatePath,
+        private readonly string $invoiceDirectory,
+        private readonly string $invoiceClientNumberPrefix
+    ) {
+        $this->pdf = new Fpdi();
+        $this->setupInvoiceTemplate();
+    }
+
+    public function generateBookingInvoice(Invoice $invoice, bool $isAlreadyPaid = false): void
+    {
+        if (empty($invoice->getBookings())) {
+            throw new \InvalidArgumentException('Invoice must have at least one booking.');
+        }
+
+        if (1 < $invoice->getBookings()->count()) {
+            throw new \InvalidArgumentException('Only one Invoice Per Booking');
+        }
+
+        if (null === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $this->writeInvoiceData($invoice);
+
+        if ($isAlreadyPaid) {
+            $this->addAlreadyPaidMention();
+            $this->writeTotalAmount(0);
+        }
+
+        $this->saveInvoice($invoice);
+    }
+
+    public function getTargetDirectory(Invoice $invoice): string
+    {
+        $year  = $invoice->getDate()->format('Y');
+        $month = $invoice->getDate()->format('m');
+
+        $targetDirectory = $this->invoiceDirectory . '/' . $year . '/' . $month;
+        if (false === $this->filesystem->exists($targetDirectory)) {
+            $this->filesystem->mkdir($targetDirectory);
+        }
+
+        return $targetDirectory;
+    }
+
+    private function setupInvoiceTemplate(): void
+    {
+        $this->pdf->SetFont('Helvetica', '', 12);
+        $this->pdf->AddPage();
+        $this->pdf->setSourceFile($this->invoiceTemplatePath);
+
+        $template = $this->pdf->importPage(1);
+
+        $this->pdf->useTemplate($template, ['adjustPageSize' => true]);
+    }
+
+    private function writeInvoiceData(Invoice $invoice)
+    {
+        $this->writeInvoiceNumber($invoice);
+        $this->writeClientNumber($invoice);
+        $this->writeInvoiceDate($invoice);
+        $this->writeClientFullName($invoice);
+        $this->writeClientStreet($invoice);
+        $this->writeClientCity($invoice);
+        $this->writeFirstPositionNumber();
+        $this->writeDescription($invoice->getBookings()->first());
+        $this->writePrice($invoice);
+        $this->writeTotalAmount($invoice->getAmount());
+    }
+
+    private function writeInvoiceNumber(Invoice $invoice): void
+    {
+        $this->writeValue(160, 45.5, 30, 8, $invoice->getNumber());
+    }
+
+    private function writeClientNumber(Invoice $invoice): void
+    {
+        $clientNumber = $this->invoiceClientNumberPrefix . $invoice->getUser()->getId();
+        $this->writeValue(160, 51, 30, 8, $clientNumber);
+    }
+
+    private function writeInvoiceDate(Invoice $invoice)
+    {
+        $this->writeValue(160, 56.25, 30, 8, $invoice->getDate()->format('d.m.Y'));
+    }
+
+    private function writeClientFullName(Invoice $invoice)
+    {
+        $this->writeValue(13, 85, 100, 8, $invoice->getUser()->getFullName());
+    }
+
+    private function writeClientStreet(Invoice $invoice)
+    {
+        $this->writeValue(13, 90, 100, 8, $invoice->getUser()->getStreet());
+    }
+
+    private function writeClientCity(Invoice $invoice)
+    {
+        $postCodeAndCity = $invoice->getUser()->getPostCode() . ' ' . $invoice->getUser()->getCity();
+        $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
+    }
+
+    private function writeFirstPositionNumber()
+    {
+        $this->writeValue(15, 145, 10, 8, '1');
+    }
+
+    private function writeDescription(Booking $booking): void
+    {
+        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+            throw new \InvalidArgumentException('Booking must have a business day with a date.');
+        }
+
+        $description = $this->translator->trans('booking.invoice.position.description', [
+            '%date%' => $booking->getBusinessDay()->getDate()->format('d.m.Y'),
+            '%room%' => $booking->getRoom()->getName(),
+        ]);
+        $this->writeValue(30, 145, 140, 8, $description);
+    }
+
+    private function writePrice(Invoice $invoice): void
+    {
+        $amount = $invoice->getAmount() / 100;
+
+        $this->writeValue(180, 145, 30, 8, $amount . ',00 €');
+    }
+
+    private function writeTotalAmount(int $amount): void
+    {
+        $amount /= 100;
+
+        $this->writeValue(180, 182, 30, 8, $amount . ',00 €');
+    }
+
+    private function addAlreadyPaidMention(): void
+    {
+        $alreadyPaidMessage = $this->translator->trans('booking.invoice.paid'); // @todo when doing payment
+        // write it in the next line so the total amount will be 0
+    }
+
+    private function saveInvoice(Invoice $invoice): void
+    {
+        $fileName = $this->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
+
+        $this->pdf->Output('F', $fileName, true);
+    }
+
+    private function writeValue(float $x, float $y, int $w, int $h, string $value): void
+    {
+        $this->pdf->SetXY($x, $y);
+        $this->pdf->multiCell($w, $h, mb_convert_encoding($value, 'windows-1252', 'UTF-8'));
+    }
+}

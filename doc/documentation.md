@@ -54,7 +54,14 @@ At this point no changes in the database are made.
 User selects a room. Which creates a booking. 
 
 ### Step Payment
-is not implemented yet
+User can choose to pay an invoice or pay immediately by voucher or paypal.
+
+#### By invoice
+Invoice ins generated, send my email to the user. 
+
+#### By voucher/ Paypal
+to be implemented
+
 
 
 ## Admin

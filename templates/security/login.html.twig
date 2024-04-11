@@ -28,13 +28,13 @@
         >
 
         <button class="btn btn-lg btn-primary" type="submit">
-            {% trans %}login.action{% endtrans %}
+            {% trans %}login.form.button{% endtrans %}
         </button>
     </form>
 
     <p><a href="{{ path('app_forgot_password_request') }}">{% trans %}password.forgotten{% endtrans %}?</a></p>
 
-    <p>{% trans %}login.page.no.account.yet{% endtrans %}
+    <p>{% trans %}login.page.no_account_yet{% endtrans %}
         <a href="{{ path('app_register') }}">{% trans %}login.page.link.register{% endtrans %}</a>
     </p>
 {% endblock %}

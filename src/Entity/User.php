@@ -97,6 +97,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Voucher::class)]
     private Collection $vouchers;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $street = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $postCode = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $city = null;
+
     public function __construct()
     {
         $this->acceptedTermsOfUse    = new ArrayCollection();
@@ -462,5 +471,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getStreet(): string
+    {
+        return $this->street ?? '';
+    }
+
+    public function setStreet(?string $street): static
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getPostCode(): string
+    {
+        return $this->postCode ?? '';
+    }
+
+    public function setPostCode(?string $postCode): static
+    {
+        $this->postCode = $postCode;
+
+        return $this;
+    }
+
+    public function getCity(): string
+    {
+        return $this->city ?? '';
+    }
+
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function hasAddress(): bool
+    {
+        return null !== $this->street && null !== $this->postCode && null !== $this->city;
     }
 }

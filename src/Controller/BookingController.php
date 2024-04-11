@@ -9,6 +9,7 @@ use App\Entity\BusinessDay;
 use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Repository\BusinessDayRepository;
+use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
 use App\Service\AdminMailerService;
 use App\Service\BookingService;
@@ -26,6 +27,7 @@ class BookingController extends AbstractController
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
         private readonly ClockInterface $clock,
+        private readonly PriceRepository $priceRepository,
         private readonly string $timeLimitCancelBooking
     ) {
     }
@@ -206,11 +208,18 @@ class BookingController extends AbstractController
             throw new \Exception('Last BusinessDay has no Date ?!');
         }
 
+        $activePrices = $this->priceRepository->findActivePrices();
+
+        if (empty($activePrices)) {
+            throw new \Exception('No active Price found ?!');
+        }
+
         return $this->render('booking/index.html.twig', [
             'step'     => 1,
             'firstDay' => $businessDays[0]->getDate()->format('Y-m-d'),
             'lastDay'  => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
             'date'     => $dateTime->format('Y-m-d'),
+            'prices'   => $activePrices,
         ], $response);
     }
 
@@ -238,6 +247,12 @@ class BookingController extends AbstractController
             throw new \Exception('BusinessDay has no Date ?!');
         }
 
+        $activePrices = $this->priceRepository->findActivePrices();
+
+        if (empty($activePrices)) {
+            throw new \Exception('No active Price found ?!');
+        }
+
         $bookingOption = $this->bookingService->generateAvailableBookingOptionsForDay($businessDay, false);
 
         return $this->render('booking/index.html.twig', [
@@ -247,6 +262,7 @@ class BookingController extends AbstractController
             'bookingOption' => $bookingOption,
             'date'          => $businessDay->getDate()->format('Y-m-d'),
             'businessDay'   => $businessDay,
+            'prices'        => $activePrices,
         ], $response);
     }
 }
