@@ -18,7 +18,7 @@ class UserChecker implements UserCheckerInterface
         }
 
         if (false === $user->isActive()) {
-            throw new CustomUserMessageAccountStatusException('Your account is not active. Please contact us.');
+            throw new CustomUserMessageAccountStatusException('account.inactive');
         }
     }
 

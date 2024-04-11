@@ -52,11 +52,11 @@ class RegistrationService
         $context         = array_merge($specificContext, $standardContext);
 
         $context['texts']['salutation'] = $this->translator->trans(
-            'email.confirm-email.salutation',
+            'registration.email_verification.email.salutation',
             ['%firstName%' => $user->getFirstName()]
         );
-        $context['texts']['button']      = $this->translator->trans('email.confirm-email.button');
-        $context['texts']['explanation'] = $this->translator->trans('email.confirm-email.explanation', [
+        $context['texts']['button']      = $this->translator->trans('registration.email_verification.email.button');
+        $context['texts']['explanation'] = $this->translator->trans('registration.email_verification.email.explanation', [
             '%timeLimit%' => $this->translator->trans(
                 $context['expiresAtMessageKey'],
                 $context['expiresAtMessageData'],
@@ -66,7 +66,7 @@ class RegistrationService
 
         $email = (new TemplatedEmail())
             ->to(new Address($email))
-            ->subject($this->translator->trans('email.confirm-email.subject'))
+            ->subject($this->translator->trans('registration.email_verification.email.subject'))
             ->context($context)
             ->htmlTemplate('registration/email_confirmation.html.twig')
         ;

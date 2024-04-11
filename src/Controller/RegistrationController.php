@@ -39,7 +39,7 @@ class RegistrationController extends AbstractController
             $registrationService->registerUser($user, $plainPassword);
             $registrationService->sendRegistrationEmail($user);
 
-            $this->addFlash('success', 'Your account has been created. Please check your email for a verification link.');
+            $this->addFlash('success', 'registration.success');
 
             return $security->login($user, 'form_login', 'main');
         }
@@ -73,7 +73,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', 'registration.email_verification.success');
 
         return $this->redirectToRoute('app_login');
     }

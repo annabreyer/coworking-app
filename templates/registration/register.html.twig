@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% trans %}Register{% endtrans %}{% endblock %}
+{% block title %}{% trans %}registration.page.title{% endtrans %}{% endblock %}
 
 {% block body %}
     {% for flash_error in app.flashes('verify_email_error') %}
         <div class="alert alert-danger" role="alert">{{ flash_error|trans }}</div>
     {% endfor %}
 
-    <h1>{% trans %}Register{% endtrans %}</h1>
+    <h1>{% trans %}registration.page.title{% endtrans %}</h1>
 
     {{ form_errors(registrationForm) }}
 
@@ -23,7 +23,7 @@
     {{ form_row(registrationForm.plainPassword, {
         label: 'Password'
     }) }}
-    <p>{% trans %}I hereby accept{% endtrans %}</p>
+    <p>{% trans %}registration.form.acceptance{% endtrans %}</p>
 
     <div>
         {{ form_widget(registrationForm.termsOfUse) }}
@@ -41,8 +41,8 @@
            target="_blank">{{ form_label(registrationForm.dataProtection) }}</a>
     </div>
 
-    <button type="submit" class="btn">{% trans %}Register{% endtrans %}</button>
+    <button type="submit" class="btn">{% trans %}registration.form.action{% endtrans %}</button>
     {{ form_end(registrationForm) }}
 
-    <p>{% trans %}You already have an account?{% endtrans %}<a href="{{ path('app_login') }}">{% trans %}Login{% endtrans %}</a></p>
+    <p>{% trans %}registration.page.already.account{% endtrans %}<a href="{{ path('app_login') }}">{% trans %}registration.page.login.link{% endtrans %}</a></p>
 {% endblock %}

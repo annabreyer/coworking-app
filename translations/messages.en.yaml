@@ -1,0 +1,88 @@
+#general
+email: 'Email'
+Email: 'Email'
+password: 'Password'
+Password: 'Password'
+password.forgotten: 'Password forgotten'
+Terms of use: 'Terms of use'
+Code of conduct: 'Code of conduct'
+Data protection: 'Data protection'
+First name: 'First name'
+Last name: 'Last name'
+Birth date: 'Birth date'
+Mobile phone: 'Mobile phone'
+Welcome!: 'Welcome!'
+Date: 'Date'
+Room: 'Room'
+Booking: 'Booking'
+Book: 'Book'
+
+
+#entity
+user.email.unique: 'There is already an account with this email'
+
+#forms
+label:
+  repeat.password: 'Repeat Password'
+  new.password: 'New Password'
+
+#registration page
+registration:
+  page:
+    title: 'Register'
+    login.link: 'Login'
+    already.account: 'You already have an account?'
+  form:
+    acceptance: 'I hereby accept'
+    terms.agreement.necessary: 'You should agree to our terms.'
+    code.of.conduct.agreement.necessary: 'You should agree to our code of conduct:'
+    data.protection.agreement.necessary: 'You should agree to our data protection agreement'
+    phone.help: 'Please enter your phone number in international format.'
+    action: 'Register'
+  success: 'Your account has been created. Please check your email for a verification link.'
+  email_verification:
+    email:
+      subject: Bitte bestätige Deine E-Mail-Adresse
+      salutation: Hallo %firstName%!
+      instructions: Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst
+      explanation: 'Dieser Link ist %timeLimit% lang gültig'
+      signature: Viele Grüße!
+      button: E-Mail-Adresse bestätigen
+    success: 'Your email address has been verified.'
+
+#login page
+login:
+  page:
+    title: 'Log in!'
+    no.account.yet: 'You don't have an account yet?'
+    link.register: 'Registration'
+  form:
+  title: 'Please sign in'
+
+#reset passwort
+reset_password:
+  page:
+    title: 'Reset your password'
+    instructions: 'Enter your email address, and we will send you a link to reset your password'
+    button: 'Send password reset email'
+  email:
+    subject: Reset your password
+    salutation: Hi %firstName%!
+    instructions: Please visit the following link to reset your password
+    explanation: 'This link will expire in %timeLimit%'
+    signature: Cheers!
+  email_sent_page:
+    title: 'Password Reset Email Sent'
+    info: 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.'
+    link.expiration: 'This link will expire in %timeLimit%'
+    help: 'If you don't receive an email please check your spam folder or <a href="%url%">try again</a>'
+
+
+user_account: 'User account'
+
+#TODO
+You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
+save: Speichern
+Edit my data: Meine Daten bearbeiten
+To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'
+To close your account, please send an Email to %email%: 'Um Dein Konto zu schließen, sende bitte eine E-Mail an %email%'

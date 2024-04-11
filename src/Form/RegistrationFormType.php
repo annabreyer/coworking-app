@@ -24,7 +24,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('email')
             ->add('mobilePhone', TextType::class, [
-                'help'        => 'Please enter your phone number in international format.',
+                'help'        => 'registration.form.phone.help',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter your phone number',
@@ -50,7 +50,7 @@ class RegistrationFormType extends AbstractType
                 'mapped'      => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'You should agree to our terms.',
+                        'message' => 'registration.form.terms.agreement.necessary',
                     ]),
                 ],
             ])
@@ -58,7 +58,7 @@ class RegistrationFormType extends AbstractType
                 'mapped'      => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'You should agree to our code of conduct.',
+                        'message' => 'registration.form.code.of.conduct.agreement.necessary',
                     ]),
                 ],
             ])
@@ -66,7 +66,7 @@ class RegistrationFormType extends AbstractType
                 'mapped'      => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'You should agree to our data protection agreement.',
+                        'message' => 'registration.form.data.protection.agreement.necessary',
                     ]),
                 ],
             ])
@@ -77,11 +77,11 @@ class RegistrationFormType extends AbstractType
                 'attr'        => ['autocomplete' => 'new-password'],
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Please enter a password',
+                        'message' => 'password.constraint.not.blank',
                     ]),
                     new Length([
                         'min'        => 12,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters.',
+                        'minMessage' => 'password.constraint.length.min',
                         // max length allowed by Symfony for security reasons
                         'max' => 4096,
                     ]),

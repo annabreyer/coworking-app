@@ -1,7 +1,5 @@
-password.constraint.not.blank: 'Bitte gib ein Passwort ein'
-password.constraint.length.min: 'Dein Passwort sollte mindestens %limit% Zeichen lang sein'
-
-
+password.constraint.not.blank: 'Please enter a password'
+password.constraint.length.min: 'Your password should be at least %limit% characters'
 
 The password fields must match.: 'Die Passwörter müssen übereinstimmen.'
 Your password should be at least {{ limit }} characters.: 'Dein Passwort sollte mindestens {{ limit }} Zeichen lang sein.'

@@ -36,17 +36,17 @@ class PasswordForgottenService
         $context                        = $this->getStandardEmailContext($this->translator, 'reset-password');
         $context['resetToken']          = $resetToken;
         $context['texts']['salutation'] = $this->translator->trans(
-            'email.reset-password.salutation',
+            'reset_password.email.salutation',
             ['%firstName%' => $user->getFirstName()]
         );
         $context['texts']['explanation'] = $this->translator->trans(
-            'email.reset-password.explanation',
+            'reset_password.email.explanation',
             ['%timeLimit%' => $timeLimit]
         );
 
         $email = (new TemplatedEmail())
             ->to(new Address($user->getEmail()))
-            ->subject($this->translator->trans('email.reset-password.subject'))
+            ->subject($this->translator->trans('reset_password.email.subject'))
             ->htmlTemplate('reset_password/email.html.twig')
             ->context($context)
         ;
