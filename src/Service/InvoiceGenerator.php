@@ -6,6 +6,8 @@ namespace App\Service;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
+use App\Entity\Price;
+use App\Entity\VoucherType;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,7 +41,16 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
-        $this->writeInvoiceData($invoice);
+        $this->writeInvoiceNumber($invoice);
+        $this->writeClientNumber($invoice);
+        $this->writeInvoiceDate($invoice);
+        $this->writeClientFullName($invoice);
+        $this->writeClientStreet($invoice);
+        $this->writeClientCity($invoice);
+        $this->writeFirstPositionNumber();
+        $this->writeBookingDescription($invoice->getBookings()->first());
+        $this->writePrice($invoice);
+        $this->writeTotalAmount($invoice->getAmount());
 
         if ($isAlreadyPaid) {
             $this->addAlreadyPaidMention();
@@ -47,6 +58,41 @@ class InvoiceGenerator
         }
 
         $this->saveInvoice($invoice);
+    }
+
+    public function generateVoucherInvoice(Invoice $invoice, Price $voucherPrice, bool $isAlreadyPaid = false)
+    {
+        if (empty($invoice->getUser())) {
+            throw new \InvalidArgumentException('Invoice must have a user.');
+        }
+
+        if (null === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        if (false === $voucherPrice->isVoucher()) {
+            throw new \InvalidArgumentException('Price must be a voucher.');
+        }
+
+        if (null === $voucherPrice->getVoucherType()) {
+            throw new \InvalidArgumentException('Price must have a voucher type.');
+        }
+
+        $this->writeInvoiceNumber($invoice);
+        $this->writeClientNumber($invoice);
+        $this->writeInvoiceDate($invoice);
+        $this->writeClientFullName($invoice);
+        $this->writeClientStreet($invoice);
+        $this->writeClientCity($invoice);
+        $this->writeFirstPositionNumber();
+        $this->writeVoucherDescription($voucherPrice->getVoucherType());
+        $this->writePrice($invoice);
+        $this->writeTotalAmount($invoice->getAmount());
+
+        if ($isAlreadyPaid) {
+            $this->addAlreadyPaidMention();
+            $this->writeTotalAmount(0);
+        }
     }
 
     public function getTargetDirectory(Invoice $invoice): string
@@ -71,20 +117,6 @@ class InvoiceGenerator
         $template = $this->pdf->importPage(1);
 
         $this->pdf->useTemplate($template, ['adjustPageSize' => true]);
-    }
-
-    private function writeInvoiceData(Invoice $invoice)
-    {
-        $this->writeInvoiceNumber($invoice);
-        $this->writeClientNumber($invoice);
-        $this->writeInvoiceDate($invoice);
-        $this->writeClientFullName($invoice);
-        $this->writeClientStreet($invoice);
-        $this->writeClientCity($invoice);
-        $this->writeFirstPositionNumber();
-        $this->writeDescription($invoice->getBookings()->first());
-        $this->writePrice($invoice);
-        $this->writeTotalAmount($invoice->getAmount());
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
@@ -124,16 +156,26 @@ class InvoiceGenerator
         $this->writeValue(15, 145, 10, 8, '1');
     }
 
-    private function writeDescription(Booking $booking): void
+    private function writeBookingDescription(Booking $booking): void
     {
         if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
             throw new \InvalidArgumentException('Booking must have a business day with a date.');
         }
 
-        $description = $this->translator->trans('booking.invoice.position.description', [
+        $description = $this->translator->trans('booking.invoice.description', [
             '%date%' => $booking->getBusinessDay()->getDate()->format('d.m.Y'),
             '%room%' => $booking->getRoom()->getName(),
         ]);
+        $this->writeValue(30, 145, 140, 8, $description);
+    }
+
+    private function writeVoucherDescription(VoucherType $voucherType): void
+    {
+        $description = $this->translator->trans('voucher.invoice.description', [
+            '%units%' => $voucherType->getUnits(),
+            '%validityMonths%' => $voucherType->getValidityMonths(),
+        ]);
+
         $this->writeValue(30, 145, 140, 8, $description);
     }
 

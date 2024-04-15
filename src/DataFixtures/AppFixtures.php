@@ -11,6 +11,7 @@ use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserTermsOfUse;
+use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -185,25 +186,39 @@ class AppFixtures extends Fixture
 
     private function loadPrices(ObjectManager $manager)
     {
+        $this->loadVoucherTypes($manager);
+
         $priceMonthly = new Price();
-        $priceMonthly->setType(Price::TYPE_MONTHLY)
+        $priceMonthly->setIsSubscription(false)
             ->setAmount(23000)
             ->setIsActive(false);
 
         $manager->persist($priceMonthly);
 
         $priceSingle = new Price();
-        $priceSingle->setType(Price::TYPE_SINGLE)
+        $priceSingle->setIsUnitary(true)
                      ->setAmount(1500);
 
         $manager->persist($priceSingle);
 
         $priceVoucher = new Price();
-        $priceVoucher->setType(Price::TYPE_TEN_VOUCHERS)
+        $priceVoucher->setVoucherType($this->getReference('voucherType10Units', VoucherType::class))
                     ->setAmount(13500);
 
         $manager->persist($priceVoucher);
 
         $manager->flush();
+    }
+
+    private function loadVoucherTypes(ObjectManager $manager): void
+    {
+        $voucherType = new VoucherType();
+        $voucherType->setUnits(10);
+        $voucherType->setValidityMonths(12);
+
+        $manager->persist($voucherType);
+        $manager->flush();
+
+        $this->addReference('voucherType10Units', $voucherType);
     }
 }

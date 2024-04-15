@@ -10,6 +10,7 @@ parameters:
   invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_starting_number: CO0001
   client_number_prefix: 'CO000'
+  available_payment_methods: ['invoice', 'paypal']
 
 services:
     # default configuration for services in *this* file
@@ -23,6 +24,7 @@ services:
           $invoiceStartingNumber: '%invoice_starting_number%'
           $invoiceDirectory: '%invoice_directory%'
           $invoiceClientNumberPrefix: '%client_number_prefix%'
+          $availablePaymentMethods: '%available_payment_methods%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

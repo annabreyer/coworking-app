@@ -32,4 +32,16 @@ class PriceRepository extends ServiceEntityRepository
                     ->getResult()
         ;
     }
+
+    public function findActiveVoucherPrices(): array
+    {
+        return $this->createQueryBuilder('p')
+                    ->andWhere('p.isActive = :isActive')
+                    ->andWhere('p.isVoucher = :isVoucher')
+                    ->setParameter('isActive', true)
+                    ->setParameter('isVoucher', true)
+                    ->getQuery()
+                    ->getResult()
+        ;
+    }
 }

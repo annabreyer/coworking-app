@@ -16,6 +16,8 @@
     <a href="{{ path('booking_payment_voucher', {'booking' : booking.id}) }}"><button>Voucher </button></a>
     <a href="{{ path('booking_payment_invoice', {'booking' : booking.id }) }}"><button>Invoice </button></a>
 
+    If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a>
+
     Payment is due at least 24h before the booking date.
     Please note that cash payments are not accepted.
 

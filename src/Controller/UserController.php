@@ -65,4 +65,14 @@ class UserController extends AbstractController
             'limit' => $limit,
         ]);
     }
+
+    #[Route('/user/vouchers', name: 'user_vouchers')]
+    public function showUserVouchers(): Response
+    {
+        //@todo
+
+        return $this->render('user/vouchers.html.twig', [
+
+        ]);
+    }
 }

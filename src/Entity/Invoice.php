@@ -38,10 +38,14 @@ class Invoice
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class)]
     private Collection $payments;
 
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class)]
+    private Collection $vouchers;
+
     public function __construct()
     {
         $this->bookings = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->vouchers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -165,5 +169,42 @@ class Invoice
         }
 
         return $paidAmount >= $this->getAmount();
+    }
+
+    /**
+     * @return Collection<int, Voucher>
+     */
+    public function getVouchers(): Collection
+    {
+        return $this->vouchers;
+    }
+
+    public function addVoucher(Voucher $voucher): static
+    {
+        if (false === $this->vouchers->contains($voucher)) {
+            $this->vouchers->add($voucher);
+            $voucher->setInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVoucher(Voucher $voucher): static
+    {
+        if ($this->vouchers->removeElement($voucher)) {
+            // set the owning side to null (unless already changed)
+            if ($voucher->getInvoice() === $this) {
+                $voucher->setInvoice(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setVouchers(Collection $vouchers): static
+    {
+        $this->vouchers = $vouchers;
+
+        return $this;
     }
 }

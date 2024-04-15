@@ -1,0 +1,25 @@
+{%  extends 'base.html.twig' %}
+
+{% block title %}Voucher{% endblock %}
+
+{% block body %}
+    <h1>Voucher</h1>
+
+    <form method="POST" action="{{ path('voucher_index') }}">
+        <select name="voucherPrice">
+            {% for voucherPrice in voucherPrices %}
+                <option value="{{ voucherPrice.id }}">
+                    {{ voucherPrice.voucherType.units }} {{ 'units'|trans }} - {{ voucherPrice.amount/100 }} EUR
+                </option>
+            {% endfor %}
+        </select>
+        <label for="paymentMethod">Payment Method</label>
+        <select name="paymentMethod">
+            {% for paymentMethod in paymentMethods %}
+                <option value="{{ paymentMethod }}">{{ paymentMethod|trans }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}

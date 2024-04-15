@@ -87,13 +87,23 @@ booking:
     title: 'Buchung'
   confirmation: 'Deine Buchung wurde bestätigt.'
   invoice:
-    position:
-      description: 'Ein Coworking-Platz am %date% im Raum %room%'
+    description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
     email:
       subject: 'Deine Rechnung'
       salutation: 'Hallo %firstName%!'
       instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum'
+      explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
+      signature: 'Vielen Dank!'
+
+
+voucher:
+  invoice:
+    description: '%units% Karte %validityMonths% Monate gültig.'
+    email:
+      subject: 'Deine Rechnung'
+      salutation: 'Hallo %firstName%!'
+      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, ist die Karte nicht gültig.'
       explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
       signature: 'Vielen Dank!'
 

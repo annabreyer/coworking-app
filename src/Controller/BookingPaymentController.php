@@ -43,8 +43,8 @@ class BookingPaymentController extends AbstractController
         }
 
         $invoice = $invoiceManager->createInvoiceFromBooking($booking, $singlePrice);
-        $invoiceManager->generateInvoicePdf($invoice);
-        $invoiceManager->sendInvoicePerEmail($invoice);
+        $invoiceManager->generateBookingInvoicePdf($invoice);
+        $invoiceManager->sendBookingInvoicePerEmail($invoice);
 
         return $this->render('booking/confirmation.html.twig', [
             'invoice' => $invoice,

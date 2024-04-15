@@ -7,10 +7,14 @@ namespace App\Entity;
 use App\Repository\VoucherRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Clock\ClockAwareTrait;
 
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
 class Voucher
 {
+    use TimestampableEntity;
+    use ClockAwareTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -30,6 +34,12 @@ class Voucher
 
     #[ORM\ManyToOne(inversedBy: 'vouchers')]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'vouchers')]
+    private ?VoucherType $voucherType = null;
+
+    #[ORM\ManyToOne(inversedBy: 'vouchers')]
+    private ?Invoice $invoice = null;
 
     public function getId(): ?int
     {
@@ -94,5 +104,46 @@ class Voucher
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getVoucherType(): ?VoucherType
+    {
+        return $this->voucherType;
+    }
+
+    public function setVoucherType(?VoucherType $voucherType): static
+    {
+        $this->voucherType = $voucherType;
+
+        return $this;
+    }
+
+    public function getInvoice(): ?Invoice
+    {
+        return $this->invoice;
+    }
+
+    public function setInvoice(?Invoice $invoice): static
+    {
+        $this->invoice = $invoice;
+
+        return $this;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiryDate < $this->now();
+    }
+
+    public function hasBeenPaid(): bool
+    {
+        return $this->getInvoice()->isAlreadyPaid();
+    }
+
+    public function isValid(): bool
+    {
+        return false === $this->isExpired()
+            || null !== $this->useDate
+            || $this->hasBeenPaid();
     }
 }
