@@ -34,8 +34,8 @@ class BookingPaymentController extends AbstractController
         InvoiceManager $invoiceManager
     ): Response {
         $singlePrice = $priceRepository->findOneBy([
-            'type'     => Price::TYPE_SINGLE,
-            'isActive' => true,
+            'isUnitary' => true,
+            'isActive'  => true,
         ]);
 
         if (null === $singlePrice) {

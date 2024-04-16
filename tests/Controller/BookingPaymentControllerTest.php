@@ -86,7 +86,7 @@ class BookingPaymentControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri     = '/booking/' . $booking->getId() . '/price';
+        $uri     = '/booking/' . $booking->getId() . '/payment';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();

@@ -158,7 +158,7 @@ class BookingController extends AbstractController
             throw $this->createAccessDeniedException('You are not allowed to cancel this booking.');
         }
 
-        $bookingId = $request->request->get('bookingId');
+        $bookingId = $request->request->getInt('bookingId');
         if ($bookingId !== $booking->getId()) {
             $this->addFlash('error', 'Booking can not be cancelled.');
 

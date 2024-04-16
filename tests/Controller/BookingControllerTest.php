@@ -38,7 +38,7 @@ class BookingControllerTest extends WebTestCase
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
@@ -646,38 +646,6 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testCancelBookingRedirectsToUserBookings(): void
-    {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $client->loginUser($testUser);
-
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
-        ;
-
-        $uri = '/booking/' . $booking->getId() . '/cancel';
-        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
-
-        $this->assertResponseRedirects('/user/bookings');
-        self::assertNull($booking->getId());
-    }
-
     public function testCancelBookingChecksBookingIdInUrlAndPostMatch()
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
@@ -740,8 +708,9 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
-        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
+        $bookingId = $booking->getId();
+        $uri = '/booking/' . $bookingId . '/cancel';
+        $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
         $this->assertResponseRedirects();
 
@@ -751,7 +720,72 @@ class BookingControllerTest extends WebTestCase
         $limit           = static::getContainer()->getParameter('time_limit_cancel_booking_days');
         $session         = $client->getRequest()->getSession();
         $expectedMessage = sprintf('Bookings can only be cancelled %s before their date.', $limit);
-        self::assertContains($expectedMessage, $session->getFlashBag()->get('error'));
+        $errors = $session->getFlashBag()->get('error');
+        self::assertContains($expectedMessage, $errors);
+    }
+
+    public function testCancelBookingSuccessfullDeletesBookingFromDatabase(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $bookingRepository = static::getContainer()->get(BookingRepository::class);
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $booking     = $bookingRepository->findOneBy([
+                                 'room'        => $room,
+                                 'businessDay' => $businessDay,
+                                 'user'        => $testUser,
+                             ])
+        ;
+        $bookingId = $booking->getId();
+
+        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $client->request('POST', $uri, ['bookingId' => $bookingId]);
+
+        $deletedBooking = $bookingRepository->find($bookingId);
+        $this->assertNull($deletedBooking);
+    }
+
+    public function testCancelBookingSuccessfullRedirectsToUserBookings(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $booking     = static::getContainer()->get(BookingRepository::class)
+                             ->findOneBy([
+                                 'room'        => $room,
+                                 'businessDay' => $businessDay,
+                                 'user'        => $testUser,
+                             ])
+        ;
+
+        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
+
+        $this->assertResponseRedirects('/user/bookings');
     }
 
     public function testCancelBookingSuccessfullNotifiesAdmin(): void

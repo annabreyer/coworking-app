@@ -35,7 +35,13 @@
     {% endif %}
 
     {%  for price in prices %}
-        {{ price.type|trans }}: {{ price.amount/100 }} EUR<br>
+        {%  if price.isVoucher %}
+            <p>{{ 'Voucher'|trans }}: {{ price.amount/100 }} €</p>
+        {%  elseif price.isUnitary %}
+            <p>{{ 'UnitaryPrice'|trans }}: {{ price.amount/100 }} €</p>
+        {% else %}
+            <p>{{ 'Subscription'|trans }}: {{ price.amount/100 }} €</p>
+        {%  endif %}
     {% endfor %}
 
     <script>
