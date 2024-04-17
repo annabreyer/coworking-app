@@ -8,13 +8,28 @@
     <ul>
         <li>Room: {{ booking.room.name }}</li>
         <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
+        <li>Price: {{ unitaryPrice.amount/100 }} EUR</li>
     </ul>
 
-    You can either pay immediately, by Paypal or with a voucher, or receive an invoice.
+    {% for error in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
 
-    <a href="{{ path('booking_payment_paypal', {'booking' : booking.id}) }}"><button>Paypal </button></a>
-    <a href="{{ path('booking_payment_voucher', {'booking' : booking.id}) }}"><button>Voucher </button></a>
-    <a href="{{ path('booking_payment_invoice', {'booking' : booking.id }) }}"><button>Invoice </button></a>
+    Please choose your payment method.
+    <div>
+        <form method="post" action="{{ path('booking_step_payment', {'booking' : booking.id}) }}">
+            <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
+            <input type="radio" id="paypal" name="paymentMethod" value="paypal">
+            <label for="paypal">Paypal</label><br>
+            <input type="radio" id="voucher" name="paymentMethod" value="voucher">
+            <label for="voucher">Voucher</label><br>
+            <input type="radio" id="invoice" name="paymentMethod" value="invoice">
+            <label for="invoice">Invoice</label>
+            <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
 
     If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a>
 

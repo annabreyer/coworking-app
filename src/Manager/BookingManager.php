@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Manager;
 
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
+use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,7 @@ class BookingManager
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly InvoiceManager $invoiceManager,
         private readonly string $timeLimitCancelBooking
     ) {
     }
@@ -62,5 +64,12 @@ class BookingManager
         }
 
         return false;
+    }
+
+    public function handleBookingPaymentByInvoice(Booking $booking, Price $price): void
+    {
+        $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
+        $this->invoiceManager->generateBookingInvoicePdf($invoice);
+        $this->invoiceManager->sendBookingInvoicePerEmail($invoice);
     }
 }
