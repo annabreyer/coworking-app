@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -28,7 +30,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
 
         $vouchers        = $voucherType->getUnits();
         $createdVouchers = new ArrayCollection();
-        for ($i = 0; $i < $vouchers; $i++) {
+        for ($i = 0; $i < $vouchers; ++$i) {
             $now        = new \DateTimeImmutable('2024-04-04');
             $expiryDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');
 
@@ -41,9 +43,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
             $manager->persist($voucher);
 
             $createdVouchers[] = $voucher;
-
         }
         $manager->flush();
     }
 }
-

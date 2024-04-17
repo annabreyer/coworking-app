@@ -13,8 +13,8 @@ use Symfony\Component\Clock\ClockAwareTrait;
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
 class Voucher
 {
-    use TimestampableEntity;
     use ClockAwareTrait;
+    use TimestampableEntity;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

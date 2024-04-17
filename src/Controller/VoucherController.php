@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -7,17 +9,13 @@ use App\Entity\User;
 use App\Manager\InvoiceManager;
 use App\Manager\VoucherManager;
 use App\Repository\PriceRepository;
-use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class VoucherController extends AbstractController
 {
-
     public function __construct(
         private readonly PriceRepository $priceRepository,
         private readonly VoucherManager $voucherManager,
@@ -67,7 +65,7 @@ class VoucherController extends AbstractController
             return $this->renderVoucherTemplate($response);
         }
 
-        if (false === in_array($paymentMethod, $this->availablePaymentMethods, true)) {
+        if (false === \in_array($paymentMethod, $this->availablePaymentMethods, true)) {
             $this->addFlash('error', 'Invalid payment method selected.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
@@ -79,13 +77,13 @@ class VoucherController extends AbstractController
         }
 
         if ('invoice' === $paymentMethod) {
-            $vouchers     = $this->voucherManager->createVouchers($user, $voucherPrice->getVoucherType(),0);
-            $invoice      = $this->invoiceManager->createVoucherInvoice($user, $voucherPrice, $vouchers);
+            $vouchers = $this->voucherManager->createVouchers($user, $voucherPrice->getVoucherType(), 0);
+            $invoice  = $this->invoiceManager->createVoucherInvoice($user, $voucherPrice, $vouchers);
 
             $this->invoiceManager->generateVoucherInvoicePdf($invoice, $voucherPrice);
             $this->invoiceManager->sendVoucherInvoicePerEmail($invoice, $voucherPrice);
 
-            //success messages
+            // success messages
             return $this->redirectToRoute('user_vouchers');
         }
 
@@ -95,7 +93,7 @@ class VoucherController extends AbstractController
     #[Route('/voucher/paypal/{voucherPriceId}', name: 'voucher_payment_paypal')]
     public function payVouchersPaypal(Price $price): Response
     {
-        if (false === in_array('paypal', $this->availablePaymentMethods, true)) {
+        if (false === \in_array('paypal', $this->availablePaymentMethods, true)) {
             throw $this->createNotFoundException('Paypal is not available');
         }
 
@@ -112,7 +110,7 @@ class VoucherController extends AbstractController
     {
         $voucherPrices = $this->priceRepository->findActiveVoucherPrices();
 
-        if (empty($voucherPrices)){
+        if (empty($voucherPrices)) {
             throw new \Exception('No voucher price found.');
         }
 
@@ -121,5 +119,4 @@ class VoucherController extends AbstractController
             'paymentMethods' => $this->availablePaymentMethods,
         ], $response);
     }
-
 }

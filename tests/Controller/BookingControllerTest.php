@@ -759,7 +759,7 @@ class BookingControllerTest extends WebTestCase
         ;
 
         $bookingId = $booking->getId();
-        $uri = '/booking/' . $bookingId . '/cancel';
+        $uri       = '/booking/' . $bookingId . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
         $this->assertResponseRedirects();
@@ -770,15 +770,15 @@ class BookingControllerTest extends WebTestCase
         $limit           = static::getContainer()->getParameter('time_limit_cancel_booking_days');
         $session         = $client->getRequest()->getSession();
         $expectedMessage = sprintf('Bookings can only be cancelled %s before their date.', $limit);
-        $errors = $session->getFlashBag()->get('error');
+        $errors          = $session->getFlashBag()->get('error');
         self::assertContains($expectedMessage, $errors);
     }
 
     public function testCancelBookingSuccessfullDeletesBookingFromDatabase(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $client            = static::createClient();
+        $databaseTool      = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $bookingRepository = static::getContainer()->get(BookingRepository::class);
 
         $databaseTool->loadFixtures([
@@ -795,10 +795,10 @@ class BookingControllerTest extends WebTestCase
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
         $booking     = $bookingRepository->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
+            'room'        => $room,
+            'businessDay' => $businessDay,
+            'user'        => $testUser,
+        ])
         ;
         $bookingId = $booking->getId();
 
@@ -806,7 +806,7 @@ class BookingControllerTest extends WebTestCase
         $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
         $deletedBooking = $bookingRepository->find($bookingId);
-        $this->assertNull($deletedBooking);
+        self::assertNull($deletedBooking);
     }
 
     public function testCancelBookingSuccessfullRedirectsToUserBookings(): void

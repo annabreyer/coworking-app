@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -32,6 +32,14 @@ class BookingPaymentController extends AbstractController
             return $this->renderStepPayment($response, $booking);
         }
 
+        $submittedToken = $request->getPayload()->getString('token');
+        if (false === $this->isCsrfTokenValid('payment', $submittedToken)) {
+            $this->addFlash('error', 'Invalid CSRF Token');
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+            return $this->renderStepPayment($response, $booking);
+        }
+
         $priceId = $request->request->get('priceId');
         if (empty($priceId)) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
@@ -56,7 +64,6 @@ class BookingPaymentController extends AbstractController
             return $this->renderStepPayment($response, $booking);
         }
 
-
         if ('invoice' === $paymentMethod) {
             $this->bookingManager->handleBookingPaymentByInvoice($booking, $price);
 
@@ -65,7 +72,6 @@ class BookingPaymentController extends AbstractController
 
         if ('paypal' === $paymentMethod) {
             return $this->redirectToRoute('booking_payment_paypal', ['booking' => $booking->getId()]);
-
         }
 
         if ('voucher' === $paymentMethod) {

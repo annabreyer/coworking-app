@@ -1,7 +1,8 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
-
 
 use App\Entity\Price;
 use App\Entity\VoucherType;
@@ -14,6 +15,7 @@ class PriceFixtures extends Fixture
     {
         $this->loadPrices($manager);
     }
+
     private function loadPrices(ObjectManager $manager)
     {
         $this->loadVoucherTypes($manager);

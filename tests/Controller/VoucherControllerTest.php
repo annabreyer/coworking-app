@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -263,7 +265,7 @@ class VoucherControllerTest extends WebTestCase
                           ->findBy(['user' => $user])
         ;
 
-        $this->assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
+        self::assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
@@ -299,7 +301,7 @@ class VoucherControllerTest extends WebTestCase
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        $this->assertFileExists($filePath);
+        self::assertFileExists($filePath);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
@@ -340,5 +342,4 @@ class VoucherControllerTest extends WebTestCase
         parent::tearDown();
         $this->databaseTool = null;
     }
-
 }

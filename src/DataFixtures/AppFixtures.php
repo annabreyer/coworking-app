@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Room;
 use App\Entity\TermsOfUse;

@@ -72,8 +72,8 @@ class Price
 
     public function setIsUnitary(bool $isUnitary): static
     {
-        $this->isUnitary = $isUnitary;
-        $this->isVoucher = false;
+        $this->isUnitary      = $isUnitary;
+        $this->isVoucher      = false;
         $this->isSubscription = false;
 
         return $this;
@@ -86,8 +86,8 @@ class Price
 
     public function setIsVoucher(bool $isVoucher): static
     {
-        $this->isVoucher = $isVoucher;
-        $this->isUnitary = false;
+        $this->isVoucher      = $isVoucher;
+        $this->isUnitary      = false;
         $this->isSubscription = false;
 
         return $this;
@@ -101,8 +101,8 @@ class Price
     public function setIsSubscription(bool $isSubscription): static
     {
         $this->isSubscription = $isSubscription;
-        $this->isUnitary = false;
-        $this->isVoucher = false;
+        $this->isUnitary      = false;
+        $this->isVoucher      = false;
 
         return $this;
     }

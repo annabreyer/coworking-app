@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -39,7 +41,7 @@ class InvoiceControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $invoiceUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
+        $invoice     = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
 
         $uri = '/invoice/' . $invoice->getId() . '/download';
         $client->request('GET', $uri);
@@ -61,7 +63,7 @@ class InvoiceControllerTest extends WebTestCase
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $invoiceUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $invoiceUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($invoiceUser);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
@@ -71,8 +73,8 @@ class InvoiceControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
-        $filePath = $invoiceGenerator->getTargetDirectory($invoice);
-        $this->assertFileExists($filePath);
+        $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
+        self::assertFileExists($filePath);
     }
 
     public function testDownloadInvoiceReturnsPdfResponse()

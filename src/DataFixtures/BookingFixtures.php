@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -18,6 +20,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
             AppFixtures::class,
         ];
     }
+
     public function load(ObjectManager $manager)
     {
         $this->loadBookingsToFillRoom($manager);

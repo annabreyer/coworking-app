@@ -1,8 +1,9 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Manager;
 
-use App\Entity\Price;
 use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
@@ -14,6 +15,7 @@ use Symfony\Component\Clock\ClockAwareTrait;
 class VoucherManager
 {
     use ClockAwareTrait;
+
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
@@ -25,9 +27,9 @@ class VoucherManager
 
     public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue): Collection
     {
-        $vouchers = $voucherType->getUnits();
+        $vouchers        = $voucherType->getUnits();
         $createdVouchers = new ArrayCollection();
-        for ($i = 0; $i < $vouchers; $i++) {
+        for ($i = 0; $i < $vouchers; ++$i) {
             $voucher = new Voucher();
             $voucher->setUser($user);
             $voucher->setVoucherType($voucherType);

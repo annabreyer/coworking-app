@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
@@ -21,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class InvoiceManagerTest extends KernelTestCase
 {
     use ClockSensitiveTrait;
-    protected ?AbstractDatabaseTool $abstractDatabaseTool;
+    protected ?AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
@@ -87,7 +89,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
 
-        $this->assertSame($invoice, $booking->getInvoice());
+        self::assertSame($invoice, $booking->getInvoice());
     }
 
     public function testCreateInvoiceFromBookingCreatesAndReturnsInvoice(): void
@@ -113,9 +115,9 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
 
-        $this->assertSame($booking->getUser(), $invoice->getUser());
-        $this->assertSame($price->getAmount(), $invoice->getAmount());
-        $this->assertSame($booking, $invoice->getBookings()->first());
+        self::assertSame($booking->getUser(), $invoice->getUser());
+        self::assertSame($price->getAmount(), $invoice->getAmount());
+        self::assertSame($booking, $invoice->getBookings()->first());
     }
 
     public function testGetInvoiceNumberReturnsStartingNumberIfNoInvoicesExist(): void
@@ -126,7 +128,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
         $startingNumber = self::getContainer()->getParameter('invoice_starting_number');
 
-        $this->assertSame(date('Y') . $startingNumber, $invoiceNumber);
+        self::assertSame(date('Y') . $startingNumber, $invoiceNumber);
     }
 
     public function testGetInvoiceNumberIncrementsExistingInvoice(): void
@@ -142,7 +144,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
         $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy([], ['number' => 'DESC']);
 
-        $this->assertSame($invoice->getNumber(), $invoiceNumber);
+        self::assertSame($invoice->getNumber(), $invoiceNumber);
     }
 
     private function getInvoiceManager(): InvoiceManager
@@ -154,8 +156,14 @@ class InvoiceManagerTest extends KernelTestCase
         $mockUrlGenerator     = $this->createMock(UrlGeneratorInterface::class);
         $startingNumber       = self::getContainer()->getParameter('invoice_starting_number');
 
-        return new InvoiceManager($mockInvoiceGenerator, $entityManager, $mockMailer, $mockTranslator,
-            $mockUrlGenerator, $startingNumber);
+        return new InvoiceManager(
+            $mockInvoiceGenerator,
+            $entityManager,
+            $mockMailer,
+            $mockTranslator,
+            $mockUrlGenerator,
+            $startingNumber
+        );
     }
 
     protected function tearDown(): void
@@ -163,5 +171,4 @@ class InvoiceManagerTest extends KernelTestCase
         parent::tearDown();
         $this->databaseTool = null;
     }
-
 }

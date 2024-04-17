@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -72,19 +72,24 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
-        $link = $this->urlGenerator->generate('booking_payment_paypal',
-            ['booking' => $invoice->getBookings()->first()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate(
+            'booking_payment_paypal',
+            ['booking' => $invoice->getBookings()->first()->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $subject = $this->translator->trans('booking.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation'   => $this->translator->trans('booking.invoice.email.salutation',
-                    ['%firstName%' => $invoice->getUser()->getFirstName()]),
+                'salutation' => $this->translator->trans(
+                    'booking.invoice.email.salutation',
+                    ['%firstName%' => $invoice->getUser()->getFirstName()]
+                ),
                 'instructions' => $this->translator->trans('booking.invoice.email.instruction'),
                 'explanation'  => $this->translator->trans('booking.invoice.email.explanation'),
                 'signature'    => $this->translator->trans('booking.invoice.email.signature'),
             ],
-            'link'  => $link,
+            'link' => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
@@ -134,19 +139,24 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
-        $link = $this->urlGenerator->generate('voucher_payment_paypal',
-            ['voucherPriceId' => $voucherPrice->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate(
+            'voucher_payment_paypal',
+            ['voucherPriceId' => $voucherPrice->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $subject = $this->translator->trans('voucher.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation'   => $this->translator->trans('voucher.invoice.email.salutation',
-                    ['%firstName%' => $invoice->getUser()->getFirstName()]),
+                'salutation' => $this->translator->trans(
+                    'voucher.invoice.email.salutation',
+                    ['%firstName%' => $invoice->getUser()->getFirstName()]
+                ),
                 'instructions' => $this->translator->trans('voucher.invoice.email.instruction'),
                 'explanation'  => $this->translator->trans('voucher.invoice.email.explanation'),
                 'signature'    => $this->translator->trans('voucher.invoice.email.signature'),
             ],
-            'link'  => $link,
+            'link' => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);

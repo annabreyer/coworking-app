@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
@@ -43,8 +45,8 @@ class VoucherManagerTest extends KernelTestCase
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
         $vouchers = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
-        $this->assertCount(10, $vouchers);
-        $this->assertContainsOnlyInstancesOf(Voucher::class, $vouchers);
+        self::assertCount(10, $vouchers);
+        self::assertContainsOnlyInstancesOf(Voucher::class, $vouchers);
     }
 
     public function testCreateVouchersSetsADifferentCodeForAllVouchers(): void
@@ -68,7 +70,7 @@ class VoucherManagerTest extends KernelTestCase
             $codes[] = $voucher->getCode();
         }
 
-        $this->assertCount(10, array_unique($codes));
+        self::assertCount(10, array_unique($codes));
     }
 
     public function testCreateVouchersSetsTheCorrectExpirationDate(): void
@@ -87,9 +89,9 @@ class VoucherManagerTest extends KernelTestCase
 
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $vouchers = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
+        $vouchers       = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
         $expirationDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');
-        $this->assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
+        self::assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
     }
 
     protected function tearDown(): void
@@ -97,5 +99,4 @@ class VoucherManagerTest extends KernelTestCase
         parent::tearDown();
         $this->databaseTool = null;
     }
-
 }

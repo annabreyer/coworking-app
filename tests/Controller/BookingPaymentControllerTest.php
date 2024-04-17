@@ -72,7 +72,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -80,6 +80,36 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         self::assertCount(3, $crawler->filter('li'));
+    }
+
+    public function testStepPaymentFormSubmitErrorWithInvalidCsrfToken(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $crawler = $client->request('GET', $uri);
+
+        $form = $crawler->filter('form')->form();
+        $form->getPhpValues();
+        $form->setValues(['token' => 'invalid']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
     }
 
     public function testStepPaymentTemplateContainsPaymentMethodForm(): void
@@ -98,7 +128,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -124,7 +154,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -154,7 +184,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -184,7 +214,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -214,7 +244,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
         $uri     = '/booking/' . $booking->getId() . '/payment';
@@ -244,12 +274,12 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
-        $crawler = $client->request('GET', $uri);
-        $form    = $crawler->filter('form')->form();
+        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $crawler               = $client->request('GET', $uri);
+        $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
@@ -272,20 +302,20 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
-        $crawler = $client->request('GET', $uri);
-        $form    = $crawler->filter('form')->form();
+        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $crawler               = $client->request('GET', $uri);
+        $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)
                                          ->findOneBy(['user' => $bookingUser]);
 
-        $this->assertNotNull($invoice);
-        $this->assertSame($booking->getId(), $invoice->getBookings()->first()->getId());
+        self::assertNotNull($invoice);
+        self::assertSame($booking->getId(), $invoice->getBookings()->first()->getId());
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
@@ -304,12 +334,12 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
-        $crawler = $client->request('GET', $uri);
-        $form    = $crawler->filter('form')->form();
+        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $crawler               = $client->request('GET', $uri);
+        $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
@@ -317,8 +347,8 @@ class BookingPaymentControllerTest extends WebTestCase
                          ->findOneBy(['user' => $bookingUser]);
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
-        $filePath = $invoiceGenerator->getTargetDirectory($invoice);
-        $this->assertFileExists($filePath);
+        $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
+        self::assertFileExists($filePath);
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
@@ -337,12 +367,12 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
-        $crawler = $client->request('GET', $uri);
-        $form    = $crawler->filter('form')->form();
+        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $crawler               = $client->request('GET', $uri);
+        $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 

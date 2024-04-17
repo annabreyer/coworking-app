@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Service;
 
@@ -53,9 +55,9 @@ class InvoiceGeneratorTest extends KernelTestCase
             'App\DataFixtures\InvoiceFixtures',
         ]);
 
-        $invoice  = static::getContainer()
+        $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' =>InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
         $bookings = $invoice->getBookings();
         foreach ($bookings as $booking) {
             $invoice->removeBooking($booking);
@@ -86,9 +88,9 @@ class InvoiceGeneratorTest extends KernelTestCase
                              ])
         ;
 
-        $invoice  = static::getContainer()
+        $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' =>InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
         $invoice->addBooking($booking);
 
         $this->expectException(\Exception::class);
@@ -170,23 +172,27 @@ class InvoiceGeneratorTest extends KernelTestCase
 
     public function testGetTargetDirectoryIsComposedOfYearAndMonth(): void
     {
-        $invoice  = static::getContainer()
+        $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' =>InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $expectedPath     = 'invoiceDirectory/2024/03';
-        $this->assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
+        self::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
     }
 
     private function getInvoiceGenerator(): InvoiceGenerator
     {
-
         $mockTranslator = $this->createMock(TranslatorInterface::class);
         $mockFilesystem = $this->createMock(Filesystem::class);
 
-        return new InvoiceGenerator($mockTranslator, $mockFilesystem, 'invoiceTemplatePath', 'invoiceDirectory',
-            'invoiceClientNumberPrefix');
+        return new InvoiceGenerator(
+            $mockTranslator,
+            $mockFilesystem,
+            'invoiceTemplatePath',
+            'invoiceDirectory',
+            'invoiceClientNumberPrefix'
+        );
     }
 
     protected function tearDown(): void
@@ -194,5 +200,4 @@ class InvoiceGeneratorTest extends KernelTestCase
         parent::tearDown();
         $this->databaseTool = null;
     }
-
 }

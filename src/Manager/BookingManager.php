@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -47,23 +47,27 @@ class BookingManager
     public function canBookingBeCancelled(Booking $booking): bool
     {
         if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
-            throw new \LogicException('Business day or date is missing');
+            throw new \LogicException('Booking must have a business day and a date.');
         }
 
         $now   = $this->now();
         $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking);
 
         if ($now < $limit) {
-            throw new \LogicException('Time limit cancel booking is wrongly configured');
+            throw new \LogicException('Time limit cancel booking is wrongly configured.');
         }
 
         $interval = $limit->diff($booking->getBusinessDay()->getDate());
 
-        if ($interval->days >= $this->timeLimitCancelBooking) {
-            return true;
+        if (1 === $interval->invert) {
+            return false;
         }
 
-        return false;
+        if ($interval->days < $this->timeLimitCancelBooking) {
+            return false;
+        }
+
+        return true;
     }
 
     public function handleBookingPaymentByInvoice(Booking $booking, Price $price): void

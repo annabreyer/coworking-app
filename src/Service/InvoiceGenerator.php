@@ -173,7 +173,7 @@ class InvoiceGenerator
     private function writeVoucherDescription(VoucherType $voucherType): void
     {
         $description = $this->translator->trans('voucher.invoice.description', [
-            '%units%' => $voucherType->getUnits(),
+            '%units%'          => $voucherType->getUnits(),
             '%validityMonths%' => $voucherType->getValidityMonths(),
         ]);
 
