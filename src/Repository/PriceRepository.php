@@ -44,4 +44,15 @@ class PriceRepository extends ServiceEntityRepository
                     ->getResult()
         ;
     }
+
+    public function findActiveUnitaryPrices(): array
+    {
+        return $this->createQueryBuilder('p')
+                    ->andWhere('p.isActive = :isActive')
+                    ->andWhere('p.isUnitary = :isUnitary')
+                    ->setParameter('isActive', true)
+                    ->setParameter('isUnitary', true)
+                    ->getQuery()
+                    ->getResult();
+    }
 }

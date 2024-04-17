@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Manager;
 
@@ -72,17 +72,19 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
-        $link = $this->urlGenerator->generate('booking_payment_paypal', ['booking' => $invoice->getBookings()->first()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate('booking_payment_paypal',
+            ['booking' => $invoice->getBookings()->first()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $subject = $this->translator->trans('booking.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation'   => $this->translator->trans('booking.invoice.email.salutation', ['%firstName%' => $invoice->getUser()->getFirstName()]),
+                'salutation'   => $this->translator->trans('booking.invoice.email.salutation',
+                    ['%firstName%' => $invoice->getUser()->getFirstName()]),
                 'instructions' => $this->translator->trans('booking.invoice.email.instruction'),
                 'explanation'  => $this->translator->trans('booking.invoice.email.explanation'),
                 'signature'    => $this->translator->trans('booking.invoice.email.signature'),
             ],
-            'link' => $link,
+            'link'  => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
@@ -122,7 +124,7 @@ class InvoiceManager
         $this->invoiceGenerator->generateVoucherInvoice($invoice, $voucherPrice);
     }
 
-    public function sendVoucherInvoicePerEmail(Invoice $invoice): void
+    public function sendVoucherInvoicePerEmail(Invoice $invoice, Price $voucherPrice): void
     {
         if (null === $invoice->getUser()) {
             throw new \InvalidArgumentException('Invoice must have a user');
@@ -132,17 +134,19 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
-        $link = $this->urlGenerator->generate('booking_payment_paypal', ['booking' => $invoice->getBookings()->first()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate('voucher_payment_paypal',
+            ['voucherPriceId' => $voucherPrice->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $subject = $this->translator->trans('booking.invoice.email.subject');
+        $subject = $this->translator->trans('voucher.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation'   => $this->translator->trans('booking.invoice.email.salutation', ['%firstName%' => $invoice->getUser()->getFirstName()]),
-                'instructions' => $this->translator->trans('booking.invoice.email.instruction'),
-                'explanation'  => $this->translator->trans('booking.invoice.email.explanation'),
-                'signature'    => $this->translator->trans('booking.invoice.email.signature'),
+                'salutation'   => $this->translator->trans('voucher.invoice.email.salutation',
+                    ['%firstName%' => $invoice->getUser()->getFirstName()]),
+                'instructions' => $this->translator->trans('voucher.invoice.email.instruction'),
+                'explanation'  => $this->translator->trans('voucher.invoice.email.explanation'),
+                'signature'    => $this->translator->trans('voucher.invoice.email.signature'),
             ],
-            'link' => $link,
+            'link'  => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
@@ -159,13 +163,14 @@ class InvoiceManager
         $this->mailer->send($email);
     }
 
-
-    private function getInvoiceNumber(): string
+    public function getInvoiceNumber(): string
     {
         $lastInvoice = $this->entityManager->getRepository(Invoice::class)->findOneBy([], ['id' => 'DESC']);
 
         if ($lastInvoice) {
-            return (string) ($lastInvoice->getNumber() + 1);
+            $number = str_split($lastInvoice->getNumber(), 5);
+
+            return $number[0] . $number[1]++;
         }
 
         return date('Y') . $this->invoiceStartingNumber;

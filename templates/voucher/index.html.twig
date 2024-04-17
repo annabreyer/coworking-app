@@ -5,6 +5,10 @@
 {% block body %}
     <h1>Voucher</h1>
 
+    {% for error in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
+
     <form method="POST" action="{{ path('voucher_index') }}">
         <select name="voucherPrice">
             {% for voucherPrice in voucherPrices %}
@@ -14,11 +18,11 @@
             {% endfor %}
         </select>
         <label for="paymentMethod">Payment Method</label>
-        <select name="paymentMethod">
-            {% for paymentMethod in paymentMethods %}
-                <option value="{{ paymentMethod }}">{{ paymentMethod|trans }}</option>
-            {% endfor %}
-        </select>
+        {% for paymentMethod in paymentMethods %}
+            <input type="radio" id="{{ paymentMethod }}" name="paymentMethod" value="{{ paymentMethod }}">
+            <label for="paypal">{{ paymentMethod|trans }}</label><br>
+        {% endfor %}
+
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
         <input type="submit" value="Submit">
     </form>

@@ -37,8 +37,9 @@ class PriceFixtures extends Fixture
                      ->setAmount(13500);
 
         $manager->persist($priceVoucher);
-
         $manager->flush();
+
+        $this->addReference('price-voucher', $priceVoucher);
     }
 
     private function loadVoucherTypes(ObjectManager $manager): void

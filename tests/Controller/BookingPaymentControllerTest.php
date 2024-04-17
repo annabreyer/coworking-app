@@ -39,6 +39,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -64,6 +65,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -89,6 +91,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -114,6 +117,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -143,6 +147,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -172,6 +177,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -201,6 +207,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -230,6 +237,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -245,7 +253,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getId() . '/payment/invoice');
+        $this->assertResponseRedirects('/booking/' . $booking->getId() . '/invoice');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceCreatesInvoice(): void
@@ -257,6 +265,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -288,6 +297,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -320,6 +330,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -350,6 +361,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -374,6 +386,7 @@ class BookingPaymentControllerTest extends WebTestCase
             'App\DataFixtures\AppFixtures',
             'App\DataFixtures\PriceFixtures',
             'App\DataFixtures\InvoiceFixtures',
+            'App\DataFixtures\BookingFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);

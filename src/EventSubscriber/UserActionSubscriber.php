@@ -68,10 +68,6 @@ class UserActionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($this->security->isGranted('ROLE_USER')) {
-            $this->saveUserRequest($user, $request);
-        }
-
         $this->saveUserRequest($user, $request);
     }
 

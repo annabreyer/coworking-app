@@ -165,6 +165,7 @@ class UserActionSubscriberTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\PriceFixtures',
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);

@@ -18,29 +18,29 @@ class InvoiceGenerator
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private Filesystem $filesystem,
+        private readonly Filesystem $filesystem,
         private readonly string $invoiceTemplatePath,
         private readonly string $invoiceDirectory,
         private readonly string $invoiceClientNumberPrefix
     ) {
         $this->pdf = new Fpdi();
-        $this->setupInvoiceTemplate();
     }
 
-    public function generateBookingInvoice(Invoice $invoice, bool $isAlreadyPaid = false): void
+    public function generateBookingInvoice(Invoice $invoice): void
     {
-        if (empty($invoice->getBookings())) {
+        if (null === $invoice->getId()) {
+            throw new \InvalidArgumentException('Invoice must be persisted.');
+        }
+
+        if (0 === $invoice->getBookings()->count()) {
             throw new \InvalidArgumentException('Invoice must have at least one booking.');
         }
 
         if (1 < $invoice->getBookings()->count()) {
-            throw new \InvalidArgumentException('Only one Invoice Per Booking');
+            throw new \InvalidArgumentException('Only one invoice per booking');
         }
 
-        if (null === $invoice->getAmount()) {
-            throw new \InvalidArgumentException('Invoice must have an amount.');
-        }
-
+        $this->setupInvoiceTemplate();
         $this->writeInvoiceNumber($invoice);
         $this->writeClientNumber($invoice);
         $this->writeInvoiceDate($invoice);
@@ -52,7 +52,7 @@ class InvoiceGenerator
         $this->writePrice($invoice);
         $this->writeTotalAmount($invoice->getAmount());
 
-        if ($isAlreadyPaid) {
+        if ($invoice->isAlreadyPaid()) {
             $this->addAlreadyPaidMention();
             $this->writeTotalAmount(0);
         }
@@ -60,14 +60,10 @@ class InvoiceGenerator
         $this->saveInvoice($invoice);
     }
 
-    public function generateVoucherInvoice(Invoice $invoice, Price $voucherPrice, bool $isAlreadyPaid = false)
+    public function generateVoucherInvoice(Invoice $invoice, Price $voucherPrice): void
     {
-        if (empty($invoice->getUser())) {
-            throw new \InvalidArgumentException('Invoice must have a user.');
-        }
-
-        if (null === $invoice->getAmount()) {
-            throw new \InvalidArgumentException('Invoice must have an amount.');
+        if (null === $invoice->getId()) {
+            throw new \InvalidArgumentException('Invoice must be persisted.');
         }
 
         if (false === $voucherPrice->isVoucher()) {
@@ -78,6 +74,11 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Price must have a voucher type.');
         }
 
+        if ($voucherPrice->getVoucherType()->getUnits() !== $invoice->getVouchers()->count()) {
+            throw new \InvalidArgumentException('Voucher count does not match voucher type.');
+        }
+
+        $this->setupInvoiceTemplate();
         $this->writeInvoiceNumber($invoice);
         $this->writeClientNumber($invoice);
         $this->writeInvoiceDate($invoice);
@@ -89,7 +90,7 @@ class InvoiceGenerator
         $this->writePrice($invoice);
         $this->writeTotalAmount($invoice->getAmount());
 
-        if ($isAlreadyPaid) {
+        if ($invoice->isAlreadyPaid()) {
             $this->addAlreadyPaidMention();
             $this->writeTotalAmount(0);
         }

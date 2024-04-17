@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\DataFixtures;
 
@@ -31,7 +31,6 @@ class AppFixtures extends Fixture
         $this->loadUsers($manager);
         $this->loadBusinessDays($manager);
         $this->loadRooms($manager);
-        $this->loadBookings($manager);
 
         $manager->flush();
     }
@@ -152,34 +151,5 @@ class AppFixtures extends Fixture
 
         $this->addReference('room1', $room);
         $this->addReference('room3', $room3);
-    }
-
-    public function loadBookings(ObjectManager $manager)
-    {
-        $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
-        $room        = $this->getReference('room1', Room::class);
-
-        for ($i = 0; $i < $room->getCapacity(); ++$i) {
-            $booking = new Booking();
-            $booking->setBusinessDay($businessDay);
-            $booking->setRoom($room);
-            $booking->setUser($this->getReference('user1', User::class));
-
-            $manager->persist($booking);
-        }
-
-        $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
-        $room3       = $this->getReference('room3', Room::class);
-
-        $booking = new Booking();
-        $booking->setBusinessDay($businessDay);
-        $booking->setRoom($room3);
-        $booking->setUser($this->getReference('user1', User::class));
-
-        $manager->persist($booking);
-
-        $manager->flush();
-
-        $this->addReference('booking1', $booking);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\Entity\Price;
 use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
@@ -17,8 +18,12 @@ class VoucherManager
     {
     }
 
+    public static function generateVoucherCode(): string
+    {
+        return bin2hex(random_bytes(5));
+    }
 
-    public function createVouchers(User $user, VoucherType $voucherType): Collection
+    public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue): Collection
     {
         $vouchers = $voucherType->getUnits();
         $createdVouchers = new ArrayCollection();
@@ -28,19 +33,14 @@ class VoucherManager
             $voucher->setVoucherType($voucherType);
             $voucher->setCode($this->generateVoucherCode());
             $voucher->setExpiryDate($this->calculateExpiryDate($voucherType->getValidityMonths()));
+            $voucher->setValue($unitaryValue);
             $this->entityManager->persist($voucher);
 
             $createdVouchers[] = $voucher;
-
         }
         $this->entityManager->flush();
 
         return $createdVouchers;
-    }
-
-    private function generateVoucherCode(): string
-    {
-        return bin2hex(random_bytes(5));
     }
 
     private function calculateExpiryDate(int $validityMonths): \DateTimeImmutable
