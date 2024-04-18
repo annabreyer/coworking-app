@@ -12,8 +12,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const BOOKING_INVOICE_NUMBER = '2024CO0001';
-    public const VOUCHER_INVOICE_NUMBER = '2024CO0002';
+    public const BOOKING_INVOICE_NUMBER = 'CO20240001';
+    public const VOUCHER_INVOICE_NUMBER = 'CO20240002';
 
     public function getDependencies()
     {
@@ -28,6 +28,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
     {
         $this->loadBookingInvoice($manager);
         $this->loadVoucherInvoice($manager);
+        $this->loadInvoiceFromLastYear($manager);
     }
 
     private function loadBookingInvoice(ObjectManager $manager)
@@ -58,6 +59,20 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
             ->setDate(new \DateTime('2024-04-04'))
             ->setNumber(self::VOUCHER_INVOICE_NUMBER)
             ->setAmount($voucherPrice->getAmount());
+
+        $manager->persist($invoice);
+        $manager->flush();
+    }
+
+    private function loadInvoiceFromLastYear(ObjectManager $manager): void
+    {
+        $user = $this->getReference('user1');
+        $invoice = new Invoice();
+        $invoice->setUser($user)
+                ->setAmount(1500)
+                ->setDate(new \DateTime('2023-03-28'))
+                ->setNumber('CO20230001')
+        ;
 
         $manager->persist($invoice);
         $manager->flush();

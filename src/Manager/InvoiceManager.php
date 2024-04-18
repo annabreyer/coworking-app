@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Manager;
 
@@ -8,6 +8,7 @@ use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Entity\User;
+use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +28,8 @@ class InvoiceManager
         private readonly MailerInterface $mailer,
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private string $invoiceStartingNumber
+        private readonly InvoiceRepository $invoiceRepository,
+        private string $invoicePrefix
     ) {
     }
 
@@ -81,7 +83,7 @@ class InvoiceManager
         $subject = $this->translator->trans('booking.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation' => $this->translator->trans(
+                'salutation'   => $this->translator->trans(
                     'booking.invoice.email.salutation',
                     ['%firstName%' => $invoice->getUser()->getFirstName()]
                 ),
@@ -89,7 +91,7 @@ class InvoiceManager
                 'explanation'  => $this->translator->trans('booking.invoice.email.explanation'),
                 'signature'    => $this->translator->trans('booking.invoice.email.signature'),
             ],
-            'link' => $link,
+            'link'  => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
@@ -148,7 +150,7 @@ class InvoiceManager
         $subject = $this->translator->trans('voucher.invoice.email.subject');
         $context = [
             'texts' => [
-                'salutation' => $this->translator->trans(
+                'salutation'   => $this->translator->trans(
                     'voucher.invoice.email.salutation',
                     ['%firstName%' => $invoice->getUser()->getFirstName()]
                 ),
@@ -156,7 +158,7 @@ class InvoiceManager
                 'explanation'  => $this->translator->trans('voucher.invoice.email.explanation'),
                 'signature'    => $this->translator->trans('voucher.invoice.email.signature'),
             ],
-            'link' => $link,
+            'link'  => $link,
         ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
@@ -175,14 +177,17 @@ class InvoiceManager
 
     public function getInvoiceNumber(): string
     {
-        $lastInvoice = $this->entityManager->getRepository(Invoice::class)->findOneBy([], ['id' => 'DESC']);
+        $year         = $this->now()->format('Y');
+        $lastInvoice  = $this->invoiceRepository->findLatestInvoiceForYear($year);
 
-        if ($lastInvoice) {
-            $number = str_split($lastInvoice->getNumber(), 5);
+        if (null === $lastInvoice) {
 
-            return $number[0] . $number[1]++;
+            return $this->invoicePrefix . $year . '0001';
         }
 
-        return date('Y') . $this->invoiceStartingNumber;
+        $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
+        $number                = (int)$invoiceNumberElements[1];
+
+        return $this->invoicePrefix . $number + 1;
     }
 }

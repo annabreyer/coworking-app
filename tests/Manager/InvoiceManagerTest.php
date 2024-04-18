@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Tests\Manager;
 
@@ -23,6 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class InvoiceManagerTest extends KernelTestCase
 {
     use ClockSensitiveTrait;
+
     protected ?AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
@@ -120,15 +121,19 @@ class InvoiceManagerTest extends KernelTestCase
         self::assertSame($booking, $invoice->getBookings()->first());
     }
 
-    public function testGetInvoiceNumberReturnsStartingNumberIfNoInvoicesExist(): void
+    public function testGetInvoiceNumberStartsWithOneIfNoInvoicesExist(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $this->databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+        ]);
 
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
-        $startingNumber = self::getContainer()->getParameter('invoice_starting_number');
+        $prefix         = self::getContainer()->getParameter('invoice_prefix');
+        $expectedNumber = $prefix . date('Y') . '0001';
 
-        self::assertSame(date('Y') . $startingNumber, $invoiceNumber);
+        self::assertSame($expectedNumber, $invoiceNumber);
     }
 
     public function testGetInvoiceNumberIncrementsExistingInvoice(): void
@@ -142,9 +147,30 @@ class InvoiceManagerTest extends KernelTestCase
 
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
-        $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy([], ['number' => 'DESC']);
 
-        self::assertSame($invoice->getNumber(), $invoiceNumber);
+        $prefix = self::getContainer()->getParameter('invoice_prefix');
+        // Two invoice fixtures for 2024
+        $expectedNumber = $prefix . date('Y') . '0003';
+
+        self::assertSame($expectedNumber, $invoiceNumber);
+    }
+
+    public function testGetInvoiceNumberIncrementsExistingInvoiceWithDifferentYear(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2023-01-01'));
+        $this->databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\BookingFixtures',
+            'App\DataFixtures\InvoiceFixtures',
+        ]);
+
+        $invoiceManager = $this->getInvoiceManager();
+        $invoiceNumber  = $invoiceManager->getInvoiceNumber();
+        $prefix         = self::getContainer()->getParameter('invoice_prefix');
+        // Only one fixture for 2023
+        $expectedNumber = $prefix .'20230002';
+
+        self::assertSame($expectedNumber, $invoiceNumber);
     }
 
     private function getInvoiceManager(): InvoiceManager
@@ -154,7 +180,8 @@ class InvoiceManagerTest extends KernelTestCase
         $mockMailer           = $this->createMock(MailerInterface::class);
         $mockTranslator       = $this->createMock(TranslatorInterface::class);
         $mockUrlGenerator     = $this->createMock(UrlGeneratorInterface::class);
-        $startingNumber       = self::getContainer()->getParameter('invoice_starting_number');
+        $invoicePrefix        = self::getContainer()->getParameter('invoice_prefix');
+        $invoiceRepository    = self::getContainer()->get(InvoiceRepository::class);
 
         return new InvoiceManager(
             $mockInvoiceGenerator,
@@ -162,7 +189,8 @@ class InvoiceManagerTest extends KernelTestCase
             $mockMailer,
             $mockTranslator,
             $mockUrlGenerator,
-            $startingNumber
+            $invoiceRepository,
+            $invoicePrefix
         );
     }
 

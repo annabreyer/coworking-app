@@ -8,8 +8,8 @@ parameters:
   time_limit_cancel_booking_days: '1 day'
   invoice_directory: '%kernel.project_dir%/private/invoice'
   invoice_template_path: '%invoice_directory%/template.pdf'
-  invoice_starting_number: CO0001
-  client_number_prefix: 'CO000'
+  invoice_prefix: 'CO'
+  client_number_prefix: 'COO000'
   available_payment_methods: ['invoice', 'paypal']
 
 services:
@@ -21,7 +21,7 @@ services:
           $timeLimitCancelBooking: '%time_limit_cancel_booking_days%'
           $supportEmail: '%support_email%'
           $invoiceTemplatePath: '%invoice_template_path%'
-          $invoiceStartingNumber: '%invoice_starting_number%'
+          $invoicePrefix: '%invoice_prefix%'
           $invoiceDirectory: '%invoice_directory%'
           $invoiceClientNumberPrefix: '%client_number_prefix%'
           $availablePaymentMethods: '%available_payment_methods%'
