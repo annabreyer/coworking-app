@@ -4,5 +4,5 @@
 
 {% block body %}
     Your invoice has been sent to your email address. You can also download it by clicking the link below:
-    <a href="{{ path('invoice_download', {id: invoice.id}) }}">Download invoice</a>
+    <a href="{{ path('invoice_download', {'uuid': invoice.uuid}) }}">Download invoice</a>
 {% endblock %}

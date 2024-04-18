@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -10,11 +10,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
 class Invoice
 {
     use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,8 +43,12 @@ class Invoice
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class)]
     private Collection $vouchers;
 
+    #[ORM\Column(type: 'uuid')]
+    private Uuid $uuid;
+
     public function __construct()
     {
+        $this->uuid     = Uuid::v7();
         $this->bookings = new ArrayCollection();
         $this->payments = new ArrayCollection();
         $this->vouchers = new ArrayCollection();
@@ -204,6 +210,18 @@ class Invoice
     public function setVouchers(Collection $vouchers): static
     {
         $this->vouchers = $vouchers;
+
+        return $this;
+    }
+
+    public function getUuid(): Uuid
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(Uuid $uuid): static
+    {
+        $this->uuid = $uuid;
 
         return $this;
     }

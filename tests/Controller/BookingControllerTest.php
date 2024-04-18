@@ -613,7 +613,7 @@ class BookingControllerTest extends WebTestCase
         ;
 
         self::assertNotNull($booking);
-        $this->assertResponseRedirects('/booking/' . $booking->getId() . '/payment');
+        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
     }
 
     public function testStepRoomFormSubmitSuccessfullNotifiesAdmin(): void
@@ -657,6 +657,40 @@ class BookingControllerTest extends WebTestCase
         $this->assertEmailSubjectContains($email, $businessDay->getDate()->format('d/m/Y'));
     }
 
+    public function testCancelBookingThrowsNotFoundExceptionWhenWrongUUid()
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
+            'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\PriceFixtures',
+            'App\DataFixtures\BookingFixtures',
+        ]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $booking     = static::getContainer()->get(BookingRepository::class)
+                             ->findOneBy([
+                                 'room'        => $room,
+                                 'businessDay' => $businessDay,
+                                 'user'        => $bookingUser,
+                             ])
+        ;
+
+        $uri = '/booking/77403q-959-850496-yt98r3ty34980/cancel';
+        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
     public function testCancelBookingChecksUser()
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
@@ -686,7 +720,7 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -719,7 +753,7 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => 99999]);
 
         $this->assertResponseRedirects();
@@ -758,9 +792,8 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $bookingId = $booking->getId();
-        $uri       = '/booking/' . $bookingId . '/cancel';
-        $client->request('POST', $uri, ['bookingId' => $bookingId]);
+        $uri       = '/booking/' . $booking->getUuid() . '/cancel';
+        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects();
 
@@ -802,7 +835,7 @@ class BookingControllerTest extends WebTestCase
         ;
         $bookingId = $booking->getId();
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
         $deletedBooking = $bookingRepository->find($bookingId);
@@ -836,7 +869,7 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects('/user/bookings');
@@ -870,7 +903,7 @@ class BookingControllerTest extends WebTestCase
         ;
 
         $bookingDate = $booking->getBusinessDay()->getDate();
-        $uri         = '/booking/' . $booking->getId() . '/cancel';
+        $uri         = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects();

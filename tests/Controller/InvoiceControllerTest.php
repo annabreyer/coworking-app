@@ -43,7 +43,7 @@ class InvoiceControllerTest extends WebTestCase
         $invoiceUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $invoice     = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
 
-        $uri = '/invoice/' . $invoice->getId() . '/download';
+        $uri = '/invoice/' . $invoice->getUuid() . '/download';
         $client->request('GET', $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -68,7 +68,7 @@ class InvoiceControllerTest extends WebTestCase
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
 
-        $uri = '/invoice/' . $invoice->getId() . '/download';
+        $uri = '/invoice/' . $invoice->getUuid() . '/download';
         $client->request('GET', $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -96,7 +96,7 @@ class InvoiceControllerTest extends WebTestCase
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['user' => $invoiceUser]);
 
-        $uri = '/invoice/' . $invoice->getId() . '/download';
+        $uri = '/invoice/' . $invoice->getUuid() . '/download';
         $client->request('GET', $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);

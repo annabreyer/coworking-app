@@ -8,6 +8,7 @@ use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\User;
 use App\Manager\BookingManager;
+use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
@@ -24,6 +25,7 @@ class BookingController extends AbstractController
     public function __construct(
         private readonly BookingService $bookingService,
         private readonly BookingManager $bookingManager,
+        private readonly BookingRepository $bookingRepository,
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
         private readonly ClockInterface $clock,
@@ -147,12 +149,21 @@ class BookingController extends AbstractController
         $booking = $this->bookingManager->saveBooking($user, $businessDay, $room);
         $adminMailerService->notifyAdminAboutBooking($booking);
 
-        return $this->redirectToRoute('booking_step_payment', ['booking' => $booking->getId()]);
+        return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
     }
 
-    #[Route('/booking/{booking}/cancel', name: 'booking_cancel', methods: ['POST'])]
-    public function cancelBooking(Booking $booking, Request $request, AdminMailerService $adminMailerService): Response
+    #[Route('/booking/{uuid}/cancel', name: 'booking_cancel', methods: ['POST'])]
+    public function cancelBooking(string $uuid, Request $request, AdminMailerService $adminMailerService): Response
     {
+        try {
+            $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
+        } catch (\Exception $exception) {
+            $booking = null;
+        }
+        if (null === $booking) {
+            throw $this->createNotFoundException('Booking not found.');
+        }
+
         $user = $this->getUser();
         if ($user !== $booking->getUser()) {
             throw $this->createAccessDeniedException('You are not allowed to cancel this booking.');

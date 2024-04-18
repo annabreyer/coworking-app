@@ -17,7 +17,7 @@
 
     Please choose your payment method.
     <div>
-        <form method="post" action="{{ path('booking_step_payment', {'booking' : booking.id}) }}">
+        <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
             <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
             <input type="radio" id="paypal" name="paymentMethod" value="paypal">
             <label for="paypal">Paypal</label><br>
@@ -29,7 +29,6 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-
 
     If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a>
 

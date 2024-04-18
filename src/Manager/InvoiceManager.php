@@ -10,6 +10,7 @@ use App\Entity\Price;
 use App\Entity\User;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
+use App\Trait\EmailContextTrait;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -21,6 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class InvoiceManager
 {
     use ClockAwareTrait;
+    use EmailContextTrait;
 
     public function __construct(
         private readonly InvoiceGenerator $invoiceGenerator,
@@ -74,25 +76,16 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
-        $link = $this->urlGenerator->generate(
-            'booking_payment_paypal',
-            ['booking' => $invoice->getBookings()->first()->getId()],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $uuid = $invoice->getBookings()->first()->getUuid();
+        $link = $this->urlGenerator->generate('booking_payment_paypal', ['uuid' => $uuid], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $subject = $this->translator->trans('booking.invoice.email.subject');
-        $context = [
-            'texts' => [
-                'salutation'   => $this->translator->trans(
-                    'booking.invoice.email.salutation',
-                    ['%firstName%' => $invoice->getUser()->getFirstName()]
-                ),
-                'instructions' => $this->translator->trans('booking.invoice.email.instruction'),
-                'explanation'  => $this->translator->trans('booking.invoice.email.explanation'),
-                'signature'    => $this->translator->trans('booking.invoice.email.signature'),
-            ],
-            'link'  => $link,
-        ];
+        $subject                        = $this->translator->trans('booking.invoice.email.subject');
+        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+            '%firstName%' => $invoice->getUser()->getFirstName(),
+        ]);
+        $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
+        $context['texts']['salutation'] = $salutation;
+        $context['link']                = $link;
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
@@ -147,19 +140,13 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject = $this->translator->trans('voucher.invoice.email.subject');
-        $context = [
-            'texts' => [
-                'salutation'   => $this->translator->trans(
-                    'voucher.invoice.email.salutation',
-                    ['%firstName%' => $invoice->getUser()->getFirstName()]
-                ),
-                'instructions' => $this->translator->trans('voucher.invoice.email.instruction'),
-                'explanation'  => $this->translator->trans('voucher.invoice.email.explanation'),
-                'signature'    => $this->translator->trans('voucher.invoice.email.signature'),
-            ],
-            'link'  => $link,
-        ];
+        $subject                        = $this->translator->trans('voucher.invoice.email.subject');
+        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+            '%firstName%' => $invoice->getUser()->getFirstName(),
+        ]);
+        $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
+        $context['texts']['salutation'] = $salutation;
+        $context['link']                = $link;
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
@@ -177,8 +164,8 @@ class InvoiceManager
 
     public function getInvoiceNumber(): string
     {
-        $year         = $this->now()->format('Y');
-        $lastInvoice  = $this->invoiceRepository->findLatestInvoiceForYear($year);
+        $year        = $this->now()->format('Y');
+        $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
 
         if (null === $lastInvoice) {
 

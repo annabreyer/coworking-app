@@ -22,7 +22,7 @@
         {{ booking.businessDay.date|date('Y-m-d') }}
         {{ booking.room.name }}
         {% if booking.businessDay.date > limit %}
-            <form action="{{ path('booking_cancel', {booking: booking.id })}}" method="post">
+            <form action="{{ path('booking_cancel', {'uuid': booking.uuid })}}" method="post">
                 <input type="hidden" name="bookingId" value="{{ booking.id }}">
 
                 <button type="submit">Cancel</button>

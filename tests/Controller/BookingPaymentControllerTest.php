@@ -50,7 +50,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date        = new \DateTimeImmutable('2024-04-01');
         $booking     = $this->getBooking($bookingUser, $date);
 
-        $uri = '/booking/' . $booking->getId() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -75,7 +75,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();
@@ -100,7 +100,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
 
         $form = $crawler->filter('form')->form();
@@ -131,7 +131,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();
@@ -157,7 +157,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('form')->form();
         $form->disableValidation();
@@ -187,7 +187,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('form')->form();
         $form->disableValidation();
@@ -217,7 +217,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('form')->form();
         $form->disableValidation();
@@ -247,7 +247,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri     = '/booking/' . $booking->getId() . '/payment';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('form')->form();
         $form->disableValidation();
@@ -277,13 +277,13 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
         $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getId() . '/invoice');
+        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/invoice');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceCreatesInvoice(): void
@@ -305,7 +305,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
         $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
@@ -337,7 +337,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
         $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
@@ -370,7 +370,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getId() . '/payment';
+        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
         $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
@@ -400,7 +400,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getId() . '/invoice';
+        $uri     = '/booking/' . $booking->getUuid() . '/invoice';
         $client->request('GET', $uri);
 
         $this->assertResponseRedirects();
@@ -425,7 +425,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getId() . '/invoice';
+        $uri     = '/booking/' . $booking->getUuid() . '/invoice';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();

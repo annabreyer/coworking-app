@@ -7,6 +7,8 @@ namespace App\Entity;
 use App\Repository\BookingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
@@ -35,6 +37,14 @@ class Booking
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     private ?Invoice $invoice = null;
+
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    private ?Uuid $uuid = null;
+
+    public function __construct()
+    {
+        $this->uuid = UUid::v7();
+    }
 
     public function getId(): ?int
     {
@@ -95,6 +105,18 @@ class Booking
     public function setInvoice(?Invoice $invoice): static
     {
         $this->invoice = $invoice;
+
+        return $this;
+    }
+
+    public function getUuid(): ?Uuid
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(Uuid $uuid): static
+    {
+        $this->uuid = $uuid;
 
         return $this;
     }
