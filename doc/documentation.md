@@ -17,12 +17,12 @@ The user can edit their profile data.
 The user can not change their password, this needs to be done by the password-reset function. 
 
 # Back
-All POST/PUT/PATCH/DELETE requests are subscribed and are stored in the database.
-Except for uri's that do not modify the database, like the first booking step.
+Form submits made by the user, that change data in the database are serialized and stored in a user action table. 
 
 
 # Admin
-User can be edited in the Admin area. Password can not be changed.
+User can be edited in the Admin area. 
+Password can not be changed.
 No user can be created. 
 
 
@@ -39,7 +39,7 @@ room for a longer period of time.
 Rooms can also have workstations, they have no effect of the capacity of the room.
 
 ### Booking
-Bookings contain the Businessday, the room and the user. They can also contain the workstation. 
+Bookings contain the BusinessDay, the room and the user. They can also contain the workstation. 
 If rooms or workstations are used will be configurable in the future.
 
 ### Workstation
@@ -57,11 +57,10 @@ User selects a room. Which creates a booking.
 User can choose to pay an invoice or pay immediately by voucher or paypal.
 
 #### By invoice
-Invoice ins generated, send my email to the user. 
+Invoice ins generated, send my email to the user and to the defined document vault.
 
 #### By voucher/ Paypal
 to be implemented
-
 
 
 ## Admin
@@ -91,3 +90,16 @@ A transaction can have several payments.
 Transactions mirror the bank account / paypal account. 
 
 Incoming money is one transaction, and it can be split into several payments, in order to attach it to the correct invoice.
+
+# Prices
+Prices are either unitary, subscription or voucher. 
+If they are voucher, they have the corresponding voucher type attached.
+The defined amount of units is added to the user account.
+
+
+# Vouchers
+Vouchers can be bought by the user.
+
+## Entities
+VoucherType : Defines how many units a voucher has, and how long it is valid.
+Voucher: The actual voucher.
