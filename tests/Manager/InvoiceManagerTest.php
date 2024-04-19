@@ -190,7 +190,8 @@ class InvoiceManagerTest extends KernelTestCase
             $mockTranslator,
             $mockUrlGenerator,
             $invoiceRepository,
-            $invoicePrefix
+            $invoicePrefix,
+            'documentVaultEmail'
         );
     }
 

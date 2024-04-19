@@ -13,6 +13,7 @@ use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Mailer\MailerInterface;
@@ -31,7 +32,8 @@ class InvoiceManager
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly InvoiceRepository $invoiceRepository,
-        private string $invoicePrefix
+        private string $invoicePrefix,
+        private string $documentVaultEmail
     ) {
     }
 
@@ -77,7 +79,8 @@ class InvoiceManager
         }
 
         $uuid = $invoice->getBookings()->first()->getUuid();
-        $link = $this->urlGenerator->generate('booking_payment_paypal', ['uuid' => $uuid], UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate('booking_payment_paypal', ['uuid' => $uuid],
+            UrlGeneratorInterface::ABSOLUTE_URL);
 
         $subject                        = $this->translator->trans('booking.invoice.email.subject');
         $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
@@ -90,15 +93,8 @@ class InvoiceManager
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $email = (new TemplatedEmail())
-            ->to($invoice->getUser()->getEmail())
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-            ->attachFromPath($invoicePath)
-        ;
-
-        $this->mailer->send($email);
+        $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
+        $this->sendInvoiceToDocumentVault($invoice, $invoicePath);
     }
 
     public function createVoucherInvoice(User $user, Price $price, Collection $vouchers): Invoice
@@ -151,15 +147,8 @@ class InvoiceManager
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $email = (new TemplatedEmail())
-            ->to($invoice->getUser()->getEmail())
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-            ->attachFromPath($invoicePath)
-        ;
-
-        $this->mailer->send($email);
+        $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
+        $this->sendInvoiceToDocumentVault($invoice, $invoicePath);
     }
 
     public function getInvoiceNumber(): string
@@ -176,5 +165,28 @@ class InvoiceManager
         $number                = (int)$invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
+    }
+
+    private function sendEmailToUser(Invoice $invoice, $subject, $context, $invoicePath)
+    {
+        $email = (new TemplatedEmail())
+            ->to($invoice->getUser()->getEmail())
+            ->subject($subject)
+            ->htmlTemplate('email.base.html.twig')
+            ->context($context)
+            ->attachFromPath($invoicePath)
+        ;
+
+        $this->mailer->send($email);
+    }
+
+    private function sendInvoiceToDocumentVault(Invoice $invoice, string $invoicePath): void
+    {
+        $email = (new Email())
+            ->to($this->documentVaultEmail)
+            ->subject('Invoice ' . $invoice->getNumber())
+            ->attachFromPath($invoicePath);
+
+        $this->mailer->send($email);
     }
 }

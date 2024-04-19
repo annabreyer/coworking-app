@@ -331,7 +331,7 @@ class VoucherControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertEmailCount(1);
+        $this->assertEmailCount(2);
 
         $email = $this->getMailerMessage();
         $this->assertEmailAttachmentCount($email, 1);
