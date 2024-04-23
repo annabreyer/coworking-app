@@ -123,6 +123,9 @@ class Voucher
         return $this->invoice;
     }
 
+    /**
+     * Invoice is set when the voucher is bought. It is not set when the voucher is used.
+     */
     public function setInvoice(?Invoice $invoice): static
     {
         $this->invoice = $invoice;
@@ -145,7 +148,7 @@ class Voucher
             return false;
         }
 
-        return $this->invoice->isAlreadyPaid();
+        return $this->invoice->isFullyPaid();
     }
 
     public function isValid(): bool

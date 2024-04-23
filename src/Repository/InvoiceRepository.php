@@ -34,4 +34,21 @@ class InvoiceRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+
+    public function findInvoiceForBookingAndUserAndPaymentType(int $bookingId, int $userId, string $paymentType): ?Invoice
+    {
+        return $this->createQueryBuilder('i')
+            ->join('i.bookings', 'b')
+            ->join('i.user', 'u')
+            ->join('i.payments', 'p')
+            ->andWhere('b.id = :bookingId')
+            ->andWhere('u.id = :userId')
+            ->andWhere('p.type = :paymentType')
+            ->setParameter('bookingId', $bookingId)
+            ->setParameter('userId', $userId)
+            ->setParameter('paymentType', $paymentType)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

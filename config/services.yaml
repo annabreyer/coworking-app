@@ -10,7 +10,7 @@ parameters:
   invoice_directory: '%kernel.project_dir%/private/invoice'
   invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_prefix: 'CO'
-  client_number_prefix: 'COO000'
+  client_number_prefix: 'CO'
   available_payment_methods: ['invoice', 'paypal']
 
 services:

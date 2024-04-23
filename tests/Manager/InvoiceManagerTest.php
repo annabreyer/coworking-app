@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Tests\Manager;
 
+use App\DataFixtures\AppFixtures;
+use App\Entity\Invoice;
+use App\Entity\User;
 use App\Manager\InvoiceManager;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
@@ -35,6 +38,16 @@ class InvoiceManagerTest extends KernelTestCase
         ;
     }
 
+    public function testGetClientNumberAddsZerosToMatchLength(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $invoiceManager = $this->getInvoiceManager();
+
+        $this->assertSame('00001', $invoiceManager::getClientNumber(1));
+        $this->assertSame('00111', $invoiceManager::getClientNumber(111));
+        $this->assertSame('11111', $invoiceManager::getClientNumber(11111));
+    }
+
     public function testCreateInvoiceFromBookingThrowsExceptionIfBookingHasNoUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
@@ -54,7 +67,7 @@ class InvoiceManagerTest extends KernelTestCase
                              ])
         ;
 
-        $price = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $price = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
 
         $booking->setUser(null);
         $invoiceManager = $this->getInvoiceManager();
@@ -86,7 +99,7 @@ class InvoiceManagerTest extends KernelTestCase
                                 ])
         ;
 
-        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
 
@@ -112,7 +125,7 @@ class InvoiceManagerTest extends KernelTestCase
                              ])
         ;
 
-        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
 
@@ -139,18 +152,24 @@ class InvoiceManagerTest extends KernelTestCase
     public function testGetInvoiceNumberIncrementsExistingInvoice(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([AppFixtures::class]);
+        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+
+        $invoice = New Invoice();
+        $invoice->setNumber('CO20241000');
+        $invoice->setDate(new \DateTimeImmutable('2024-03-01'));
+        $invoice->setAmount(100);
+        $invoice->setUser($user);
+
+        $entityManager = self::getContainer()->get('doctrine')->getManager();
+        $entityManager->persist($invoice);
+        $entityManager->flush();
 
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
 
         $prefix = self::getContainer()->getParameter('invoice_prefix');
-        // Two invoice fixtures for 2024
-        $expectedNumber = $prefix . date('Y') . '0003';
+        $expectedNumber = $prefix . date('Y') . '1001';
 
         self::assertSame($expectedNumber, $invoiceNumber);
     }

@@ -1,6 +1,18 @@
 {% extends 'base.html.twig' %}
-{% block title %}{% endblock %}
+{% block title %}{{ 'Your Vouchers'|trans }}{% endblock %}
 
 {% block body %}
-Here comes the list of active vouchers
+<h1>{{ 'Your Vouchers'|trans }}</h1>
+    {% for voucher in user.vouchers %}
+        <span>{{ voucher.code }}</span><br>
+        <ul>
+            <li>Expiry Date: {{ voucher.expiryDate|date('Y-m-d') }}</li>
+            <li>Use Date: {{ voucher.useDate? voucher.useDate|date('Y-m-d') : '' }}</li>
+            <li>Has Been Paid for {{ voucher.hasBeenPaid ? 'Yes' : 'No'}}</li>
+            <li>Is Valid: {{ voucher.isValid? 'Yes' : 'No' }}</li>
+        </ul>
+
+
+    {% endfor %}
+
 {% endblock %}

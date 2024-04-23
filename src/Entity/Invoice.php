@@ -167,7 +167,7 @@ class Invoice
         return $this;
     }
 
-    public function isAlreadyPaid(): bool
+    public function isFullyPaid(): bool
     {
         if (0 === $this->payments->count()) {
             return false;
@@ -228,5 +228,43 @@ class Invoice
         $this->uuid = $uuid;
 
         return $this;
+    }
+
+    public function isFullyPaidByVoucher(): bool
+    {
+        if (0 === $this->payments->count()) {
+            return false;
+        }
+
+        if (false === $this->isFullyPaid()) {
+            return false;
+        }
+
+        foreach ($this->payments as $payment) {
+            if (Payment::PAYMENT_TYPE_TRANSACTION === $payment->getType()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function isFullyPaidByTransaction(): bool
+    {
+        if (0 === $this->payments->count()) {
+            return false;
+        }
+
+        if (false === $this->isFullyPaid()) {
+            return false;
+        }
+
+        foreach ($this->payments as $payment) {
+            if (Payment::PAYMENT_TYPE_VOUCHER === $payment->getType()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

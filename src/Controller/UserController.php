@@ -72,6 +72,7 @@ class UserController extends AbstractController
         // @todo
 
         return $this->render('user/vouchers.html.twig', [
+            'user' => $this->getUser(),
         ]);
     }
 }

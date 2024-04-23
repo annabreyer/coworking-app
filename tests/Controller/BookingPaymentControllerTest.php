@@ -1,16 +1,22 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
+use App\DataFixtures\BookingFixtures;
+use App\DataFixtures\PaymentFixtures;
+use App\DataFixtures\PriceFixtures;
 use App\Entity\Booking;
+use App\Entity\Payment;
 use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
+use App\Repository\VoucherRepository;
+use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -33,14 +39,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentChecksIfBookingUserIsConnectedUser(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -50,23 +51,17 @@ class BookingPaymentControllerTest extends WebTestCase
         $date        = new \DateTimeImmutable('2024-04-01');
         $booking     = $this->getBooking($bookingUser, $date);
 
-        $uri = '/booking/' . $booking->getUuid() . '/cancel';
-        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
+        $uri = '/booking/' . $booking->getUuid() . '/payment';
+        $client->request('GET', $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testStepPaymentRendersTemplateOnGet(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -82,17 +77,31 @@ class BookingPaymentControllerTest extends WebTestCase
         self::assertCount(3, $crawler->filter('li'));
     }
 
-    public function testStepPaymentFormSubmitErrorWithInvalidCsrfToken(): void
+    public function testStepPaymentTemplateContainsPaymentMethodForm(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+
+        $uri     = '/booking/' . $booking->getUuid() . '/payment';
+        $crawler = $client->request('GET', $uri);
+
+        $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('form'));
+    }
+
+    public function testStepPaymentFormSubmitErrorWithInvalidCsrfToken(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -112,43 +121,11 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
     }
 
-    public function testStepPaymentTemplateContainsPaymentMethodForm(): void
-    {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $client->loginUser($bookingUser);
-
-        $date    = new \DateTimeImmutable('2024-04-01');
-        $booking = $this->getBooking($bookingUser, $date);
-
-        $uri     = '/booking/' . $booking->getUuid() . '/payment';
-        $crawler = $client->request('GET', $uri);
-
-        $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('form'));
-    }
-
     public function testStepPaymentFormSubmitWithoutPriceId(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -170,15 +147,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithInvalidPriceId(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -200,15 +171,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithMissingPaymentMethod(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -230,15 +195,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithInvalidPaymentMethod(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -260,15 +219,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceRedirects(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -283,20 +236,14 @@ class BookingPaymentControllerTest extends WebTestCase
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/invoice');
+        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceCreatesInvoice(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -312,7 +259,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)
-                                         ->findOneBy(['user' => $bookingUser]);
+                         ->findOneBy(['user' => $bookingUser])
+        ;
 
         self::assertNotNull($invoice);
         self::assertSame($booking->getId(), $invoice->getBookings()->first()->getId());
@@ -320,15 +268,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -344,7 +286,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)
-                         ->findOneBy(['user' => $bookingUser]);
+                         ->findOneBy(['user' => $bookingUser])
+        ;
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
@@ -353,15 +296,9 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -382,42 +319,49 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertEmailAttachmentCount($email, 1);
     }
 
-    public function testLaterPaymentRedirectsWhenInvoiceIsMissing(): void
+
+    public function testPayWithVoucherChecksIfBookingUserIsConnectedUser(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $client->loginUser($bookingUser);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
 
-        $date    = new \DateTimeImmutable('2024-04-01');
-        $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getUuid() . '/invoice';
+        $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $booking     = $this->getBooking($bookingUser, $date);
+        $uri         = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects();
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testLaterPaymentRendersTemplateOnGet(): void
+    public function testPayWithVoucherRedirectsWhenBookingIsAlreadyPaid(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
 
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-11');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $client->request('GET', $uri);
+
+        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+    }
+
+    public function testPayWithVoucherRendersTemplateOnGet(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -425,12 +369,324 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable('2024-04-01');
         $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getUuid() . '/invoice';
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('a'));
+        self::assertCount(1, $crawler->filter('form'));
     }
+
+    public function testPayWithVoucherFormSubmitErrorWithInvalidCsrfToken(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+
+        $crawler = $client->request('GET', $uri);
+
+        $form = $crawler->filter('form')->form();
+        $form->getPhpValues();
+        $form->setValues(['token' => 'invalid']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWithoutVoucherCode(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+
+        $crawler = $client->request('GET', $uri);
+
+        $form = $crawler->filter('form')->form();
+        $form->disableValidation();
+        unset($form['voucher']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher code is missing.');
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWithInvalidVoucherCode(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+
+        $crawler = $client->request('GET', $uri);
+
+        $form = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => 'invalid']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher not found.');
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWhenVoucherIsNotValidForUser(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $adminVoucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240002']);
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $adminVoucher->getCode()]);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher is not valid for this user.');
+    }
+
+
+    public function testPayWithVoucherFormSubmitErrorWhenVoucherIsExpired(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => 'VO20240004']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher is expired.');
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWhenVoucherHasAlreadyBeenUsed(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+        $useDate = new \DateTimeImmutable('2024-04-06');
+        $voucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['useDate' => $useDate]);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher has already been used on 2024-04-06.');
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWhenVoucherHasNotBeenPaidFor(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => 'VO20240033']);
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSelectorTextContains('div.alert', 'Voucher has not been paid and cannot be used.');
+    }
+
+
+    public function testPayWithVoucherFormSubmitWithValidVoucherRedirects(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+    }
+
+    public function testPayWithVoucherFormSubmitWithValidVoucherCreatesInvoice(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        $invoice = static::getContainer()
+                         ->get(InvoiceRepository::class)
+                         ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
+        $this->assertNotNull($invoice);
+
+        $invoiceGenerator = static::getContainer()->get(InvoiceGenerator::class);
+        $filePath         = $invoiceGenerator->getTargetDirectory($booking->getInvoice());
+        self::assertFileExists($filePath);
+    }
+
+    public function testPayWithVoucherFormSubmitWithValidVoucherCreatesVoucherPayment(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        $invoice = static::getContainer()
+                         ->get(InvoiceRepository::class)
+                         ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
+        $this->assertNotNull($invoice);
+        $this->assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
+    }
+
+    public function testPayWithVoucherFormSubmitWithValidVoucherSendsInvoiceToClient(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+        $date    = new \DateTimeImmutable('2024-04-01');
+        $booking = $this->getBooking($bookingUser, $date);
+        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler = $client->request('GET', $uri);
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        $this->assertEmailCount(1);
+
+        $email = $this->getMailerMessage();
+        $this->assertEmailAttachmentCount($email, 1);
+    }
+
+    public function testPaymentConfirmationChecksIfBookingUserIsConnectedUser(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $date        = new \DateTimeImmutable('2024-04-01');
+        $booking     = $this->getBooking($bookingUser, $date);
+        $uri         = '/booking/' . $booking->getUuid() . '/payment/confirmation';
+        $client->request('GET', $uri);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testPaymentConfirmationRendersTemplate(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([PaymentFixtures::class,]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => 'CO20240044']);
+        $uri         = '/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation';
+        $crawler = $client->request('GET', $uri);
+
+        $this->assertResponseIsSuccessful();
+        $expectedUri = '/invoice/' . $invoice->getUuid() . '/download';
+        $link  = $crawler->filter('a')->first();
+        $this->assertSame($expectedUri, $link->attr('href'));
+    }
+
 
     private function getBooking(User $user, \DateTimeImmutable $date): Booking
     {

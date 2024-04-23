@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+Use App\DataFixtures\AppFixtures;
+use App\DataFixtures\PriceFixtures;
 use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
 use App\Repository\UserRepository;
@@ -11,13 +13,10 @@ use App\Repository\VoucherRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 class VoucherControllerTest extends WebTestCase
 {
-    use ClockSensitiveTrait;
-
     protected ?AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
@@ -27,13 +26,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexRendersTemplateOnGetRequest(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -47,13 +45,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexTemplateContainsFormWithVoucherTypeAndPaymentMethod(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -69,13 +66,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitWithInvalidToken(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -94,13 +90,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitWithMissingVoucherPriceId(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -119,13 +114,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitWithInvalidVoucherPriceId(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -144,13 +138,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitWithMissingPaymentMethod(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -175,13 +168,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitWithInvalidPaymentMethod(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -205,13 +197,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceRedirects(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -235,13 +226,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testFormSubmitWithPaymentMethodInvoiceCreatesVouchers(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -270,13 +260,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -306,13 +295,12 @@ class VoucherControllerTest extends WebTestCase
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
     {
-        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            AppFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -332,7 +320,6 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         $this->assertEmailCount(2);
-
         $email = $this->getMailerMessage();
         $this->assertEmailAttachmentCount($email, 1);
     }

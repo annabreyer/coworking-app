@@ -513,4 +513,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return null !== $this->street && null !== $this->postCode && null !== $this->city;
     }
+
+    public function getValidVouchers(): Collection
+    {
+        return $this->vouchers->filter(fn (Voucher $voucher) => $voucher->isValid());
+    }
 }

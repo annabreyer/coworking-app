@@ -112,9 +112,11 @@ class Payment
         return $this->voucher;
     }
 
-    public function setVoucher(?Voucher $voucher): void
+    public function setVoucher(?Voucher $voucher): static
     {
         $this->voucher = $voucher;
+
+        return $this;
     }
 
     public function getTransaction(): ?Transaction
@@ -122,8 +124,20 @@ class Payment
         return $this->transaction;
     }
 
-    public function setTransaction(?Transaction $transaction): void
+    public function setTransaction(?Transaction $transaction): static
     {
         $this->transaction = $transaction;
+
+        return $this;
+    }
+
+    public function isVoucherPayment(): bool
+    {
+        return self::PAYMENT_TYPE_VOUCHER === $this->type;
+    }
+
+    public function isTransactionPayment(): bool
+    {
+        return self::PAYMENT_TYPE_TRANSACTION === $this->type;
     }
 }

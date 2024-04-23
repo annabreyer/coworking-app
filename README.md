@@ -27,6 +27,7 @@ PHPStan & PHPCsFixer
 I have written some tests for the most critical parts of the app.
 They are a mix of unit and functional tests.
 As it is a small app, testing fixtures a simple Doctrine Fixtures. 
+There are not tests for the Admin section as it is mainly a CRUD interface.
 
 ## Configuration 
 Specific parameters are found in the services.yaml file. I have chosen this way, as they are not environment dependent
@@ -41,6 +42,10 @@ Depending on the future use of the app, this might change.
 ## Admin
 I have chosen EasyAdmin for the Admin interface. It is a simple and easy to use tool.
 
+## PDFs
+I have chosen to use Fpdi to generate PDFs. It is a simple and easy to use tool.
+The quickest way to generate my PDFs, is using this library to fill in a template PDF.
+The locations are hardcoded in the Class. I can provide the templates if needed. It is an Excel file. 
 
 # Documentation
 The documentation is in the doc folder.

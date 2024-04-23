@@ -81,7 +81,8 @@ class VoucherController extends AbstractController
             $invoice  = $this->invoiceManager->createVoucherInvoice($user, $voucherPrice, $vouchers);
 
             $this->invoiceManager->generateVoucherInvoicePdf($invoice, $voucherPrice);
-            $this->invoiceManager->sendVoucherInvoicePerEmail($invoice, $voucherPrice);
+            $this->invoiceManager->sendVoucherInvoiceToClient($invoice, $voucherPrice);
+            $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
 
             // success messages
             return $this->redirectToRoute('user_vouchers');

@@ -8,6 +8,7 @@ use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
+use App\Manager\PaymentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -20,8 +21,9 @@ class BookingManagerTest extends TestCase
     {
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '1 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'1 day');
         $booking        = new Booking();
 
         $this->expectException(\LogicException::class);
@@ -33,8 +35,10 @@ class BookingManagerTest extends TestCase
     {
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '0 day');
+
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'0 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTime());
@@ -49,8 +53,9 @@ class BookingManagerTest extends TestCase
     {
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '0.5 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'0.5 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTime());
@@ -65,8 +70,9 @@ class BookingManagerTest extends TestCase
     {
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '1.5 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1.5 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTime());
@@ -82,8 +88,10 @@ class BookingManagerTest extends TestCase
         self::mockTime(new \DateTimeImmutable('2024-03-01'));
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '1 day');
+
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'1 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTimeImmutable('2024-03-16'));
@@ -97,8 +105,9 @@ class BookingManagerTest extends TestCase
         self::mockTime(new \DateTimeImmutable('2024-03-01'));
         $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
+        $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, '1 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTimeImmutable('2024-02-16'));

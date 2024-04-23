@@ -120,4 +120,9 @@ class Booking
 
         return $this;
     }
+
+    public function hasBeenPaid(): bool
+    {
+        return null !== $this->invoice && $this->invoice->isFullyPaid();
+    }
 }

@@ -22,7 +22,7 @@ class VoucherManager
 
     public static function generateVoucherCode(): string
     {
-        return bin2hex(random_bytes(5));
+        return mb_strtoupper(bin2hex(random_bytes(5)));
     }
 
     public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue): Collection

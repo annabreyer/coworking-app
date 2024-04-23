@@ -8,6 +8,7 @@ use App\Entity\Booking;
 use App\Manager\BookingManager;
 use App\Repository\BookingRepository;
 use App\Repository\PriceRepository;
+use App\Repository\VoucherRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,7 +79,7 @@ class BookingPaymentController extends AbstractController
         if ('invoice' === $paymentMethod) {
             $this->bookingManager->handleBookingPaymentByInvoice($booking, $price);
 
-            return $this->redirectToRoute('booking_payment_invoice', ['uuid' => $booking->getUuid()]);
+            return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
 
         if ('paypal' === $paymentMethod) {
@@ -95,8 +96,110 @@ class BookingPaymentController extends AbstractController
         return $this->renderStepPayment($response, $booking);
     }
 
-    #[Route('/booking/{uuid}/invoice', name: 'booking_payment_invoice')]
-    public function laterPayment(string $uuid): Response
+    #[Route('/booking/{uuid}/payment/paypal', name: 'booking_payment_paypal')]
+    public function payWithPayPal(string $uuid): Response
+    {
+        try {
+            $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
+        } catch (\Exception $exception) {
+            $booking = null;
+        }
+        if (null === $booking) {
+            throw $this->createNotFoundException('Booking not found.');
+        }
+
+        if ($this->getUser() !== $booking->getUser()) {
+            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+        }
+
+        return $this->renderStepPayment(new Response(), $booking);
+    }
+
+    #[Route('/booking/{uuid}/payment/voucher', name: 'booking_payment_voucher')]
+    public function payWithVoucher(string $uuid, Request $request, VoucherRepository $voucherRepository): Response
+    {
+        try {
+            $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
+        } catch (\Exception $exception) {
+            $booking = null;
+        }
+        if (null === $booking) {
+            throw $this->createNotFoundException('Booking not found.');
+        }
+
+        if ($this->getUser() !== $booking->getUser()) {
+            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+        }
+
+        if ($booking->hasBeenPaid()) {
+            return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
+        }
+
+        if (false === $request->isMethod('POST')) {
+            return $this->renderVoucherPayment(new Response(), $booking);
+        }
+
+        $response       = new Response();
+        $submittedToken = $request->getPayload()->getString('token');
+        if (false === $this->isCsrfTokenValid('voucher', $submittedToken)) {
+            $this->addFlash('error', 'Invalid CSRF Token');
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        $voucherCode = $request->getPayload()->getString('voucher');
+        if (empty($voucherCode)) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher code is missing.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        $voucher = $voucherRepository->findOneBy(['code' => $voucherCode]);
+        if (null === $voucher) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher not found.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        if ($voucher->getUser() !== $booking->getUser()) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher is not valid for this user.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        if ($voucher->isExpired()) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher is expired.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        if (null !== $voucher->getUseDate()) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher has already been used on ' . $voucher->getUseDate()->format('Y-m-d') . '.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        if (false === $voucher->hasBeenPaid()){
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', 'Voucher has not been paid and cannot be used.');
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
+        $unitaryPrice = $this->priceRepository->findActiveUnitaryPrice();
+        $this->bookingManager->handleBookingPaymentByVoucher($booking, $voucher, $unitaryPrice);
+
+        return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
+    }
+
+    #[Route('/booking/{uuid}/payment/confirmation', name: 'booking_payment_confirmation')]
+    public function bookingPaymentConfirmation(string $uuid): Response
     {
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
@@ -120,44 +223,6 @@ class BookingPaymentController extends AbstractController
         ]);
     }
 
-    #[Route('/booking/{uuid}/payment/paypal', name: 'booking_payment_paypal')]
-    public function payWithPayPal(string $uuid): Response
-    {
-        try {
-            $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
-        } catch (\Exception $exception) {
-            $booking = null;
-        }
-        if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
-        }
-
-        if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
-        }
-
-        return $this->renderStepPayment(new Response(), $booking);
-    }
-
-    #[Route('/booking/{uudi}/payment/voucher', name: 'booking_payment_voucher')]
-    public function payWithVoucher(string $uuid): Response
-    {
-        try {
-            $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
-        } catch (\Exception $exception) {
-            $booking = null;
-        }
-        if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
-        }
-
-        if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
-        }
-
-        return $this->renderStepPayment(new Response(), $booking);
-    }
-
     private function renderStepPayment(Response $response, Booking $booking): Response
     {
         $unitaryPrice = $this->priceRepository->findOneBy([
@@ -168,6 +233,13 @@ class BookingPaymentController extends AbstractController
         return $this->render('booking/payment.html.twig', [
             'booking'      => $booking,
             'unitaryPrice' => $unitaryPrice,
+        ], $response);
+    }
+
+    private function renderVoucherPayment(Response $response, Booking $booking): Response
+    {
+        return $this->render('booking/voucher_payment.html.twig', [
+            'booking' => $booking,
         ], $response);
     }
 }

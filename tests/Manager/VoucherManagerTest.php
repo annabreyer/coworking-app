@@ -39,7 +39,7 @@ class VoucherManagerTest extends KernelTestCase
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
 
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
@@ -59,7 +59,7 @@ class VoucherManagerTest extends KernelTestCase
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
 
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
@@ -84,7 +84,7 @@ class VoucherManagerTest extends KernelTestCase
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
 
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
