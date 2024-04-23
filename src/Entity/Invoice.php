@@ -105,7 +105,7 @@ class Invoice
 
     public function addBooking(Booking $booking): static
     {
-        if (!$this->bookings->contains($booking)) {
+        if (false === $this->bookings->contains($booking)) {
             $this->bookings->add($booking);
             $booking->setInvoice($this);
         }
@@ -135,7 +135,7 @@ class Invoice
 
     public function addPayment(Payment $payment): static
     {
-        if (!$this->payments->contains($payment)) {
+        if (false === $this->payments->contains($payment)) {
             $this->payments->add($payment);
             $payment->setInvoice($this);
         }
@@ -169,8 +169,12 @@ class Invoice
 
     public function isAlreadyPaid(): bool
     {
+        if (0 === $this->payments->count()) {
+            return false;
+        }
+
         $paidAmount = 0;
-        foreach ($this->getPayments() as $payment) {
+        foreach ($this->payments as $payment) {
             $paidAmount += $payment->getAmount();
         }
 

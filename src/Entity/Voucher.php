@@ -137,13 +137,27 @@ class Voucher
 
     public function hasBeenPaid(): bool
     {
-        return $this->getInvoice()->isAlreadyPaid();
+        if (null === $this->invoice) {
+            return false;
+        }
+
+        if (0 === $this->invoice->getPayments()->count()) {
+            return false;
+        }
+
+        return $this->invoice->isAlreadyPaid();
     }
 
     public function isValid(): bool
     {
-        return false === $this->isExpired()
-            || null !== $this->useDate
-            || $this->hasBeenPaid();
+        if ($this->isExpired()) {
+            return false;
+        }
+
+        if (null !== $this->useDate) {
+            return false;
+        }
+
+        return $this->hasBeenPaid();
     }
 }
