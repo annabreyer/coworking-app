@@ -45,7 +45,7 @@ class PriceRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findActiveUnitaryPrices(): array
+    public function findActiveUnitaryPrice(): Price
     {
         return $this->createQueryBuilder('p')
                     ->andWhere('p.isActive = :isActive')
@@ -53,6 +53,6 @@ class PriceRepository extends ServiceEntityRepository
                     ->setParameter('isActive', true)
                     ->setParameter('isUnitary', true)
                     ->getQuery()
-                    ->getResult();
+                    ->getSingleResult();
     }
 }

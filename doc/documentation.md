@@ -96,6 +96,9 @@ Prices are either unitary, subscription or voucher.
 If they are voucher, they have the corresponding voucher type attached.
 The defined amount of units is added to the user account.
 
+Only une unitary price can be active at once (UNIQUE CONSTRAINT)
+This way the value of a unit is always clear.
+
 
 # Vouchers
 Vouchers can be bought by the user.

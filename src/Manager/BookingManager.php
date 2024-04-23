@@ -9,6 +9,7 @@ use App\Entity\BusinessDay;
 use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\User;
+use App\Entity\Voucher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -19,6 +20,7 @@ class BookingManager
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly InvoiceManager $invoiceManager,
+        private readonly PaymentManager $paymentManager,
         private readonly string $timeLimitCancelBooking
     ) {
     }
@@ -73,6 +75,16 @@ class BookingManager
     public function handleBookingPaymentByInvoice(Booking $booking, Price $price): void
     {
         $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
+        $this->invoiceManager->generateBookingInvoicePdf($invoice);
+        $this->invoiceManager->sendBookingInvoicePerEmail($invoice);
+    }
+
+    public function handleBookingPaymentByVoucher(Booking $booking, Voucher $voucher, Price $price): void
+    {
+        $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
+
+        $this->paymentManager->handleVoucherPayment($invoice, $voucher);
+
         $this->invoiceManager->generateBookingInvoicePdf($invoice);
         $this->invoiceManager->sendBookingInvoicePerEmail($invoice);
     }
