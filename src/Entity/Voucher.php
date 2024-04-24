@@ -11,6 +11,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_CODE', fields: ['code'])]
 class Voucher
 {
     use ClockAwareTrait;
