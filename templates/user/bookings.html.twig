@@ -28,6 +28,10 @@
                 <button type="submit">Cancel</button>
             </form>
         {% endif %}
+
+        {% if booking.invoice %}
+            <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">Invoice</a>
+        {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

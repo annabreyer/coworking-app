@@ -237,7 +237,8 @@ class BookingController extends AbstractController
     {
         $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
         $businessDayCount = \count($businessDays);
-        if (0 === \count($businessDays)) {
+
+        if (0 === $businessDayCount) {
             throw new \Exception('No BusinessDays found ?!');
         }
 

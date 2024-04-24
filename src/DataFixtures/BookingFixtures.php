@@ -23,14 +23,14 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
-        $this->loadBookingsToFillRoom($manager);
+        $this->loadBookingsToFillRoomOne($manager);
         $this->loadBookingWithoutInvoice($manager);
         $this->loadBookingForInvoice($manager);
         $this->loadBookingForVoucherPayment($manager);
         $this->loadPaidBooking($manager);
     }
 
-    private function loadBookingsToFillRoom(ObjectManager $manager): void
+    private function loadBookingsToFillRoomOne(ObjectManager $manager): void
     {
         $businessDay = $this->getReference('businessDay-2024-04-01', BusinessDay::class);
         $room        = $this->getReference('room1', Room::class);
@@ -53,6 +53,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room3);
         $booking->setUser($this->getReference('user1', User::class));
+        $booking->setAmount(1500);
 
         $manager->persist($booking);
         $manager->flush();
@@ -68,6 +69,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room);
         $booking->setUser($this->getReference('user1', User::class));
+        $booking->setAmount(1500);
 
         $manager->persist($booking);
         $manager->flush();
@@ -83,6 +85,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room);
         $booking->setUser($this->getReference('user1', User::class));
+        $booking->setAmount(1500);
 
         $manager->persist($booking);
         $manager->flush();
@@ -98,6 +101,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room);
         $booking->setUser($this->getReference('user1', User::class));
+        $booking->setAmount(1500);
 
         $manager->persist($booking);
         $manager->flush();

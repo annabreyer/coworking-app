@@ -73,7 +73,7 @@ class InvoiceManagerTest extends KernelTestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Booking must have a user');
-        $invoiceManager->createInvoiceFromBooking($booking, $price);
+        $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
     }
 
     public function testCreateInvoiceFromBookingReturnsInvoiceIfBookingAlreadyHasOne(): void
@@ -100,7 +100,7 @@ class InvoiceManagerTest extends KernelTestCase
 
         $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
-        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
+        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
 
         self::assertSame($invoice, $booking->getInvoice());
     }
@@ -126,7 +126,7 @@ class InvoiceManagerTest extends KernelTestCase
 
         $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
-        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price);
+        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
 
         self::assertSame($booking->getUser(), $invoice->getUser());
         self::assertSame($price->getAmount(), $invoice->getAmount());

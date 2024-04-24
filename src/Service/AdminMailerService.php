@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Controller\Admin\BookingCrudController;
+use App\Controller\Admin\InvoiceCrudController;
 use App\Entity\Booking;
+use App\Entity\Invoice;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -53,6 +55,27 @@ class AdminMailerService
                 'Es wurde eine neue Buchung gecancelt. Buchungsdatum: %s',
                 $bookingDate->format('d/m/Y')
             ),
+        ];
+
+        $this->sendEmail($subject, $context);
+    }
+
+    public function notifyAdminAboutNegativeInvoice(Invoice $invoice): void
+    {
+        $link = $this->adminUrlGenerator
+            ->setController(InvoiceCrudController::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($invoice->getId())
+            ->generateUrl()
+        ;
+
+        $subject = 'Rechnung mit negativem Betrag: ' . $invoice->getNumber();
+        $context = [
+            'text' => sprintf(
+                'Die Rechnung mit der Nummer %s hat einen negativen Betrag',
+                $invoice->getNumber()
+            ),
+            'link' => $link,
         ];
 
         $this->sendEmail($subject, $context);

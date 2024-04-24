@@ -42,20 +42,20 @@ class InvoiceGenerator
         }
 
         $this->setupInvoiceTemplate();
-        $this->writeInvoiceNumber($invoice);
-        $this->writeClientNumber($invoice);
-        $this->writeInvoiceDate($invoice);
-        $this->writeClientFullName($invoice);
-        $this->writeClientStreet($invoice);
-        $this->writeClientCity($invoice);
-        $this->writeFirstPositionNumber();
-        $this->writeBookingDescription($invoice->getBookings()->first());
-        $this->writePrice($invoice);
+        $this->addInvoiceData($invoice);
+        $this->addClientData($invoice);
+        $this->writeBookingLine($invoice->getBookings()->first());
 
-        if ($invoice->isFullyPaid()) {
-            $this->addPaymentMethodMentionAndAmount($invoice);
-            $this->writeTotalAmount(0);
-        } else {
+        if (false === $invoice->isFullyPaid()) {
+            $this->writeTotalAmount($invoice->getAmount());
+            $this->addDueMention($invoice);
+        }
+
+        if ($invoice->isFullyPaidByVoucher()){
+            $this->addVoucherPayment($invoice);
+        }
+
+        if (false === $invoice->getPayments()->isEmpty()) {
             $this->writeTotalAmount($invoice->getAmount());
         }
 
@@ -81,21 +81,12 @@ class InvoiceGenerator
         }
 
         $this->setupInvoiceTemplate();
-        $this->writeInvoiceNumber($invoice);
-        $this->writeClientNumber($invoice);
-        $this->writeInvoiceDate($invoice);
-        $this->writeClientFullName($invoice);
-        $this->writeClientStreet($invoice);
-        $this->writeClientCity($invoice);
+        $this->addInvoiceData($invoice);
+        $this->addClientData($invoice);
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherPrice->getVoucherType());
-        $this->writePrice($invoice);
+        $this->writeAmount($invoice->getAmount());
         $this->writeTotalAmount($invoice->getAmount());
-
-        if ($invoice->isFullyPaid()) {
-            $this->addPaymentMethodMentionAndAmount($invoice);
-            $this->writeTotalAmount(0);
-        }
     }
 
     public function getTargetDirectory(Invoice $invoice): string
@@ -120,6 +111,20 @@ class InvoiceGenerator
         $template = $this->pdf->importPage(1);
 
         $this->pdf->useTemplate($template, ['adjustPageSize' => true]);
+    }
+
+    private function addInvoiceData(Invoice $invoice): void
+    {
+        $this->writeInvoiceNumber($invoice);
+        $this->writeClientNumber($invoice);
+        $this->writeInvoiceDate($invoice);
+    }
+
+    private function addClientData(Invoice $invoice)
+    {
+        $this->writeClientFullName($invoice);
+        $this->writeClientStreet($invoice);
+        $this->writeClientCity($invoice);
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
@@ -156,6 +161,13 @@ class InvoiceGenerator
         $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
     }
 
+    private function writeBookingLine(Booking $booking): void
+    {
+        $this->writeFirstPositionNumber();
+        $this->writeBookingDescription($booking);
+        $this->writeAmount($booking->getAmount());
+    }
+
     private function writeFirstPositionNumber()
     {
         $this->writeValue(15, 145, 10, 8, '1');
@@ -184,9 +196,9 @@ class InvoiceGenerator
         $this->writeValue(30, 145, 140, 8, $description);
     }
 
-    private function writePrice(Invoice $invoice): void
+    private function writeAmount(int $amount): void
     {
-        $amount = $invoice->getAmount() / 100;
+        $amount = $amount/ 100;
 
         $this->writeValue(180, 145, 30, 8, $amount . ',00 €');
     }
@@ -198,27 +210,22 @@ class InvoiceGenerator
         $this->writeValue(180, 182, 30, 8, $amount . ',00 €');
     }
 
-    private function addPaymentMethodMentionAndAmount(Invoice $invoice): void
+    private function addVoucherPayment(Invoice $invoice): void
     {
         if ($invoice->getPayments()->isEmpty()) {
+            return;
+        }
+
+        if (false === $invoice->isFullyPaidByVoucher()) {
             return;
         }
 
         $y        = 155;
         $position = 2;
         foreach ($invoice->getPayments() as $payment) {
-            if ($payment->isVoucherPayment()) {
-                $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_voucher', [
-                    '%voucherCode%' => $payment->getVoucher()->getCode(),
-                ]);
-            }
-
-            if ($payment->isTransactionPayment()) {
-                $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_transaction', [
-                    '%transactionType%' => $payment->getTransaction()->getType(),
-                ]);
-            }
-
+            $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_voucher', [
+                '%voucherCode%' => $payment->getVoucher()->getCode(),
+            ]);
             $amount = $payment->getAmount() / 100;
 
             $this->writeValue(15, $y, 10, 8, (string) $position);
@@ -227,6 +234,16 @@ class InvoiceGenerator
             $y += 12;
             ++$position;
         }
+    }
+
+    private function addDueMention(Invoice $invoice): void
+    {
+        if ($invoice->isFullyPaid()) {
+            return;
+        }
+
+        $dueMessage = $this->translator->trans('booking.invoice.due');
+        $this->writeValue(15, 220, 100, 8, $dueMessage);
     }
 
     private function saveInvoice(Invoice $invoice): void

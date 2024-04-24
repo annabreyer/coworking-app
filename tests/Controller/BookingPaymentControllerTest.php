@@ -217,7 +217,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertSelectorTextContains('div.alert', 'Payment method not found.');
     }
 
-    public function testStepPaymentFormSubmitWithPaymentMethodInvoiceRedirects(): void
+    public function testStepPaymentFormSubmitWithPaymentMethodInvoiceAddsAmountToBookingAndRedirects(): void
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -235,6 +235,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $form                  = $crawler->filter('form')->form();
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
+
+        $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
+        $this->assertNotNull($booking->getAmount());
 
         $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }

@@ -76,8 +76,10 @@ class BookingPaymentController extends AbstractController
             return $this->renderStepPayment($response, $booking);
         }
 
+        $this->bookingManager->addAmountToBooking($booking, $price);
+
         if ('invoice' === $paymentMethod) {
-            $this->bookingManager->handleBookingPaymentByInvoice($booking, $price);
+            $this->bookingManager->handleBookingPaymentByInvoice($booking);
 
             return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
@@ -192,8 +194,7 @@ class BookingPaymentController extends AbstractController
             return $this->renderVoucherPayment($response, $booking);
         }
 
-        $unitaryPrice = $this->priceRepository->findActiveUnitaryPrice();
-        $this->bookingManager->handleBookingPaymentByVoucher($booking, $voucher, $unitaryPrice);
+        $this->bookingManager->handleBookingPaymentByVoucher($booking, $voucher);
 
         return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
     }

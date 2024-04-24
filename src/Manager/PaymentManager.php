@@ -7,6 +7,7 @@ namespace App\Manager;
 use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Entity\Voucher;
+use App\Service\AdminMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -14,12 +15,16 @@ class PaymentManager
 {
     use ClockAwareTrait;
 
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly AdminMailerService $adminMailer,
+    )
     {
     }
 
     public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): void
     {
+        $invoiceAmount = $invoice->getAmount() - $voucher->getValue();
         $payment = new Payment();
         $payment
             ->setInvoice($invoice)
@@ -31,8 +36,13 @@ class PaymentManager
 
         $voucher->setUseDate($this->now());
         $invoice->addPayment($payment);
+        $invoice->setAmount($invoiceAmount);
 
         $this->entityManager->persist($payment);
         $this->entityManager->flush();
+
+        if (0 > $invoiceAmount) {
+            $this->adminMailer->notifyAdminAboutNegativeInvoice($invoice);
+        }
     }
 }

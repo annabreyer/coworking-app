@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Manager;
 
@@ -39,13 +39,13 @@ class InvoiceManager
 
     public static function getClientNumber(int $userId): string
     {
-        $number = (string) $userId;
+        $number = (string)$userId;
         $number = str_pad($number, 5, '0', STR_PAD_LEFT);
 
         return $number;
     }
 
-    public function createInvoiceFromBooking(Booking $booking, Price $price): Invoice
+    public function createInvoiceFromBooking(Booking $booking, int $amount): Invoice
     {
         if (null === $booking->getUser()) {
             throw new \InvalidArgumentException('Booking must have a user');
@@ -56,13 +56,13 @@ class InvoiceManager
         }
 
         $invoiceNumber = $this->getInvoiceNumber();
-
-        $invoice = new Invoice();
-        $invoice->addBooking($booking)
-                ->setUser($booking->getUser())
-                ->setAmount($price->getAmount())
-                ->setNumber($invoiceNumber)
-                ->setDate($this->now())
+        $invoice       = new Invoice();
+        $invoice
+            ->addBooking($booking)
+            ->setUser($booking->getUser())
+            ->setAmount($amount)
+            ->setNumber($invoiceNumber)
+            ->setDate($this->now())
         ;
 
         $this->entityManager->persist($invoice);
@@ -93,8 +93,8 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('booking.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject                        = $this->translator->trans('booking.invoice.email.subject');
+        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
@@ -151,8 +151,8 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('voucher.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject                        = $this->translator->trans('voucher.invoice.email.subject');
+        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
@@ -175,7 +175,7 @@ class InvoiceManager
         }
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int) $invoiceNumberElements[1];
+        $number                = (int)$invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
     }
@@ -189,7 +189,8 @@ class InvoiceManager
             ->to($this->documentVaultEmail)
             ->subject('Invoice ' . $invoice->getNumber())
             ->text('Invoice ' . $invoice->getNumber())
-            ->attachFromPath($invoicePath);
+            ->attachFromPath($invoicePath)
+        ;
 
         $this->mailer->send($email);
     }

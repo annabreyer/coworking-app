@@ -104,7 +104,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
         $invoice = new Invoice();
         $invoice->addBooking($booking)
                 ->setUser($booking->getUser())
-                ->setAmount(1500)
+                ->setAmount($booking->getAmount())
                 ->setDate(new \DateTime('2024-03-28'))
                 ->setNumber(self::BOOKING_INVOICE_NUMBER)
         ;
@@ -152,12 +152,11 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
     private function loadInvoiceForPaidBooking(ObjectManager $manager): void
     {
         $booking = $this->getReference('paid-booking', Booking::class);
-        $price   = $this->getReference('price-single', Price::class);
 
         $invoice = new Invoice();
         $invoice->addBooking($booking)
                 ->setUser($booking->getUser())
-                ->setAmount($price->getAmount())
+                ->setAmount($booking->getAmount())
                 ->setDate($booking->getBusinessDay()->getDate())
                 ->setNumber('CO20240044')
         ;

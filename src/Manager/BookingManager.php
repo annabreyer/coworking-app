@@ -40,6 +40,12 @@ class BookingManager
         return $booking;
     }
 
+    public function addAmountToBooking(Booking $booking, Price $price): void
+    {
+        $booking->setAmount($price->getAmount());
+        $this->entityManager->flush();
+    }
+
     public function cancelBooking(Booking $booking): void
     {
         $this->entityManager->remove($booking);
@@ -72,21 +78,21 @@ class BookingManager
         return true;
     }
 
-    public function handleBookingPaymentByInvoice(Booking $booking, Price $price): void
+    public function handleBookingPaymentByInvoice(Booking $booking): void
     {
-        $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
+        $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $booking->getAmount());
 
         $this->invoiceManager->generateBookingInvoicePdf($invoice);
         $this->invoiceManager->sendBookingInvoiceToUser($invoice);
         $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
     }
 
-    public function handleBookingPaymentByVoucher(Booking $booking, Voucher $voucher, Price $price): void
+    public function handleBookingPaymentByVoucher(Booking $booking, Voucher $voucher): void
     {
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
+            $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, 0);
             $this->paymentManager->handleVoucherPayment($invoice, $voucher);
 
             $this->entityManager->getConnection()->commit();

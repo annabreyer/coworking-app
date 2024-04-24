@@ -81,8 +81,7 @@ Each booking generates an invoice.
 Vouchers can be bought, invoice is issued. 
 
 A booking has an invoice. 
-An invoice can have several payments. 
-
+An invoice can have several payments.
 A payment can be either a voucher or a transaction.
 
 A transaction (actual money transfer) can be a bank transfer or a paypal.
@@ -90,6 +89,9 @@ A transaction can have several payments.
 Transactions mirror the bank account / paypal account. 
 
 Incoming money is one transaction, and it can be split into several payments, in order to attach it to the correct invoice.
+
+Invoice Amount is always the amount due. 
+
 
 # Prices
 Prices are either unitary, subscription or voucher. 

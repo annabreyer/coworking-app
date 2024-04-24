@@ -41,6 +41,9 @@ class Booking
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private ?Uuid $uuid = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $amount = null;
+
     public function __construct()
     {
         $this->uuid = Uuid::v7();
@@ -92,9 +95,11 @@ class Booking
         return $this->room;
     }
 
-    public function setRoom(?Room $room): void
+    public function setRoom(?Room $room): static
     {
         $this->room = $room;
+
+        return $this;
     }
 
     public function getInvoice(): ?Invoice
@@ -124,5 +129,17 @@ class Booking
     public function hasBeenPaid(): bool
     {
         return null !== $this->invoice && $this->invoice->isFullyPaid();
+    }
+
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(?int $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
     }
 }
