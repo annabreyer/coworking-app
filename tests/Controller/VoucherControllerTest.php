@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-Use App\DataFixtures\AppFixtures;
+use App\DataFixtures\AppFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
@@ -31,7 +31,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -50,7 +50,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -71,7 +71,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -119,7 +119,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -143,7 +143,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -173,7 +173,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -202,7 +202,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -231,7 +231,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -265,7 +265,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
@@ -300,7 +300,7 @@ class VoucherControllerTest extends WebTestCase
 
         $databaseTool->loadFixtures([
             AppFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);

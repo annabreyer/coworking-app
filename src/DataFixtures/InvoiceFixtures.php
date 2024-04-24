@@ -1,16 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
-use App\Entity\Payment;
 use App\Entity\Price;
 use App\Entity\User;
-use App\Entity\Voucher;
-use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;

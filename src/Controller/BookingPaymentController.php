@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -185,7 +185,7 @@ class BookingPaymentController extends AbstractController
             return $this->renderVoucherPayment($response, $booking);
         }
 
-        if (false === $voucher->hasBeenPaid()){
+        if (false === $voucher->hasBeenPaid()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $this->addFlash('error', 'Voucher has not been paid and cannot be used.');
 

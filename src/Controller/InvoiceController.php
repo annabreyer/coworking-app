@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Invoice;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
@@ -8,14 +10,12 @@ use Monolog\Test\TestCase;
 
 class InvoiceTest extends TestCase
 {
-
-
     public function testIsFullyPaidReturnsFalseWhenThereAreNoPayments(): void
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $this->assertFalse($invoice->isFullyPaid());
+        self::assertFalse($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsFalseWhenPaymentsDoNotCoverTheAmount(): void
@@ -26,7 +26,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(50);
         $invoice->addPayment($payment);
 
-        $this->assertFalse($invoice->isFullyPaid());
+        self::assertFalse($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsTrueWhenPaymentsCoverTheAmount(): void
@@ -37,7 +37,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(100);
         $invoice->addPayment($payment);
 
-        $this->assertTrue($invoice->isFullyPaid());
+        self::assertTrue($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsTrueWhenPaymentsExceedTheAmount(): void
@@ -51,7 +51,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(50);
         $invoice->addPayment($payment);
 
-        $this->assertTrue($invoice->isFullyPaid());
+        self::assertTrue($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenThereAreNoPayments(): void
@@ -59,7 +59,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $this->assertFalse($invoice->isFullyPaidByVoucher());
+        self::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenPaymentIsTransaction(): void
@@ -71,7 +71,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(100);
         $invoice->addPayment($payment);
 
-        $this->assertFalse($invoice->isFullyPaidByVoucher());
+        self::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenPaymentsAreMixed(): void
@@ -88,7 +88,7 @@ class InvoiceTest extends TestCase
         $voucherPayment->setAmount(50);
         $invoice->addPayment($voucherPayment);
 
-        $this->assertFalse($invoice->isFullyPaidByVoucher());
+        self::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsTrueWhenPaymentIsVoucher(): void
@@ -102,7 +102,7 @@ class InvoiceTest extends TestCase
 
         $invoice->addPayment($payment);
 
-        $this->assertTrue($invoice->isFullyPaidByVoucher());
+        self::assertTrue($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenThereAreNoPayments(): void
@@ -110,7 +110,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $this->assertFalse($invoice->isFullyPaidByTransaction());
+        self::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenPaymentIsVoucher(): void
@@ -122,7 +122,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(100);
         $invoice->addPayment($payment);
 
-        $this->assertFalse($invoice->isFullyPaidByTransaction());
+        self::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenPaymentsAreMixed(): void
@@ -139,7 +139,7 @@ class InvoiceTest extends TestCase
         $voucherPayment->setAmount(50);
         $invoice->addPayment($voucherPayment);
 
-        $this->assertFalse($invoice->isFullyPaidByTransaction());
+        self::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsTrueWhenPaymentIsTransaction(): void
@@ -153,8 +153,6 @@ class InvoiceTest extends TestCase
 
         $invoice->addPayment($payment);
 
-        $this->assertTrue($invoice->isFullyPaidByTransaction());
+        self::assertTrue($invoice->isFullyPaidByTransaction());
     }
-
-
 }

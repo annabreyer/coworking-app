@@ -1,12 +1,11 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
 use App\DataFixtures\AppFixtures;
 use App\Entity\Invoice;
-use App\Entity\User;
 use App\Manager\InvoiceManager;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
@@ -43,9 +42,9 @@ class InvoiceManagerTest extends KernelTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $invoiceManager = $this->getInvoiceManager();
 
-        $this->assertSame('00001', $invoiceManager::getClientNumber(1));
-        $this->assertSame('00111', $invoiceManager::getClientNumber(111));
-        $this->assertSame('11111', $invoiceManager::getClientNumber(11111));
+        self::assertSame('00001', $invoiceManager::getClientNumber(1));
+        self::assertSame('00111', $invoiceManager::getClientNumber(111));
+        self::assertSame('11111', $invoiceManager::getClientNumber(11111));
     }
 
     public function testCreateInvoiceFromBookingThrowsExceptionIfBookingHasNoUser(): void
@@ -155,7 +154,7 @@ class InvoiceManagerTest extends KernelTestCase
         $this->databaseTool->loadFixtures([AppFixtures::class]);
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
 
-        $invoice = New Invoice();
+        $invoice = new Invoice();
         $invoice->setNumber('CO20241000');
         $invoice->setDate(new \DateTimeImmutable('2024-03-01'));
         $invoice->setAmount(100);
@@ -168,7 +167,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
 
-        $prefix = self::getContainer()->getParameter('invoice_prefix');
+        $prefix         = self::getContainer()->getParameter('invoice_prefix');
         $expectedNumber = $prefix . date('Y') . '1001';
 
         self::assertSame($expectedNumber, $invoiceNumber);
@@ -187,7 +186,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
         $prefix         = self::getContainer()->getParameter('invoice_prefix');
         // Only one fixture for 2023
-        $expectedNumber = $prefix .'20230002';
+        $expectedNumber = $prefix . '20230002';
 
         self::assertSame($expectedNumber, $invoiceNumber);
     }

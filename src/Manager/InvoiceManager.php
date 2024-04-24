@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -32,9 +32,17 @@ class InvoiceManager
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly InvoiceRepository $invoiceRepository,
-        private string $invoicePrefix,
-        private string $documentVaultEmail
+        private readonly string $invoicePrefix,
+        private readonly string $documentVaultEmail
     ) {
+    }
+
+    public static function getClientNumber(int $userId): string
+    {
+        $number = (string) $userId;
+        $number = str_pad($number, 5, '0', STR_PAD_LEFT);
+
+        return $number;
     }
 
     public function createInvoiceFromBooking(Booking $booking, Price $price): Invoice
@@ -68,7 +76,7 @@ class InvoiceManager
         $this->invoiceGenerator->generateBookingInvoice($invoice);
     }
 
-    public function sendBookingInvoicePerEmail(Invoice $invoice): void
+    public function sendBookingInvoiceToUser(Invoice $invoice): void
     {
         if (null === $invoice->getUser()) {
             throw new \InvalidArgumentException('Invoice must have a user');
@@ -79,22 +87,29 @@ class InvoiceManager
         }
 
         $uuid = $invoice->getBookings()->first()->getUuid();
-        $link = $this->urlGenerator->generate('booking_payment_paypal', ['uuid' => $uuid],
-            UrlGeneratorInterface::ABSOLUTE_URL);
+        $link = $this->urlGenerator->generate(
+            'booking_payment_paypal',
+            ['uuid' => $uuid],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
-        $subject                        = $this->translator->trans('booking.invoice.email.subject');
-        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('booking.invoice.email.subject');
+        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
         $context['texts']['salutation'] = $salutation;
         $context['link']                = $link;
 
+        if ($invoice->isFullyPaid()) {
+            $context['link']                 = '';
+            $context['texts']['explanation'] = '';
+        }
+
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
         $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
-        $this->sendInvoiceToDocumentVault($invoice, $invoicePath);
     }
 
     public function createVoucherInvoice(User $user, Price $price, Collection $vouchers): Invoice
@@ -120,7 +135,7 @@ class InvoiceManager
         $this->invoiceGenerator->generateVoucherInvoice($invoice, $voucherPrice);
     }
 
-    public function sendVoucherInvoicePerEmail(Invoice $invoice, Price $voucherPrice): void
+    public function sendVoucherInvoiceToUser(Invoice $invoice, Price $voucherPrice): void
     {
         if (null === $invoice->getUser()) {
             throw new \InvalidArgumentException('Invoice must have a user');
@@ -136,8 +151,8 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject                        = $this->translator->trans('voucher.invoice.email.subject');
-        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('voucher.invoice.email.subject');
+        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
@@ -148,7 +163,6 @@ class InvoiceManager
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
         $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
-        $this->sendInvoiceToDocumentVault($invoice, $invoicePath);
     }
 
     public function getInvoiceNumber(): string
@@ -157,17 +171,30 @@ class InvoiceManager
         $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
 
         if (null === $lastInvoice) {
-
             return $this->invoicePrefix . $year . '0001';
         }
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int)$invoiceNumberElements[1];
+        $number                = (int) $invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
     }
 
-    private function sendEmailToUser(Invoice $invoice, $subject, $context, $invoicePath)
+    public function sendInvoiceToDocumentVault(Invoice $invoice): void
+    {
+        $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
+        $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
+
+        $email = (new Email())
+            ->to($this->documentVaultEmail)
+            ->subject('Invoice ' . $invoice->getNumber())
+            ->text('Invoice ' . $invoice->getNumber())
+            ->attachFromPath($invoicePath);
+
+        $this->mailer->send($email);
+    }
+
+    private function sendEmailToUser(Invoice $invoice, string $subject, array $context, string $invoicePath)
     {
         $email = (new TemplatedEmail())
             ->to($invoice->getUser()->getEmail())
@@ -176,16 +203,6 @@ class InvoiceManager
             ->context($context)
             ->attachFromPath($invoicePath)
         ;
-
-        $this->mailer->send($email);
-    }
-
-    private function sendInvoiceToDocumentVault(Invoice $invoice, string $invoicePath): void
-    {
-        $email = (new Email())
-            ->to($this->documentVaultEmail)
-            ->subject('Invoice ' . $invoice->getNumber())
-            ->attachFromPath($invoicePath);
 
         $this->mailer->send($email);
     }

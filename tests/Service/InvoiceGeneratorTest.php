@@ -118,7 +118,7 @@ class InvoiceGeneratorTest extends KernelTestCase
             'App\DataFixtures\InvoiceFixtures',
         ]);
 
-        $singlePrice      = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrices()[0];
+        $singlePrice      = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $invoiceGenerator = $this->getInvoiceGenerator();
 

@@ -516,6 +516,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getValidVouchers(): Collection
     {
-        return $this->vouchers->filter(fn (Voucher $voucher) => $voucher->isValid());
+        return $this->vouchers->filter(static fn (Voucher $voucher) => $voucher->isValid());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -11,7 +13,9 @@ use Symfony\Component\Clock\ClockAwareTrait;
 class PaymentManager
 {
     use ClockAwareTrait;
-    public function __construct(private readonly EntityManagerInterface $entityManager,) {
+
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
     }
 
     public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): void

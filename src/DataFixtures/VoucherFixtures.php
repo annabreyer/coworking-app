@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
 use App\Entity\Invoice;
-use App\Entity\Payment;
 use App\Entity\Price;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;

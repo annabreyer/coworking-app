@@ -691,6 +691,7 @@ class BookingControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
+
     public function testCancelBookingChecksUser()
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
@@ -792,7 +793,7 @@ class BookingControllerTest extends WebTestCase
                              ])
         ;
 
-        $uri       = '/booking/' . $booking->getUuid() . '/cancel';
+        $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         $this->assertResponseRedirects();

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -319,7 +319,6 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertEmailAttachmentCount($email, 1);
     }
 
-
     public function testPayWithVoucherChecksIfBookingUserIsConnectedUser(): void
     {
         $client       = static::createClient();
@@ -461,18 +460,17 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->loginUser($bookingUser);
 
         $adminVoucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240002']);
-        $date    = new \DateTimeImmutable('2024-04-01');
-        $booking = $this->getBooking($bookingUser, $date);
-        $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
-        $crawler = $client->request('GET', $uri);
-        $form    = $crawler->filter('form')->form();
+        $date         = new \DateTimeImmutable('2024-04-01');
+        $booking      = $this->getBooking($bookingUser, $date);
+        $uri          = '/booking/' . $booking->getUuid() . '/payment/voucher';
+        $crawler      = $client->request('GET', $uri);
+        $form         = $crawler->filter('form')->form();
         $form->setValues(['voucher' => $adminVoucher->getCode()]);
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertSelectorTextContains('div.alert', 'Voucher is not valid for this user.');
     }
-
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherIsExpired(): void
     {
@@ -542,7 +540,6 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertSelectorTextContains('div.alert', 'Voucher has not been paid and cannot be used.');
     }
 
-
     public function testPayWithVoucherFormSubmitWithValidVoucherRedirects(): void
     {
         $client       = static::createClient();
@@ -589,7 +586,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()
                          ->get(InvoiceRepository::class)
                          ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
-        $this->assertNotNull($invoice);
+        self::assertNotNull($invoice);
 
         $invoiceGenerator = static::getContainer()->get(InvoiceGenerator::class);
         $filePath         = $invoiceGenerator->getTargetDirectory($booking->getInvoice());
@@ -619,8 +616,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()
                          ->get(InvoiceRepository::class)
                          ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
-        $this->assertNotNull($invoice);
-        $this->assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
+        self::assertNotNull($invoice);
+        self::assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherSendsInvoiceToClient(): void
@@ -671,22 +668,21 @@ class BookingPaymentControllerTest extends WebTestCase
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-        $databaseTool->loadFixtures([PaymentFixtures::class,]);
+        $databaseTool->loadFixtures([PaymentFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $bookingUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => 'CO20240044']);
-        $uri         = '/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation';
+        $uri     = '/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation';
         $crawler = $client->request('GET', $uri);
 
         $this->assertResponseIsSuccessful();
         $expectedUri = '/invoice/' . $invoice->getUuid() . '/download';
-        $link  = $crawler->filter('a')->first();
-        $this->assertSame($expectedUri, $link->attr('href'));
+        $link        = $crawler->filter('a')->first();
+        self::assertSame($expectedUri, $link->attr('href'));
     }
-
 
     private function getBooking(User $user, \DateTimeImmutable $date): Booking
     {

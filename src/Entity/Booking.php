@@ -43,7 +43,7 @@ class Booking
 
     public function __construct()
     {
-        $this->uuid = UUid::v7();
+        $this->uuid = Uuid::v7();
     }
 
     public function getId(): ?int

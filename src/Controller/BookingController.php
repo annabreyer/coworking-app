@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\User;
 use App\Manager\BookingManager;

@@ -23,7 +23,7 @@ class BookingManagerTest extends TestCase
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
         $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'1 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
 
         $this->expectException(\LogicException::class);
@@ -37,8 +37,7 @@ class BookingManagerTest extends TestCase
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
         $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'0 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTime());
@@ -55,7 +54,7 @@ class BookingManagerTest extends TestCase
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
         $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'0.5 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0.5 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTime());
@@ -90,8 +89,7 @@ class BookingManagerTest extends TestCase
         $mockInvoiceManager = $this->createMock(InvoiceManager::class);
         $mockPaymentManager = $this->createMock(PaymentManager::class);
 
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager,'1 day');
+        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
         $businessDay    = new BusinessDay();
         $businessDay->setDate(new \DateTimeImmutable('2024-03-16'));

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -11,7 +13,6 @@ use Doctrine\Persistence\ObjectManager;
 
 class PaymentFixtures extends Fixture implements DependentFixtureInterface
 {
-
     public function getDependencies()
     {
         return [
@@ -32,11 +33,11 @@ class PaymentFixtures extends Fixture implements DependentFixtureInterface
 
     private function loadPaymentForUserOneVouchers(ObjectManager $manager): void
     {
-        $user = $this->getReference('user1');
+        $user                = $this->getReference('user1');
         $voucherToBeExcluded = $this->getReference('voucher-without-payment', Voucher::class);
 
         foreach ($user->getVouchers() as $voucher) {
-            If ($voucher === $voucherToBeExcluded) {
+            if ($voucher === $voucherToBeExcluded) {
                 continue;
             }
             $payment = new Payment();

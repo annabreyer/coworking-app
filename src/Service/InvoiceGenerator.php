@@ -8,6 +8,7 @@ use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Entity\VoucherType;
+use App\Manager\InvoiceManager;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -50,11 +51,12 @@ class InvoiceGenerator
         $this->writeFirstPositionNumber();
         $this->writeBookingDescription($invoice->getBookings()->first());
         $this->writePrice($invoice);
-        $this->writeTotalAmount($invoice->getAmount());
 
-        if ($invoice->isAlreadyPaid()) {
-            $this->addAlreadyPaidMention();
+        if ($invoice->isFullyPaid()) {
+            $this->addPaymentMethodMentionAndAmount($invoice);
             $this->writeTotalAmount(0);
+        } else {
+            $this->writeTotalAmount($invoice->getAmount());
         }
 
         $this->saveInvoice($invoice);
@@ -90,8 +92,8 @@ class InvoiceGenerator
         $this->writePrice($invoice);
         $this->writeTotalAmount($invoice->getAmount());
 
-        if ($invoice->isAlreadyPaid()) {
-            $this->addAlreadyPaidMention();
+        if ($invoice->isFullyPaid()) {
+            $this->addPaymentMethodMentionAndAmount($invoice);
             $this->writeTotalAmount(0);
         }
     }
@@ -127,7 +129,9 @@ class InvoiceGenerator
 
     private function writeClientNumber(Invoice $invoice): void
     {
-        $clientNumber = $this->invoiceClientNumberPrefix . $invoice->getUser()->getId();
+        $number       = InvoiceManager::getClientNumber($invoice->getUser()->getId());
+        $clientNumber = $this->invoiceClientNumberPrefix . $number;
+
         $this->writeValue(160, 51, 30, 8, $clientNumber);
     }
 
@@ -194,10 +198,35 @@ class InvoiceGenerator
         $this->writeValue(180, 182, 30, 8, $amount . ',00 €');
     }
 
-    private function addAlreadyPaidMention(): void
+    private function addPaymentMethodMentionAndAmount(Invoice $invoice): void
     {
-        $alreadyPaidMessage = $this->translator->trans('booking.invoice.paid'); // @todo when doing payment
-        // write it in the next line so the total amount will be 0
+        if ($invoice->getPayments()->isEmpty()) {
+            return;
+        }
+
+        $y        = 155;
+        $position = 2;
+        foreach ($invoice->getPayments() as $payment) {
+            if ($payment->isVoucherPayment()) {
+                $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_voucher', [
+                    '%voucherCode%' => $payment->getVoucher()->getCode(),
+                ]);
+            }
+
+            if ($payment->isTransactionPayment()) {
+                $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_transaction', [
+                    '%transactionType%' => $payment->getTransaction()->getType(),
+                ]);
+            }
+
+            $amount = $payment->getAmount() / 100;
+
+            $this->writeValue(15, $y, 10, 8, (string) $position);
+            $this->writeValue(30, $y, 140, 8, $paymentMethodMessage);
+            $this->writeValue(180, $y, 30, 8, '-' . $amount . ',00 €');
+            $y += 12;
+            ++$position;
+        }
     }
 
     private function saveInvoice(Invoice $invoice): void

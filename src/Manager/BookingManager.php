@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -77,7 +77,7 @@ class BookingManager
         $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $price);
 
         $this->invoiceManager->generateBookingInvoicePdf($invoice);
-        $this->invoiceManager->sendBookingInvoiceToClient($invoice);
+        $this->invoiceManager->sendBookingInvoiceToUser($invoice);
         $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
     }
 
@@ -90,13 +90,12 @@ class BookingManager
             $this->paymentManager->handleVoucherPayment($invoice, $voucher);
 
             $this->entityManager->getConnection()->commit();
-
         } catch (\Exception $exception) {
             $this->entityManager->getConnection()->rollBack();
             throw $exception;
         }
 
         $this->invoiceManager->generateBookingInvoicePdf($invoice);
-        $this->invoiceManager->sendBookingInvoiceToClient($invoice);
+        $this->invoiceManager->sendBookingInvoiceToUser($invoice);
     }
 }
