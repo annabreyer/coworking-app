@@ -39,8 +39,7 @@ class BookingManagerTest extends TestCase
 
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0 day');
         $booking        = new Booking();
-        $businessDay    = new BusinessDay();
-        $businessDay->setDate(new \DateTime());
+        $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         $this->expectException(\LogicException::class);
@@ -56,8 +55,7 @@ class BookingManagerTest extends TestCase
 
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0.5 day');
         $booking        = new Booking();
-        $businessDay    = new BusinessDay();
-        $businessDay->setDate(new \DateTime());
+        $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         $this->expectException(\LogicException::class);
@@ -73,8 +71,7 @@ class BookingManagerTest extends TestCase
 
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1.5 day');
         $booking        = new Booking();
-        $businessDay    = new BusinessDay();
-        $businessDay->setDate(new \DateTime());
+        $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         $this->expectException(\LogicException::class);
@@ -91,8 +88,7 @@ class BookingManagerTest extends TestCase
 
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
-        $businessDay    = new BusinessDay();
-        $businessDay->setDate(new \DateTimeImmutable('2024-03-16'));
+        $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
         $booking->setBusinessDay($businessDay);
 
         self::assertTrue($bookingManager->canBookingBeCancelled($booking));
@@ -107,8 +103,7 @@ class BookingManagerTest extends TestCase
 
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
-        $businessDay    = new BusinessDay();
-        $businessDay->setDate(new \DateTimeImmutable('2024-02-16'));
+        $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
         $booking->setBusinessDay($businessDay);
 
         self::assertFalse($bookingManager->canBookingBeCancelled($booking));

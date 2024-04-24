@@ -45,8 +45,7 @@ class BusinessDayManager
 
     public function createBusinessDay(\DateTimeInterface $date, bool $flush = true): BusinessDay
     {
-        $businessDay = new BusinessDay();
-        $businessDay->setDate($date);
+        $businessDay = new BusinessDay($date);
 
         $this->entityManager->persist($businessDay);
 

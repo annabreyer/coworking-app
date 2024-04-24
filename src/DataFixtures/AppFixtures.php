@@ -113,8 +113,7 @@ class AppFixtures extends Fixture
         $dateRange = new \DatePeriod($startDate, $interval, $endDate);
 
         foreach ($dateRange as $date) {
-            $businessDay = new BusinessDay();
-            $businessDay->setDate($date);
+            $businessDay = new BusinessDay($date);
 
             $manager->persist($businessDay);
             $this->addReference('businessDay-' . $date->format('Y-m-d'), $businessDay);

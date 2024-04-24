@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\DataFixtures\AppFixtures;
+use App\DataFixtures\BookingFixtures;
+use App\DataFixtures\PriceFixtures;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use Monolog\Handler\TestHandler;
+use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,16 +33,72 @@ class BookingControllerTest extends WebTestCase
         parent::setUp();
     }
 
-    public function testStepDateRendersTemplateOnGetRequest(): void
+    public function testStepDateLogsErrorAndRedirectsWhenNoBusinessDaysAreDefined(): void
     {
+        //No BusinessDays exist in fixtures after 2024-06-01
+        static::mockTime(new \DateTimeImmutable('2024-07-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class]);
 
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $client->request('GET', '/booking');
+        $this->assertResponseRedirects('/');
+
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'No BusinessDays found.',
+            Level::fromName('critical')
+        ));
+    }
+
+    public function testStepDateLogsErrorRedirectsWhenNoPricesAreDefined(): void
+    {
+        //No BusinessDays exist in fixtures after 2024-06-01
+        static::mockTime(new \DateTimeImmutable('2024-04-30'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([AppFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $client->request('GET', '/booking');
+        $this->assertResponseRedirects('/');
+
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'No active Price found.',
+            Level::fromName('critical')
+        ));
+    }
+
+    public function testStepDateRendersTemplateOnGetRequest(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-04-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -50,14 +111,10 @@ class BookingControllerTest extends WebTestCase
 
     public function testStepDateTemplateContainsDatepicker(): void
     {
+        static::mockTime(new \DateTimeImmutable('2024-04-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -73,12 +130,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-05-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -96,12 +148,7 @@ class BookingControllerTest extends WebTestCase
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -118,12 +165,7 @@ class BookingControllerTest extends WebTestCase
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -144,12 +186,7 @@ class BookingControllerTest extends WebTestCase
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -170,12 +207,7 @@ class BookingControllerTest extends WebTestCase
     {
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -196,12 +228,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -222,12 +249,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -248,12 +270,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -275,12 +292,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -302,12 +314,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -325,12 +332,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -351,12 +353,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -376,12 +373,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -404,12 +396,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -433,12 +420,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -463,12 +445,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -477,8 +454,7 @@ class BookingControllerTest extends WebTestCase
         $date        = new \DateTimeImmutable('2024-04-01');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
 
-        $uri = '/booking/' . $businessDay->getId() . '/room';
-
+        $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('#form-room')->form();
         $form->disableValidation();
@@ -494,12 +470,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -539,12 +510,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -584,12 +550,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -621,12 +582,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -662,12 +618,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -697,12 +648,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -732,12 +678,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -771,12 +712,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-04-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -814,12 +750,7 @@ class BookingControllerTest extends WebTestCase
         $client            = static::createClient();
         $databaseTool      = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $bookingRepository = static::getContainer()->get(BookingRepository::class);
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -848,12 +779,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -881,12 +807,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\BookingFixtures',
-        ]);
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);

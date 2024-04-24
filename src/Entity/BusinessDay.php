@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -16,13 +16,14 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 class BusinessDay
 {
     use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
+    private \DateTimeInterface $date;
 
     #[ORM\Column]
     private bool $isOpen = true;
@@ -30,8 +31,9 @@ class BusinessDay
     #[ORM\OneToMany(mappedBy: 'businessDay', targetEntity: Booking::class, orphanRemoval: true)]
     private Collection $bookings;
 
-    public function __construct()
+    public function __construct(\DateTimeInterface $date)
     {
+        $this->date     = $date;
         $this->bookings = new ArrayCollection();
     }
 
@@ -43,13 +45,6 @@ class BusinessDay
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-
-        return $this;
     }
 
     public function isOpen(): bool
@@ -115,7 +110,7 @@ class BusinessDay
     public function getBookingsForRoom(Room $room): Collection
     {
         return $this->bookings->filter(
-            static fn (Booking $booking) => $booking->getRoom() === $room
+            static fn(Booking $booking) => $booking->getRoom() === $room
         );
     }
 

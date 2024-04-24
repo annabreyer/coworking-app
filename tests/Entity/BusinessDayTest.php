@@ -14,7 +14,7 @@ class BusinessDayTest extends KernelTestCase
     public function testGetBookingsForRoomReturnsCollection(): void
     {
         $room        = new Room();
-        $businessDay = new BusinessDay();
+        $businessDay = new BusinessDay(new \DateTime());
         $booking     = new Booking();
         $booking->setRoom($room);
         $businessDay->addBooking($booking);
@@ -25,7 +25,7 @@ class BusinessDayTest extends KernelTestCase
     public function testGetBookingsForRoomReturnsCorrectRoom(): void
     {
         $room        = new Room();
-        $businessDay = new BusinessDay();
+        $businessDay = new BusinessDay(new \DateTime());
         $booking     = new Booking();
         $booking->setRoom($room);
         $businessDay->addBooking($booking);

@@ -13,6 +13,7 @@ use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
 use App\Service\AdminMailerService;
 use App\Service\BookingService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class BookingController extends AbstractController
 {
     public function __construct(
+        private readonly LoggerInterface $logger,
         private readonly BookingService $bookingService,
         private readonly BookingManager $bookingManager,
         private readonly BookingRepository $bookingRepository,
@@ -202,26 +204,21 @@ class BookingController extends AbstractController
     {
         $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
         $businessDayCount = \count($businessDays);
-        if (0 === \count($businessDays)) {
-            throw new \Exception('No BusinessDays found ?!');
-        }
 
-        if (false === isset($businessDays[$businessDayCount - 1])) {
-            throw new \Exception('No Last BusinessDay found ?!');
-        }
+        if (0 === $businessDayCount) {
+            $this->logger->critical('No BusinessDays found.');
+            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
 
-        if (null === $businessDays[0]->getDate()) {
-            throw new \Exception('First BusinessDay has no Date ?!');
-        }
-
-        if (null === $businessDays[$businessDayCount - 1]->getDate()) {
-            throw new \Exception('Last BusinessDay has no Date ?!');
+            return $this->redirectToRoute('home');
         }
 
         $activePrices = $this->priceRepository->findActivePrices();
 
         if (empty($activePrices)) {
-            throw new \Exception('No active Price found ?!');
+            $this->logger->critical('No active Price found.');
+            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
+
+            return $this->redirectToRoute('home');
         }
 
         return $this->render('booking/index.html.twig', [
