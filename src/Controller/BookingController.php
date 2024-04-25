@@ -15,21 +15,23 @@ use App\Service\AdminMailerService;
 use App\Service\BookingService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Clock\ClockInterface;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class BookingController extends AbstractController
 {
+    use ClockAwareTrait;
     public function __construct(
+        private readonly Security $security,
         private readonly LoggerInterface $logger,
         private readonly BookingService $bookingService,
         private readonly BookingManager $bookingManager,
         private readonly BookingRepository $bookingRepository,
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
-        private readonly ClockInterface $clock,
         private readonly PriceRepository $priceRepository,
         private readonly string $timeLimitCancelBooking
     ) {
@@ -39,25 +41,25 @@ class BookingController extends AbstractController
     public function bookingStepDate(Request $request): Response
     {
         if (false === $request->isMethod('POST')) {
-            return $this->renderStepDate(new Response(), $this->clock->now());
+            return $this->renderStepDate(new Response(), $this->now());
         }
 
         $response       = new Response();
         $submittedToken = $request->getPayload()->getString('token_date');
 
         if (false === $this->isCsrfTokenValid('date', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token');
+            $this->addFlash('error', 'Invalid CSRF Token.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->clock->now());
+            return $this->renderStepDate($response, $this->now());
         }
 
         $date = $request->request->getString('date');
         if (empty($date)) {
-            $this->addFlash('error', 'No date selected');
+            $this->addFlash('error', 'No date selected.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->clock->now());
+            return $this->renderStepDate($response, $this->now());
         }
 
         try {
@@ -70,23 +72,23 @@ class BookingController extends AbstractController
             $this->addFlash('error', 'Invalid date format.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->clock->now());
+            return $this->renderStepDate($response, $this->now());
         }
 
-        if ($dateTime < $this->clock->now()) {
-            $this->addFlash('error', 'Date must be in the future');
+        if ($dateTime < $this->now()) {
+            $this->addFlash('error', 'Date must be in the future.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->clock->now());
+            return $this->renderStepDate($response, $this->now());
         }
 
         $businessDay = $this->businessDayRepository->findOneBy(['date' => $dateTime]);
 
         if (null === $businessDay || false === $businessDay->isOpen()) {
-            $this->addFlash('error', 'Requested Date is not a business day');
+            $this->addFlash('error', 'Booking for this day is not possible.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->clock->now());
+            return $this->renderStepDate($response, $this->now());
         }
 
         return $this->redirectToRoute('booking_step_room', ['businessDay' => $businessDay->getId()]);
@@ -97,21 +99,39 @@ class BookingController extends AbstractController
         Request $request,
         BusinessDay $businessDay,
         AdminMailerService $adminMailerService
-    ): Response {
+    ): Response
+    {
+        if ($businessDay->getDate() < $this->now()) {
+            $this->addFlash('error', 'Booking for this day is not possible anymore.');
+
+            return $this->redirectToRoute('booking_step_date');
+        }
+
+        if (false === $businessDay->isOpen()) {
+            $this->addFlash('error', 'Booking for this day is not possible.');
+
+            return $this->redirectToRoute('booking_step_date');
+        }
+
         if (false === $request->isMethod('POST')) {
             return $this->renderStepRoom(new Response(), $businessDay);
         }
 
         $response = new Response();
         $user     = $this->getUser();
+
+        //This code should never execute. It can not be tested. It has been added to avoid PHPStan error and also because it is good Sf practice.
         if (false === $user instanceof User) {
-            throw new \Exception('User is not an instance of User ?!');
+            $this->logger->critical('User is not an instance of User but of class '. get_class($user));
+            $response = $this->security->logout();
+
+            return $response;
         }
 
         $submittedToken = $request->getPayload()->getString('token');
 
         if (false === $this->isCsrfTokenValid('room', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token');
+            $this->addFlash('error', 'Invalid CSRF Token.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -119,7 +139,7 @@ class BookingController extends AbstractController
 
         $roomId = $request->request->get('room');
         if (empty($roomId)) {
-            $this->addFlash('error', 'No room selected');
+            $this->addFlash('error', 'No room selected.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -127,21 +147,21 @@ class BookingController extends AbstractController
 
         $room = $this->roomRepository->find($roomId);
         if (null === $room) {
-            $this->addFlash('error', 'Unknown room selected');
+            $this->addFlash('error', 'Unknown room selected.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
         }
 
         if ($room->getCapacity() < 1) {
-            $this->addFlash('error', 'Room is already fully booked');
+            $this->addFlash('error', 'Room is already fully booked.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
         }
 
         if ($room->getCapacity() <= $businessDay->getBookingsForRoom($room)->count()) {
-            $this->addFlash('error', 'Room is already fully booked');
+            $this->addFlash('error', 'Room is already fully booked.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -186,10 +206,6 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('user_bookings');
         }
 
-        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
-            throw new \Exception('Persisted Booking has no BusinessDay ?!');
-        }
-
         $bookingDate = $booking->getBusinessDay()->getDate();
         $this->bookingManager->cancelBooking($booking);
 
@@ -202,7 +218,7 @@ class BookingController extends AbstractController
 
     private function renderStepDate(Response $response, \DateTimeImmutable $dateTime): Response
     {
-        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->now());
         $businessDayCount = \count($businessDays);
 
         if (0 === $businessDayCount) {
@@ -232,33 +248,16 @@ class BookingController extends AbstractController
 
     private function renderStepRoom(Response $response, BusinessDay $businessDay): Response
     {
-        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->clock->now());
+        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->now());
         $businessDayCount = \count($businessDays);
-
-        if (0 === $businessDayCount) {
-            throw new \Exception('No BusinessDays found ?!');
-        }
-
-        if (false === isset($businessDays[$businessDayCount - 1])) {
-            throw new \Exception('No Last BusinessDay found ?!');
-        }
-
-        if (null === $businessDays[0]->getDate()) {
-            throw new \Exception('First BusinessDay has no Date ?!');
-        }
-
-        if (null === $businessDays[$businessDayCount - 1]->getDate()) {
-            throw new \Exception('Last BusinessDay has no Date ?!');
-        }
-
-        if (null === $businessDay->getDate()) {
-            throw new \Exception('BusinessDay has no Date ?!');
-        }
 
         $activePrices = $this->priceRepository->findActivePrices();
 
         if (empty($activePrices)) {
-            throw new \Exception('No active Price found ?!');
+            $this->logger->critical('No active Price found.');
+            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
+
+            return $this->redirectToRoute('home');
         }
 
         $bookingOption = $this->bookingService->generateAvailableBookingOptionsForDay($businessDay, false);
