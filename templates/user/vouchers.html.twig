@@ -1,18 +1,24 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ 'Your Vouchers'|trans }}{% endblock %}
+{% block title %}{{ 'user_account.vouchers.title'|trans }}{% endblock %}
 
 {% block body %}
-<h1>{{ 'Your Vouchers'|trans }}</h1>
+<h1>{{ 'user_account.vouchers.title'|trans }}</h1>
+
+    {% if user.vouchers.isEmpty %}
+        {{ 'user_account.vouchers.no_vouchers'|trans }}
+    {% endif %}
+
+    <div>
+        <a href="{{ path('voucher_index') }}" class="btn btn-primary">{{ 'user_account.vouchers.new_button'|trans }}</a>
+    </div>
+
     {% for voucher in user.vouchers %}
         <span>{{ voucher.code }}</span><br>
         <ul>
-            <li>Expiry Date: {{ voucher.expiryDate|date('Y-m-d') }}</li>
-            <li>Use Date: {{ voucher.useDate? voucher.useDate|date('Y-m-d') : '' }}</li>
-            <li>Has Been Paid for {{ voucher.hasBeenPaid ? 'Yes' : 'No'}}</li>
-            <li>Is Valid: {{ voucher.isValid? 'Yes' : 'No' }}</li>
+            <li>{{ 'user_account.vouchers.expiry_date'|trans }}: {{ voucher.expiryDate|date('Y-m-d') }}</li>
+            <li>{{ 'user_account.vouchers.use_date'|trans }}{{ voucher.useDate? voucher.useDate|date('Y-m-d') : '' }}</li>
+            <li>{{ 'user_account.vouchers.has_been_paid'|trans }} {{ voucher.hasBeenPaid ? 'Yes' : 'No'}}</li>
+            <li>{{ 'user_account.vouchers.is_valid'|trans }}: {{ voucher.isValid? 'Yes' : 'No' }}</li>
         </ul>
-
-
     {% endfor %}
-
 {% endblock %}

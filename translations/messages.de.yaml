@@ -16,17 +16,20 @@ Date: 'Datum'
 Room: 'Raum'
 Booking: 'Buchung'
 Book: 'Buchen'
-
+payment_method:
+  invoice: 'Rechnung'
+  paypal: 'Paypal'
+  voucher: 'Gutschein'
+price:
+  voucher: 'Mehrfachkarte'
+  unitary: 'Einzelpreis'
+  subscription: 'Abonnement'
+  voucher.units: 'Gutscheine'
 
 #forms
-
 label:
   repeat.password: 'Passwort wiederholen'
   new.password: 'Neues Passwort'
-
-
-#entity
-user.email.unique: 'Es gibt bereits ein Konto mit dieser E-Mail-Adresse'
 
 #registration page
 registration:
@@ -40,7 +43,7 @@ registration:
     code.of.conduct.agreement.necessary: 'Bitte akzeptiere unseren Verhaltenskodex.'
     data.protection.agreement.necessary: 'Bitte akzeptiere unsere Datenschutzbestimmungen.'
     phone.help: 'Bitte gib Deine Telefonnummer im internationalen Format ein'
-    form.action: 'Registrieren'
+    action: 'Registrieren'
   success: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'
   email_verification:
     email:
@@ -85,34 +88,74 @@ reset_password:
 booking:
   page:
     title: 'Buchung'
+    form:
+      date.label: 'Datum'
+      room.label: 'Raum'
+      action: 'Buchen'
   confirmation: 'Deine Buchung wurde bestätigt.'
   invoice:
     description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
+    paid_by_voucher: 'Bezahlt mit Gutschein %voucherCode%'
+    due: 'Fällig innerhalb von 10 Tagen oder mindestens 24 Stunden vor Buchungsdatum.'
+    already_paid: 'Bezahlt am %date%'
     email:
       subject: 'Deine Rechnung'
       salutation: 'Hallo %firstName%!'
-      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum'
+      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum.'
       explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
       signature: 'Vielen Dank!'
+  payment:
+    title: 'Zahlung'
+    form:
+      action: 'Bezahlen'
 
 
+#voucher purchase Page
 voucher:
+  purchase:
+    title: 'Gutschein kaufen'
+    units: 'Anzahl'
+    form:
+      action: 'Kaufen'
   invoice:
-    description: '%units% Karte %validityMonths% Monate gültig.'
+    description: '%units% Stück %validityMonths% Monate gültig.'
     email:
       subject: 'Deine Rechnung'
       salutation: 'Hallo %firstName%!'
-      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, ist die Karte nicht gültig.'
+      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, sind die Gutscheine nicht gültig.'
       explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
       signature: 'Vielen Dank!'
 
 #homepage TODO
 You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
 
-user_account: Benutzerkonto
-#homepage TODO
+user_account:
+  title: 'Benutzerkonto'
+  edit_data:
+    link: 'Meine Daten bearbeiten'
+    title: 'Meine Daten'
+    form.action: 'Speichern'
+  bookings:
+    link: 'Meine Buchungen ansehen'
+    title: 'Meine Buchungen'
+    no_bookings: 'Du hast noch keine Buchungen.'
+    new_button: 'Neue Buchung'
+    cancel_button: 'Buchung stornieren'
+    invoice_link: 'Rechnung'
+  vouchers:
+    link: 'Meine Gutscheine ansehen'
+    title: 'Meine Gutscheine'
+    no_vouchers: 'Du hast noch keine Gutscheine.'
+    new_button: 'Neuen Gutschein kaufen'
+    expiry_date: 'Gültig bis'
+    use_date: 'Eingelöst am'
+    has_been_paid: 'Bezahlt'
+    is_valid: 'Gültig'
 
+
+
+Log out: Abmelden
 save: Speichern
 Edit my data: Meine Daten bearbeiten
 To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'

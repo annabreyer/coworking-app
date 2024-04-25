@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'user_account'|trans }}{% endblock %}
+{% block title %}{{ 'user_account.edit_data.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>{{ 'user_account'|trans }}</h1>
+    <h1>{{ 'user_account.edit_data.title'|trans }}</h1>
     {{ form_errors(userForm) }}
 
     {{ form_start(userForm) }}
@@ -15,6 +15,6 @@
 
     {{ form_row(userForm.email) }}
 
-    <button type="submit" class="btn">{% trans %}Save{% endtrans %}</button>
+    <button type="submit" class="btn">{{ 'user_account.edit_data.form.action'|trans }}</button>
     {{ form_end(userForm) }}
 {% endblock %}

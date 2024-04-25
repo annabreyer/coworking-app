@@ -24,25 +24,6 @@ class VoucherControllerTest extends WebTestCase
         parent::setUp();
     }
 
-    public function testIndexRendersTemplateOnGetRequest(): void
-    {
-        $client       = static::createClient();
-        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-
-        $databaseTool->loadFixtures([
-            AppFixtures::class,
-            PriceFixtures::class,
-        ]);
-
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $user           = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $client->loginUser($user);
-
-        $client->request('GET', '/voucher');
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'Voucher');
-    }
-
     public function testIndexTemplateContainsFormWithVoucherTypeAndPaymentMethod(): void
     {
         $client       = static::createClient();

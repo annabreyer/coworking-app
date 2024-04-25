@@ -104,7 +104,7 @@ class InvoiceGenerator
 
     private function setupInvoiceTemplate(): void
     {
-        $this->pdf->SetFont('Helvetica', '', 12);
+        $this->setStandardFont();
         $this->pdf->AddPage();
         $this->pdf->setSourceFile($this->invoiceTemplatePath);
 
@@ -243,7 +243,10 @@ class InvoiceGenerator
         }
 
         $dueMessage = $this->translator->trans('booking.invoice.due');
-        $this->writeValue(15, 220, 100, 8, $dueMessage);
+        $this->setBoldFont();
+        $this->writeValue(15, 210, 200, 8, $dueMessage);
+        $this->setStandardFont();
+
     }
 
     private function saveInvoice(Invoice $invoice): void
@@ -257,5 +260,15 @@ class InvoiceGenerator
     {
         $this->pdf->SetXY($x, $y);
         $this->pdf->multiCell($w, $h, mb_convert_encoding($value, 'windows-1252', 'UTF-8'));
+    }
+
+    private function setStandardFont(): void
+    {
+        $this->pdf->SetFont('Helvetica', '', 12);
+    }
+
+    private function setBoldFont(): void
+    {
+        $this->pdf->SetFont('Helvetica', 'b', 12);
     }
 }

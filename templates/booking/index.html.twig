@@ -1,17 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'Booking'|trans }}{% endblock %}
+{% block title %}{{ 'booking.page.title'|trans }}{% endblock %}
 
 
 {% block body %}
-    <h1>{{ 'Booking'|trans }}</h1>
+    <h1>{{ 'booking.page.title'|trans }}</h1>
 
     {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
+        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
     {% endfor %}
 
     <form id="form-date" method="post" action="{{ path('booking_step_date') }}">
-        <label for="date">{{ 'Date'|trans }}</label>
+        <label for="date">{{ 'booking.page.form.date.label'|trans }}</label>
         <input type="date" id="date" name="date"
                max="{{ lastDay }}"
                min="{{ firstDay }}"
@@ -21,7 +21,7 @@
 
     {% if step == 2 %}
         <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
-            <label for="room">{{ 'Room'|trans }}</label>
+            <label for="room">{{ 'booking.page.form.room.label'|trans }}</label>
             <select id="room" name="room">
                 {% for option in bookingOption %}
                     <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }}>
@@ -29,18 +29,18 @@
                     </option>
                 {% endfor %}
             </select>
-            <button type="submit">{{ 'Book'|trans }}</button>
+            <button type="submit">{{ 'booking.page.form.action'|trans }}</button>
             <input type="hidden" name="token" value="{{ csrf_token('room') }}">
         </form>
     {% endif %}
 
     {%  for price in prices %}
         {%  if price.isVoucher %}
-            <p>{{ 'Voucher'|trans }}: {{ price.amount/100 }} €</p>
+            <p>{{ 'price.voucher'|trans }}: {{ price.amount/100 }} € ({{ price.voucherType.units }} {{ 'price.voucher.units'|trans }})</p>
         {%  elseif price.isUnitary %}
-            <p>{{ 'UnitaryPrice'|trans }}: {{ price.amount/100 }} €</p>
+            <p>{{ 'price.unitary'|trans }}: {{ price.amount/100 }} €</p>
         {% elseif price.isSubscription %}
-            <p>{{ 'Subscription'|trans }}: {{ price.amount/100 }} €</p>
+            <p>{{ 'price.subscription'|trans }}: {{ price.amount/100 }} €</p>
         {%  endif %}
     {% endfor %}
 

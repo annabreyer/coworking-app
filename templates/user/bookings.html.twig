@@ -1,21 +1,24 @@
 {% extends 'base.html.twig' %}
-{% block title %}{% trans %}My bookings {% endtrans %}{% endblock %}
+{% block title %}{{ 'user_account.bookings.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>{% trans %}My bookings {% endtrans %}</h1>
-
+    <h1>{{ 'user_account.bookings.title'|trans }}</h1>
 
     {% for message in app.flashes('success') %}
         <div class="alert alert-success" role="alert">{{ message|trans }}</div>
     {% endfor %}
 
     {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
+        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
     {% endfor %}
 
     <div class="mb-3">
-        <a href="{{ path('booking_step_date') }}" class="btn btn-primary">New booking</a>
+        <a href="{{ path('booking_step_date') }}" class="btn btn-primary">{{ 'user_account.bookings.new_button'|trans }}</a>
     </div>
+
+    {% if user.bookings.isEmpty %}
+        {{ 'user_account.bookings.no_bookings'|trans }}
+    {% endif %}
 
     {% for booking in user.bookings %}
         <div>
@@ -25,12 +28,12 @@
             <form action="{{ path('booking_cancel', {'uuid': booking.uuid })}}" method="post">
                 <input type="hidden" name="bookingId" value="{{ booking.id }}">
 
-                <button type="submit">Cancel</button>
+                <button type="submit">{{ 'user_account.bookings.cancel_button'|trans }}</button>
             </form>
         {% endif %}
 
         {% if booking.invoice %}
-            <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">Invoice</a>
+            <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
         {% endif %}
         </div>
     {% endfor %}

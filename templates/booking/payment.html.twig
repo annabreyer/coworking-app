@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'Booking'|trans }}{% endblock %}
+{% block title %}{{ 'booking.payment.title'|trans }}{% endblock %}
 
 {% block body %}
+    <h1>{{ 'booking.payment.title'|trans }}</h1>
     You have made the following booking:
 
     <ul>
@@ -12,7 +13,7 @@
     </ul>
 
     {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
+        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
     {% endfor %}
 
     Please choose your payment method.
@@ -20,13 +21,14 @@
         <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
             <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
             <input type="radio" id="paypal" name="paymentMethod" value="paypal">
-            <label for="paypal">Paypal</label><br>
+            <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
             <input type="radio" id="voucher" name="paymentMethod" value="voucher">
-            <label for="voucher">Voucher</label><br>
+            <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
             <input type="radio" id="invoice" name="paymentMethod" value="invoice">
-            <label for="invoice">Invoice</label>
+            <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
             <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
-            <button type="submit">Submit</button>
+            <br>
+            <button type="submit">{{ 'booking.payment.form.action'|trans }}</button>
         </form>
     </div>
 
