@@ -25,17 +25,14 @@ class PaymentManager
     public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): void
     {
         $invoiceAmount = $invoice->getAmount() - $voucher->getValue();
-        $payment = new Payment();
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment
-            ->setInvoice($invoice)
             ->setAmount($voucher->getValue())
-            ->setType(Payment::PAYMENT_TYPE_VOUCHER)
             ->setDate($this->now())
             ->setVoucher($voucher)
         ;
 
         $voucher->setUseDate($this->now());
-        $invoice->addPayment($payment);
         $invoice->setAmount($invoiceAmount);
 
         $this->entityManager->persist($payment);

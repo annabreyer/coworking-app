@@ -36,7 +36,7 @@ class Voucher
     #[ORM\ManyToOne(inversedBy: 'vouchers')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'vouchers')]
+    #[ORM\ManyToOne]
     private ?VoucherType $voucherType = null;
 
     #[ORM\ManyToOne(inversedBy: 'vouchers')]

@@ -40,13 +40,11 @@ class PaymentFixtures extends Fixture implements DependentFixtureInterface
             if ($voucher === $voucherToBeExcluded) {
                 continue;
             }
-            $payment = new Payment();
+            $payment = new Payment($voucher->getInvoice(), Payment::PAYMENT_TYPE_TRANSACTION);
             $payment->setVoucher($voucher);
             $payment->setAmount($voucher->getValue());
-            $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
             $payment->setDate($voucher->getInvoice()->getDate());
 
-            $voucher->getInvoice()->addPayment($payment);
             $manager->persist($payment);
         }
         $manager->flush();
@@ -57,16 +55,13 @@ class PaymentFixtures extends Fixture implements DependentFixtureInterface
         $voucher = $this->getReference('single-use-voucher', Voucher::class);
         $booking = $this->getReference('booking-for-payment-with-voucher');
 
-        $payment = new Payment();
+        $payment = new Payment($booking->getInvoice(), Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setVoucher($voucher);
         $payment->setAmount($voucher->getValue());
-        $payment->setType(Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setDate($booking->getBusinessDay()->getDate());
-        $payment->setInvoice($booking->getInvoice());
 
         $manager->persist($payment);
 
-        $booking->getInvoice()->addPayment($payment);
         $voucher->setUseDate($booking->getBusinessDay()->getDate());
 
         $manager->flush();
@@ -76,15 +71,11 @@ class PaymentFixtures extends Fixture implements DependentFixtureInterface
     {
         $invoice = $this->getReference('invoice-paid-booking', Invoice::class);
 
-        $payment = new Payment();
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount($invoice->getAmount());
-        $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setDate($invoice->getDate());
-        $payment->setInvoice($invoice);
 
         $manager->persist($payment);
-        $invoice->addPayment($payment);
-
         $manager->flush();
     }
 }

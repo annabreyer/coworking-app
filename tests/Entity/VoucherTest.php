@@ -35,10 +35,10 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $invoice = new Invoice();
         $invoice->setAmount(20);
-        $payment = new Payment();
+
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(20);
 
-        $invoice->addPayment($payment);
         $voucher->setInvoice($invoice);
 
         self::assertTrue($voucher->hasBeenPaid());
@@ -49,7 +49,7 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(20);
 
-        $payment = new Payment();
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(10);
 
         $invoice->addPayment($payment);
@@ -92,9 +92,8 @@ class VoucherTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment();
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(50);
-        $invoice->addPayment($payment);
 
         $voucher = new Voucher();
         $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
@@ -111,10 +110,8 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(20);
 
-        $payment = new Payment();
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(20);
-
-        $invoice->addPayment($payment);
 
         $voucher->setInvoice($invoice);
 

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -13,6 +13,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 class Payment
 {
     use TimestampableEntity;
+
     public const PAYMENT_TYPE_VOUCHER     = 'voucher';
     public const PAYMENT_TYPE_TRANSACTION = 'transaction';
 
@@ -25,18 +26,18 @@ class Payment
     private ?int $amount = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $type = null;
+    private string $type;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(inversedBy: 'payments')]
-    private ?Invoice $invoice = null;
+    private Invoice $invoice;
 
-    #[ORM\ManyToOne(inversedBy: 'payment')]
+    #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
 
-    #[ORM\ManyToOne(inversedBy: 'payment')]
+    #[ORM\ManyToOne]
     private ?Transaction $transaction = null;
 
     /**
@@ -48,6 +49,16 @@ class Payment
             self::PAYMENT_TYPE_VOUCHER     => self::PAYMENT_TYPE_VOUCHER,
             self::PAYMENT_TYPE_TRANSACTION => self::PAYMENT_TYPE_TRANSACTION,
         ];
+    }
+
+    public function __construct(Invoice $invoice, string $type)
+    {
+        if (false === \in_array($type, self::getPaymentTypes(), true)) {
+            throw new \InvalidArgumentException('Invalid payment type');
+        }
+        $this->type    = $type;
+        $this->invoice = $invoice;
+        $invoice->addPayment($this);
     }
 
     public function getId(): ?int
@@ -67,20 +78,9 @@ class Payment
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        if (false === \in_array($type, self::getPaymentTypes(), true)) {
-            throw new \InvalidArgumentException('Invalid payment type');
-        }
-
-        $this->type = $type;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -95,16 +95,9 @@ class Payment
         return $this;
     }
 
-    public function getInvoice(): ?Invoice
+    public function getInvoice(): Invoice
     {
         return $this->invoice;
-    }
-
-    public function setInvoice(?Invoice $invoice): static
-    {
-        $this->invoice = $invoice;
-
-        return $this;
     }
 
     public function getVoucher(): ?Voucher

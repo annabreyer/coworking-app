@@ -137,23 +137,11 @@ class Invoice
     {
         if (false === $this->payments->contains($payment)) {
             $this->payments->add($payment);
-            $payment->setInvoice($this);
         }
 
         return $this;
     }
 
-    public function removePayment(Payment $payment): static
-    {
-        if ($this->payments->removeElement($payment)) {
-            // set the owning side to null (unless already changed)
-            if ($payment->getInvoice() === $this) {
-                $payment->setInvoice(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getDate(): ?\DateTimeInterface
     {
