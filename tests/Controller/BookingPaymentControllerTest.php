@@ -19,6 +19,8 @@ use App\Repository\VoucherRepository;
 use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use Monolog\Handler\TestHandler;
+use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +29,44 @@ class BookingPaymentControllerTest extends WebTestCase
 {
     use ClockSensitiveTrait;
 
-    /**
-     * @var AbstractDatabaseTool
-     */
-    protected $databaseTool;
+    protected ?AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
         parent::setUp();
+    }
+
+    public function testStepPaymentLogsErrorAndRedirectsWhenBookingIsNotFound(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $uri = '/booking/hyf-5678-hnbgyu/payment';
+        $client->request('GET', $uri);
+
+        $this->assertResponseRedirects('/booking');
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'Booking not found.',
+            Level::fromName('error')
+        ));
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'hyf-5678-hnbgyu',
+            Level::fromName('error')
+        ));
     }
 
     public function testStepPaymentChecksIfBookingUserIsConnectedUser(): void
@@ -118,7 +150,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
+        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
     }
 
     public function testStepPaymentFormSubmitWithoutPriceId(): void
@@ -322,6 +354,39 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertEmailAttachmentCount($email, 1);
     }
 
+    public function testPayWithVoucherLogsErrorAndRedirectsWhenBookingIsNotFound(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $uri = '/booking/hyf-5678-hnbgyu/payment/voucher';
+        $client->request('GET', $uri);
+
+        $this->assertResponseRedirects('/booking');
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'Booking not found.',
+            Level::fromName('error')
+        ));
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'hyf-5678-hnbgyu',
+            Level::fromName('error')
+        ));
+    }
+
     public function testPayWithVoucherChecksIfBookingUserIsConnectedUser(): void
     {
         $client       = static::createClient();
@@ -400,7 +465,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token');
+        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWithoutVoucherCode(): void
@@ -648,6 +713,39 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertEmailAttachmentCount($email, 1);
     }
 
+
+    public function testPaymentConfirmationLogsErrorAndRedirectsWhenBookingIsNotFound(): void
+    {
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $uri = '/booking/hyf-5678-hnbgyu/payment/confirmation';
+        $client->request('GET', $uri);
+
+        $this->assertResponseRedirects('/booking');
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'Booking not found.',
+            Level::fromName('error')
+        ));
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'hyf-5678-hnbgyu',
+            Level::fromName('error')
+        ));
+    }
     public function testPaymentConfirmationChecksIfBookingUserIsConnectedUser(): void
     {
         $client       = static::createClient();

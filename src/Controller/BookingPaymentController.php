@@ -9,6 +9,7 @@ use App\Manager\BookingManager;
 use App\Repository\BookingRepository;
 use App\Repository\PriceRepository;
 use App\Repository\VoucherRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class BookingPaymentController extends AbstractController
 {
     public function __construct(
+        private readonly LoggerInterface $logger,
         private readonly PriceRepository $priceRepository,
         private readonly BookingRepository $bookingRepository,
         private readonly BookingManager $bookingManager
@@ -29,14 +31,15 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
+            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
+            return $this->redirectToRoute('booking_step_date');
         }
 
         if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+            throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
         $response = new Response();
@@ -46,7 +49,7 @@ class BookingPaymentController extends AbstractController
 
         $submittedToken = $request->getPayload()->getString('token');
         if (false === $this->isCsrfTokenValid('payment', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token');
+            $this->addFlash('error', 'Invalid CSRF Token.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepPayment($response, $booking);
@@ -104,14 +107,15 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
+            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
+            $this->redirectToRoute('booking_step_date');
         }
 
         if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+            throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
         return $this->renderStepPayment(new Response(), $booking);
@@ -123,14 +127,15 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
+            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
+            return $this->redirectToRoute('booking_step_date');
         }
 
         if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+            throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
         if ($booking->hasBeenPaid()) {
@@ -144,7 +149,7 @@ class BookingPaymentController extends AbstractController
         $response       = new Response();
         $submittedToken = $request->getPayload()->getString('token');
         if (false === $this->isCsrfTokenValid('voucher', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token');
+            $this->addFlash('error', 'Invalid CSRF Token.');
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderVoucherPayment($response, $booking);
@@ -205,14 +210,15 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
+            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
+            return $this->redirectToRoute('booking_step_date');
         }
 
         if ($this->getUser() !== $booking->getUser()) {
-            throw $this->createAccessDeniedException('You are not allowed to view this booking');
+            throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
         if (null === $booking->getInvoice()) {
