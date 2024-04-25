@@ -20,18 +20,37 @@
         {{ 'user_account.bookings.no_bookings'|trans }}
     {% endif %}
 
-    {% for booking in user.bookings %}
+    <h2>{{ 'user_account.bookings.future_bookings.title'|trans }}</h2>
+
+    {% for booking in futureBookings %}
+        <div>
+            {{ booking.businessDay.date|date('Y-m-d') }}
+            {{ booking.room.name }}
+            {% if booking.businessDay.date > limit %}
+                <form action="{{ path('booking_cancel', {'uuid': booking.uuid })}}" method="post">
+                    <input type="hidden" name="bookingId" value="{{ booking.id }}">
+
+                    <button type="submit">{{ 'user_account.bookings.cancel_button'|trans }}</button>
+                </form>
+            {% endif %}
+
+            {% if booking.invoice %}
+                <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
+            {% endif %}
+
+            {% if booking.invoice.isFullyPaid != true %}
+                <a href="{{ path('booking_payment_paypal', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.paypal_link'|trans }}</a>
+            {% endif %}
+
+        </div>
+    {% endfor %}
+
+    <h2>{{ 'user_account.bookings.this_year_bookings.title'|trans }}</h2>
+
+    {% for booking in thisYearBookings %}
         <div>
         {{ booking.businessDay.date|date('Y-m-d') }}
         {{ booking.room.name }}
-        {% if booking.businessDay.date > limit %}
-            <form action="{{ path('booking_cancel', {'uuid': booking.uuid })}}" method="post">
-                <input type="hidden" name="bookingId" value="{{ booking.id }}">
-
-                <button type="submit">{{ 'user_account.bookings.cancel_button'|trans }}</button>
-            </form>
-        {% endif %}
-
         {% if booking.invoice %}
             <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
         {% endif %}

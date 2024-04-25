@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Booking;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Clock\ClockAwareTrait;
 
 /**
  * @extends ServiceEntityRepository<Booking>
@@ -18,6 +19,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BookingRepository extends ServiceEntityRepository
 {
+    use ClockAwareTrait;
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Booking::class);
@@ -38,5 +40,64 @@ class BookingRepository extends ServiceEntityRepository
         ;
 
         return (int) $count;
+    }
+
+    public function findBookingsForUserAfterDate(int $userId, \DateTimeInterface $date): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.user', 'u')
+            ->join('b.businessDay', 'bd')
+            ->where('u.id = :userId')
+            ->andWhere('bd.date > :date')
+            ->setParameter('userId', $userId)
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findBookingsForUserBeforeDate(int $userId, \DateTimeInterface $date): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.user', 'u')
+            ->join('b.businessDay', 'bd')
+            ->where('u.id = :userId')
+            ->andWhere('bd.date > :date')
+            ->setParameter('userId', $userId)
+            ->setParameter('date', $date)
+            ->orderBy('bd.date', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+
+    public function findBookingsForUserAndYear(int $userId, string $year): array
+    {
+        $start = new \DateTimeImmutable($year . '-01-01');
+        $end = new \DateTimeImmutable($year . '-12-31');
+
+        if ($this->now() < $end) {
+            $end = $this->now();
+        }
+
+        return $this->findBookingsForUserBetween($userId, $start, $end);
+    }
+
+    public function findBookingsForUserBetween(int $userId, \DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.user', 'u')
+            ->join('b.businessDay', 'bd')
+            ->where('u.id = :userId')
+            ->andWhere('bd.date >= :start')
+            ->andWhere('bd.date <= :end')
+            ->setParameter('userId', $userId)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('bd.date', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

@@ -15,6 +15,10 @@
 
     {{ form_row(userForm.email) }}
 
+    {{ form_row(userForm.street) }}
+    {{ form_row(userForm.postCode) }}
+    {{ form_row(userForm.city) }}
+
     <button type="submit" class="btn">{{ 'user_account.edit_data.form.action'|trans }}</button>
     {{ form_end(userForm) }}
 {% endblock %}

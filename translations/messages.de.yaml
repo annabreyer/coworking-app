@@ -143,6 +143,11 @@ user_account:
     new_button: 'Neue Buchung'
     cancel_button: 'Buchung stornieren'
     invoice_link: 'Rechnung'
+    paypal_link: 'Mit Paypal bezahlen'
+    future_bookings:
+      title: 'Zukünftige Buchungen'
+    this_year_bookings:
+        title: 'Vergangene Buchungen'
   vouchers:
     link: 'Meine Gutscheine ansehen'
     title: 'Meine Gutscheine'

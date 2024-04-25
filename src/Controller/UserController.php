@@ -1,10 +1,11 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller;
 
 use App\Form\UserDataFormType;
+use App\Repository\BookingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -48,7 +49,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/bookings', name: 'user_bookings')]
-    public function showUserBookings(): Response
+    public function showUserBookings(BookingRepository $bookingRepository): Response
     {
         $timeLimitCancelBooking = $this->getParameter('time_limit_cancel_booking_days');
 
@@ -56,13 +57,17 @@ class UserController extends AbstractController
             throw new \InvalidArgumentException('Parameter "time_limit_cancel_booking_days" must be a string.');
         }
 
-        $limit = $this->now()->modify('-' . $timeLimitCancelBooking);
-        $user  = $this->getUser();
+        $limit            = $this->now()->modify('-' . $timeLimitCancelBooking);
+        $user             = $this->getUser();
+        $bookings         = $bookingRepository->findBookingsForUserAfterDate($user->getId(), $this->now());
+        $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user->getId(), $this->now()->format('Y'));
 
         return $this->render('user/bookings.html.twig', [
-            'user'  => $user,
-            'now'   => $this->now(),
-            'limit' => $limit,
+            'user'             => $user,
+            'futureBookings'   => $bookings,
+            'thisYearBookings' => $thisYearBookings,
+            'now'              => $this->now(),
+            'limit'            => $limit,
         ]);
     }
 

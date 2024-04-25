@@ -43,6 +43,9 @@ class UserDataFormType extends AbstractType
                 'widget' => 'choice',
                 'years'  => range(date('Y') - 18, date('Y') - 70),
             ])
+            ->add('street')
+            ->add('postCode')
+            ->add('city')
         ;
     }
 
