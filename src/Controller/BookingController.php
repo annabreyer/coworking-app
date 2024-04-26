@@ -24,6 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class BookingController extends AbstractController
 {
     use ClockAwareTrait;
+
     public function __construct(
         private readonly Security $security,
         private readonly LoggerInterface $logger,
@@ -99,8 +100,7 @@ class BookingController extends AbstractController
         Request $request,
         BusinessDay $businessDay,
         AdminMailerService $adminMailerService
-    ): Response
-    {
+    ): Response {
         if ($businessDay->getDate() < $this->now()) {
             $this->addFlash('error', 'Booking for this day is not possible anymore.');
 
@@ -118,11 +118,12 @@ class BookingController extends AbstractController
         }
 
         $response = new Response();
-        $user     = $this->getUser();
+        /** @var User $user */
+        $user = $this->getUser();
 
-        //This code should never execute. It can not be tested. It has been added to avoid PHPStan error and also because it is good Sf practice.
+        // This code should never execute. It can not be tested. It has been added to avoid PHPStan error and also because it is good Sf practice.
         if (false === $user instanceof User) {
-            $this->logger->critical('User is not an instance of User but of class '. get_class($user));
+            $this->logger->critical('User is not an instance of User but of class ' . \get_class($user));
             $response = $this->security->logout();
 
             return $response;
@@ -179,7 +180,7 @@ class BookingController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
-            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
+            $this->logger->error('Booking not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {

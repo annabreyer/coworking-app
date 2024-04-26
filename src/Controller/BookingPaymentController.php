@@ -31,7 +31,7 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
-            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
+            $this->logger->error('Booking not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
@@ -107,11 +107,11 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
-            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
+            $this->logger->error('Booking not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            $this->redirectToRoute('booking_step_date');
+            return $this->redirectToRoute('booking_step_date');
         }
 
         if ($this->getUser() !== $booking->getUser()) {
@@ -127,7 +127,7 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
-            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
+            $this->logger->error('Booking not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
@@ -210,7 +210,7 @@ class BookingPaymentController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
-            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
+            $this->logger->error('Booking not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {

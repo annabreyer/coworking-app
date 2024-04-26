@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -69,7 +69,7 @@ class BusinessDay
 
     public function addBooking(Booking $booking): static
     {
-        if (!$this->bookings->contains($booking)) {
+        if (false === $this->bookings->contains($booking)) {
             $this->bookings->add($booking);
             $booking->setBusinessDay($this);
         }
@@ -91,35 +91,23 @@ class BusinessDay
 
     public function getWeekDayLong(): string
     {
-        if (null === $this->date) {
-            return '';
-        }
-
         return $this->date->format('l');
     }
 
     public function getWeekDayShort(): string
     {
-        if (null === $this->date) {
-            return '';
-        }
-
         return $this->date->format('D');
     }
 
     public function getBookingsForRoom(Room $room): Collection
     {
         return $this->bookings->filter(
-            static fn(Booking $booking) => $booking->getRoom() === $room
+            static fn (Booking $booking) => $booking->getRoom() === $room
         );
     }
 
     public function __toString(): string
     {
-        if (null === $this->date) {
-            return '';
-        }
-
         return $this->date->format('Y-m-d');
     }
 }

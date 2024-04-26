@@ -28,17 +28,18 @@ class VoucherManager
     public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue): Collection
     {
         $vouchers        = $voucherType->getUnits();
+        $validityMonths  = $voucherType->getValidityMonths() ?? 0;
         $createdVouchers = new ArrayCollection();
         for ($i = 0; $i < $vouchers; ++$i) {
             $voucher = new Voucher();
             $voucher->setUser($user);
             $voucher->setVoucherType($voucherType);
             $voucher->setCode($this->generateVoucherCode());
-            $voucher->setExpiryDate($this->calculateExpiryDate($voucherType->getValidityMonths()));
+            $voucher->setExpiryDate($this->calculateExpiryDate($validityMonths));
             $voucher->setValue($unitaryValue);
             $this->entityManager->persist($voucher);
 
-            $createdVouchers[] = $voucher;
+            $createdVouchers->add($voucher);
         }
         $this->entityManager->flush();
 

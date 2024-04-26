@@ -33,12 +33,12 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must be persisted.');
         }
 
-        if (0 === $invoice->getBookings()->count()) {
-            throw new \InvalidArgumentException('Invoice must have at least one booking.');
+        if (false === $invoice->getBookings()->first() || 1 < $invoice->getBookings()->count()) {
+            throw new \InvalidArgumentException('Invoice must have at exactly one booking.');
         }
 
-        if (1 < $invoice->getBookings()->count()) {
-            throw new \InvalidArgumentException('Only one invoice per booking');
+        if (null === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
         $this->setupInvoiceTemplate();
@@ -51,7 +51,7 @@ class InvoiceGenerator
             $this->addDueMention($invoice);
         }
 
-        if ($invoice->isFullyPaidByVoucher()){
+        if ($invoice->isFullyPaidByVoucher()) {
             $this->addVoucherPayment($invoice);
         }
 
@@ -91,6 +91,10 @@ class InvoiceGenerator
 
     public function getTargetDirectory(Invoice $invoice): string
     {
+        if (null === $invoice->getDate()) {
+            throw new \InvalidArgumentException('Invoice must have a date.');
+        }
+
         $year  = $invoice->getDate()->format('Y');
         $month = $invoice->getDate()->format('m');
 
@@ -120,11 +124,14 @@ class InvoiceGenerator
         $this->writeInvoiceDate($invoice);
     }
 
-    private function addClientData(Invoice $invoice)
+    private function addClientData(Invoice $invoice): void
     {
         $this->writeClientFullName($invoice);
-        $this->writeClientStreet($invoice);
-        $this->writeClientCity($invoice);
+
+        if ($invoice->getUser()->hasAddress()) {
+            $this->writeClientStreet($invoice);
+            $this->writeClientCity($invoice);
+        }
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
@@ -140,22 +147,22 @@ class InvoiceGenerator
         $this->writeValue(160, 51, 30, 8, $clientNumber);
     }
 
-    private function writeInvoiceDate(Invoice $invoice)
+    private function writeInvoiceDate(Invoice $invoice): void
     {
         $this->writeValue(160, 56.25, 30, 8, $invoice->getDate()->format('d.m.Y'));
     }
 
-    private function writeClientFullName(Invoice $invoice)
+    private function writeClientFullName(Invoice $invoice): void
     {
         $this->writeValue(13, 85, 100, 8, $invoice->getUser()->getFullName());
     }
 
-    private function writeClientStreet(Invoice $invoice)
+    private function writeClientStreet(Invoice $invoice): void
     {
         $this->writeValue(13, 90, 100, 8, $invoice->getUser()->getStreet());
     }
 
-    private function writeClientCity(Invoice $invoice)
+    private function writeClientCity(Invoice $invoice): void
     {
         $postCodeAndCity = $invoice->getUser()->getPostCode() . ' ' . $invoice->getUser()->getCity();
         $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
@@ -168,7 +175,7 @@ class InvoiceGenerator
         $this->writeAmount($booking->getAmount());
     }
 
-    private function writeFirstPositionNumber()
+    private function writeFirstPositionNumber(): void
     {
         $this->writeValue(15, 145, 10, 8, '1');
     }
@@ -198,7 +205,7 @@ class InvoiceGenerator
 
     private function writeAmount(int $amount): void
     {
-        $amount = $amount/ 100;
+        $amount /= 100;
 
         $this->writeValue(180, 145, 30, 8, $amount . ',00 €');
     }
@@ -246,7 +253,6 @@ class InvoiceGenerator
         $this->setBoldFont();
         $this->writeValue(15, 210, 200, 8, $dueMessage);
         $this->setStandardFont();
-
     }
 
     private function saveInvoice(Invoice $invoice): void

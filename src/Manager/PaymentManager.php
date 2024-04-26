@@ -18,14 +18,21 @@ class PaymentManager
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AdminMailerService $adminMailer,
-    )
-    {
+    ) {
     }
 
     public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): void
     {
+        if (null === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        if (null === $voucher->getValue()) {
+            throw new \InvalidArgumentException('Voucher must have a value.');
+        }
+
         $invoiceAmount = $invoice->getAmount() - $voucher->getValue();
-        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $payment       = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment
             ->setAmount($voucher->getValue())
             ->setDate($this->now())

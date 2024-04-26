@@ -23,6 +23,9 @@ class PriceRepository extends ServiceEntityRepository
         parent::__construct($registry, Price::class);
     }
 
+    /**
+     * @return Price[]
+     */
     public function findActivePrices(): array
     {
         return $this->createQueryBuilder('p')
@@ -33,6 +36,9 @@ class PriceRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Price[]
+     */
     public function findActiveVoucherPrices(): array
     {
         return $this->createQueryBuilder('p')

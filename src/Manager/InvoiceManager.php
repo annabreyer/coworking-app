@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -13,6 +13,7 @@ use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -39,7 +40,7 @@ class InvoiceManager
 
     public static function getClientNumber(int $userId): string
     {
-        $number = (string)$userId;
+        $number = (string) $userId;
         $number = str_pad($number, 5, '0', STR_PAD_LEFT);
 
         return $number;
@@ -86,6 +87,10 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
+        if (false === $invoice->getBookings()->first()) {
+            throw new \InvalidArgumentException('Invoice must have a booking');
+        }
+
         $uuid = $invoice->getBookings()->first()->getUuid();
         $link = $this->urlGenerator->generate(
             'booking_payment_paypal',
@@ -93,8 +98,8 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject                        = $this->translator->trans('booking.invoice.email.subject');
-        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('booking.invoice.email.subject');
+        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
@@ -109,11 +114,15 @@ class InvoiceManager
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
+        $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
 
     public function createVoucherInvoice(User $user, Price $price, Collection $vouchers): Invoice
     {
+        if (null === $price->getAmount()) {
+            throw new \InvalidArgumentException('Price must have an amount.');
+        }
+
         $invoiceNumber = $this->getInvoiceNumber();
 
         $invoice = new Invoice();
@@ -151,8 +160,8 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject                        = $this->translator->trans('voucher.invoice.email.subject');
-        $salutation                     = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('voucher.invoice.email.subject');
+        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
         $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
@@ -162,7 +171,7 @@ class InvoiceManager
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $this->sendEmailToUser($invoice, $subject, $context, $invoicePath);
+        $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
 
     public function getInvoiceNumber(): string
@@ -170,12 +179,12 @@ class InvoiceManager
         $year        = $this->now()->format('Y');
         $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
 
-        if (null === $lastInvoice) {
+        if (null === $lastInvoice || null === $lastInvoice->getNumber()) {
             return $this->invoicePrefix . $year . '0001';
         }
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int)$invoiceNumberElements[1];
+        $number                = (int) $invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
     }
@@ -195,10 +204,10 @@ class InvoiceManager
         $this->mailer->send($email);
     }
 
-    private function sendEmailToUser(Invoice $invoice, string $subject, array $context, string $invoicePath)
+    private function sendEmailToUser(string $userEmail, string $subject, array $context, string $invoicePath): void
     {
         $email = (new TemplatedEmail())
-            ->to($invoice->getUser()->getEmail())
+            ->to(new Address($userEmail))
             ->subject($subject)
             ->htmlTemplate('email.base.html.twig')
             ->context($context)

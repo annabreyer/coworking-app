@@ -1,9 +1,10 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Form\UserDataFormType;
 use App\Repository\BookingRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,6 +52,8 @@ class UserController extends AbstractController
     #[Route('/user/bookings', name: 'user_bookings')]
     public function showUserBookings(BookingRepository $bookingRepository): Response
     {
+        /** @var User $user */
+        $user                   = $this->getUser();
         $timeLimitCancelBooking = $this->getParameter('time_limit_cancel_booking_days');
 
         if (false === \is_string($timeLimitCancelBooking)) {
@@ -58,7 +61,6 @@ class UserController extends AbstractController
         }
 
         $limit            = $this->now()->modify('-' . $timeLimitCancelBooking);
-        $user             = $this->getUser();
         $bookings         = $bookingRepository->findBookingsForUserAfterDate($user->getId(), $this->now());
         $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user->getId(), $this->now()->format('Y'));
 

@@ -20,6 +20,7 @@ use Symfony\Component\Clock\ClockAwareTrait;
 class BookingRepository extends ServiceEntityRepository
 {
     use ClockAwareTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Booking::class);
@@ -42,6 +43,9 @@ class BookingRepository extends ServiceEntityRepository
         return (int) $count;
     }
 
+    /**
+     * @return Booking[]
+     */
     public function findBookingsForUserAfterDate(int $userId, \DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('b')
@@ -56,6 +60,9 @@ class BookingRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Booking[]
+     */
     public function findBookingsForUserBeforeDate(int $userId, \DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('b')
@@ -71,11 +78,13 @@ class BookingRepository extends ServiceEntityRepository
         ;
     }
 
-
+    /**
+     * @return Booking[]
+     */
     public function findBookingsForUserAndYear(int $userId, string $year): array
     {
         $start = new \DateTimeImmutable($year . '-01-01');
-        $end = new \DateTimeImmutable($year . '-12-31');
+        $end   = new \DateTimeImmutable($year . '-12-31');
 
         if ($this->now() < $end) {
             $end = $this->now();
@@ -84,6 +93,9 @@ class BookingRepository extends ServiceEntityRepository
         return $this->findBookingsForUserBetween($userId, $start, $end);
     }
 
+    /**
+     * @return Booking[]
+     */
     public function findBookingsForUserBetween(int $userId, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         return $this->createQueryBuilder('b')
