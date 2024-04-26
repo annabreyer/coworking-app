@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
@@ -12,7 +14,7 @@ class UserTest extends TestCase
 {
     public function testGetValidVouchersOnlyReturnsValidVouchers(): void
     {
-        $user = new User();
+        $user    = new User();
         $invoice = new Invoice();
         $invoice->setUser($user);
         $invoice->setAmount(100);

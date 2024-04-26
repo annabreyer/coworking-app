@@ -51,19 +51,19 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
@@ -269,7 +269,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
-        $this->assertNotNull($booking->getAmount());
+        self::assertNotNull($booking->getAmount());
 
         $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
@@ -369,19 +369,19 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
@@ -713,7 +713,6 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertEmailAttachmentCount($email, 1);
     }
 
-
     public function testPaymentConfirmationLogsErrorAndRedirectsWhenBookingIsNotFound(): void
     {
         $client       = static::createClient();
@@ -729,23 +728,24 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
     }
+
     public function testPaymentConfirmationChecksIfBookingUserIsConnectedUser(): void
     {
         $client       = static::createClient();

@@ -32,7 +32,7 @@ class BookingControllerTest extends WebTestCase
 
     public function testStepDateLogsErrorAndRedirectsWhenNoBusinessDaysAreDefined(): void
     {
-        //No BusinessDays exist in fixtures after 2024-06-01
+        // No BusinessDays exist in fixtures after 2024-06-01
         static::mockTime(new \DateTimeImmutable('2024-07-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -46,15 +46,15 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseRedirects('/');
 
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'No BusinessDays found.',
             Level::fromName('critical')
         ));
@@ -62,7 +62,7 @@ class BookingControllerTest extends WebTestCase
 
     public function testStepDateLogsErrorRedirectsWhenNoPricesAreDefined(): void
     {
-        //No BusinessDays exist in fixtures after 2024-06-01
+        // No BusinessDays exist in fixtures after 2024-06-01
         static::mockTime(new \DateTimeImmutable('2024-04-30'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
@@ -76,15 +76,15 @@ class BookingControllerTest extends WebTestCase
         $this->assertResponseRedirects('/');
 
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'No active Price found.',
             Level::fromName('critical')
         ));
@@ -322,15 +322,15 @@ class BookingControllerTest extends WebTestCase
         $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
 
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'No active Price found.',
             Level::fromName('critical')
         ));
@@ -356,7 +356,6 @@ class BookingControllerTest extends WebTestCase
         $session = $client->getRequest()->getSession();
         self::assertContains('Booking for this day is not possible anymore.', $session->getFlashBag()->get('error'));
     }
-
 
     public function testStepRoomRedirectsWithClosedBusinessDay(): void
     {
@@ -712,19 +711,19 @@ class BookingControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/user/bookings');
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertTrue($testHandler->hasRecordThatContains(
             '77403q-959-850496-yt98r3ty34980',
             Level::fromName('error')
         ));

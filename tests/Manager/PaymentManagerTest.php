@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
@@ -44,7 +46,7 @@ class PaymentManagerTest extends KernelTestCase
         $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
         $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
 
-        $voucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
+        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
@@ -52,8 +54,8 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        $this->assertNotNull($invoice->getPayments()->first());
-        $this->assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
+        self::assertNotNull($invoice->getPayments()->first());
+        self::assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
     }
 
     public function testHandleVoucherPaymentSetsVoucherUseDate(): void
@@ -70,15 +72,16 @@ class PaymentManagerTest extends KernelTestCase
         $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
         $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
 
-        $voucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
+        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
         );
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        $this->assertNotNull($voucher->getUseDate());
+        self::assertNotNull($voucher->getUseDate());
     }
+
     public function testHandleVoucherPaymentUpdatesInvoiceAmount(): void
     {
         $this->databaseTool->loadFixtures([
@@ -93,7 +96,7 @@ class PaymentManagerTest extends KernelTestCase
         $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
         $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
 
-        $voucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
+        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
@@ -101,9 +104,8 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        $this->assertEquals(500, $invoice->getAmount());
+        self::assertSame(500, $invoice->getAmount());
     }
-
 
     public function testHandleVoucherSendsAdminEmailWhenInvoiceIsNegative(): void
     {
@@ -119,7 +121,7 @@ class PaymentManagerTest extends KernelTestCase
         $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
         $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 1000);
 
-        $voucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
+        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::getContainer()->get(AdminMailerService::class)
