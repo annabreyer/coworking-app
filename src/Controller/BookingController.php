@@ -179,10 +179,11 @@ class BookingController extends AbstractController
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
+            $this->logger->error('Booking not found. '. $exception->getMessage(), ['uuid' => $uuid]);
             $booking = null;
         }
         if (null === $booking) {
-            throw $this->createNotFoundException('Booking not found.');
+            return $this->redirectToRoute('user_bookings');
         }
 
         $user = $this->getUser();

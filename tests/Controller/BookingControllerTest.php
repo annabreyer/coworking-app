@@ -683,7 +683,7 @@ class BookingControllerTest extends WebTestCase
         $this->assertEmailSubjectContains($email, $businessDay->getDate()->format('d/m/Y'));
     }
 
-    public function testCancelBookingThrowsNotFoundExceptionWhenWrongUUid()
+    public function testCancelBookingLogsErrorWhenBookingIsNotFoundAndRedirects()
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -710,7 +710,24 @@ class BookingControllerTest extends WebTestCase
         $uri = '/booking/77403q-959-850496-yt98r3ty34980/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertResponseRedirects('/user/bookings');
+        $logger = static::getContainer()->get('monolog.logger');
+        static::assertNotNull($logger);
+
+        foreach ($logger->getHandlers() as $handler) {
+            if ($handler instanceof TestHandler) {
+                $testHandler = $handler;
+            }
+        }
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
+            'Booking not found.',
+            Level::fromName('error')
+        ));
+        static::assertTrue($testHandler->hasRecordThatContains(
+            '77403q-959-850496-yt98r3ty34980',
+            Level::fromName('error')
+        ));
     }
 
     public function testCancelBookingChecksUser()

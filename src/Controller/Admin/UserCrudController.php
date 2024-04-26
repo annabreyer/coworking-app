@@ -52,6 +52,12 @@ class UserCrudController extends AbstractCrudController
         yield DateField::new('birthdate');
         yield BooleanField::new('isActive');
         yield BooleanField::new('isVerified');
+        yield TextField::new('street')
+                       ->hideOnIndex();
+        yield TextField::new('postCode')
+                       ->hideOnIndex();
+        yield TextField::new('city')
+                      ->hideOnIndex();
         yield DateField::new('createdAt');
         yield DateField::new('acceptedCodeOfConduct')
                        ->hideOnIndex()
