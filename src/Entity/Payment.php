@@ -37,7 +37,7 @@ class Payment
     #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Transaction $transaction = null;
 
     /**

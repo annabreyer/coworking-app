@@ -5,7 +5,7 @@
 {% block body %}
     <h1>{{ 'user_account.title'|trans }}</h1>
 
-<a href="{{ path('user_edit', {'id': app.user.id}) }}">{{ 'user_account.edit_data.link'|trans }}</a>
+<a href="{{ path('user_edit')}}">{{ 'user_account.edit_data.link'|trans }}</a>
 <p>{% trans %}To change your passwort, please request a passwort reset via the password forgotten function.{% endtrans %}</p>
 <p>{% trans with {'%email%' : supportEmail } %}To close your account, please send an Email to %email%{% endtrans %}</p>
 <a href="{{ path('user_bookings') }}">{{ 'user_account.bookings.link'|trans}}</a>
