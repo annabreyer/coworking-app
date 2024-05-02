@@ -74,7 +74,7 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $transactionPayment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
+        $transactionPayment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
         $transactionPayment->setAmount(50);
 
         $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
@@ -120,7 +120,7 @@ class InvoiceTest extends TestCase
         $transactionPayment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $transactionPayment->setAmount(50);
 
-        $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
         $voucherPayment->setAmount(50);
 
         self::assertFalse($invoice->isFullyPaidByTransaction());
@@ -135,5 +135,48 @@ class InvoiceTest extends TestCase
         $payment->setAmount(100);
 
         self::assertTrue($invoice->isFullyPaidByTransaction());
+    }
+
+    public function testIsFullyPaidByPayPalReturnsFalseWhenThereAreNoPayments(): void
+    {
+        $invoice = new Invoice();
+        $invoice->setAmount(100);
+
+        self::assertFalse($invoice->isFullyPaidByPayPal());
+    }
+
+    public function testIsFullyPaidByPayPalReturnsFalseWhenPaymentIsTransaction(): void
+    {
+        $invoice = new Invoice();
+        $invoice->setAmount(100);
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $payment->setAmount(100);
+
+        self::assertFalse($invoice->isFullyPaidByPayPal());
+    }
+
+    public function testIsFullyPaidByPayPalReturnsFalseWhenPaymentsAreMixed(): void
+    {
+        $invoice = new Invoice();
+        $invoice->setAmount(100);
+
+        $transactionPayment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
+        $transactionPayment->setAmount(50);
+
+        $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $voucherPayment->setAmount(50);
+
+        self::assertFalse($invoice->isFullyPaidByPayPal());
+    }
+
+    public function testIsFullyPaidByPayPalReturnsTrueWhenPaymentIsPayPal(): void
+    {
+        $invoice = new Invoice();
+        $invoice->setAmount(100);
+
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
+        $payment->setAmount(100);
+
+        self::assertTrue($invoice->isFullyPaidByPayPal());
     }
 }

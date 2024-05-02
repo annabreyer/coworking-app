@@ -49,7 +49,7 @@ class InvoiceManager
     public function createInvoiceFromBooking(Booking $booking, int $amount): Invoice
     {
         if (null === $booking->getUser()) {
-            throw new \InvalidArgumentException('Booking must have a user');
+            throw new \InvalidArgumentException('Booking must have a user.');
         }
 
         if (null !== $booking->getInvoice()) {

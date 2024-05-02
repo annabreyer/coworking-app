@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\DataFixtures\AppFixtures;
+use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
@@ -30,7 +30,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -51,7 +51,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -75,7 +75,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -99,7 +99,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -123,7 +123,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -153,7 +153,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -182,7 +182,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -211,7 +211,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -245,7 +245,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 
@@ -280,7 +280,7 @@ class VoucherControllerTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             PriceFixtures::class,
         ]);
 

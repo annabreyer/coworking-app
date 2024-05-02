@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\BookingFixtures;
+use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
+use App\DataFixtures\BookingWithOutInvoiceFixture;
+use App\DataFixtures\BookingWithPaymentFixture;
 use App\DataFixtures\InvoiceFixtures;
+use App\DataFixtures\VoucherFixtures;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Repository\BookingRepository;
@@ -12,6 +18,7 @@ use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
+use App\Repository\UserRepository;
 use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
@@ -49,21 +56,17 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateBookingInvoiceThrowsExceptionIfInvoiceHasNoBooking(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
 
-        $invoice = static::getContainer()
-                          ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)
+                          ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
         $bookings = $invoice->getBookings();
+
         foreach ($bookings as $booking) {
             $invoice->removeBooking($booking);
         }
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invoice must have at least one booking');
+        $this->expectExceptionMessage('Invoice must have exactly one booking');
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $invoiceGenerator->generateBookingInvoice($invoice);
@@ -72,29 +75,32 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateBookingInvoiceThrowsExceptionIfInvoiceHasSeveralBookings(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BookingWithOutInvoiceFixture::class, BookingWithInvoiceNoPaymentFixture::class]);
 
-        $date        = new \DateTimeImmutable('2024-04-02');
+        $date        = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 1']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+
         $booking     = static::getContainer()->get(BookingRepository::class)
                              ->findOneBy([
                                  'room'        => $room,
                                  'businessDay' => $businessDay,
+                                 'user' => $user
                              ])
         ;
 
+        $this->assertNotNull($booking);
+
         $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+                          ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+
+        $this->assertNotNull($invoice);
         $invoice->addBooking($booking);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Only one invoice per booking');
+        $this->expectExceptionMessage('Invoice must have exactly one booking.');
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $invoiceGenerator->generateBookingInvoice($invoice);
@@ -113,13 +119,13 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateVoucherInvoiceThrowsExceptionIfPriceIsNoVoucherPrice(): void
     {
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\InvoiceFixtures',
+            BookingFixtures::class,
+            InvoiceFixtures::class,
+            VoucherFixtures::class
         ]);
 
         $singlePrice      = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
+        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
         $invoiceGenerator = $this->getInvoiceGenerator();
 
         $this->expectException(\Exception::class);
@@ -130,9 +136,7 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateVoucherInvoiceThrowsExceptionIfPriceHasNoVoucherType(): void
     {
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\InvoiceFixtures',
+            VoucherFixtures::class
         ]);
 
         $voucherPrice = new Price();
@@ -141,7 +145,7 @@ class InvoiceGeneratorTest extends KernelTestCase
                      ->setIsVoucher(true)
         ;
 
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
+        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
         $invoiceGenerator = $this->getInvoiceGenerator();
 
         $this->expectException(\Exception::class);
@@ -153,13 +157,11 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateVoucherInvoiceThrowsExceptionIfInvoiceVoucherCountDoesNotMatchVoucherType(): void
     {
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\InvoiceFixtures',
+            VoucherFixtures::class
         ]);
 
         $voucherPrice     = static::getContainer()->get(PriceRepository::class)->findActiveVoucherPrices()[0];
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
+        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
         $invoiceGenerator = $this->getInvoiceGenerator();
 
         $voucherPrice->getVoucherType()->setUnits(2);
@@ -172,9 +174,12 @@ class InvoiceGeneratorTest extends KernelTestCase
 
     public function testGetTargetDirectoryIsComposedOfYearAndMonth(): void
     {
+        $this->databaseTool->loadFixtures([
+            InvoiceFixtures::class
+        ]);
         $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
-                          ->findOneBy(['number' => InvoiceFixtures::BOOKING_INVOICE_NUMBER]);
+                          ->findOneBy(['number' => InvoiceFixtures::STANDARD_BOOKING_INVOICE_NUMBER]);
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $expectedPath     = 'invoiceDirectory/2024/03';

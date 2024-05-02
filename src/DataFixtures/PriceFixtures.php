@@ -11,6 +11,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class PriceFixtures extends Fixture
 {
+    public const SINGLE_PRICE_AMOUNT = 1500;
+
     public function load(ObjectManager $manager)
     {
         $this->loadPrices($manager);
@@ -18,8 +20,6 @@ class PriceFixtures extends Fixture
 
     private function loadPrices(ObjectManager $manager)
     {
-        $this->loadVoucherTypes($manager);
-
         $priceMonthly = new Price();
         $priceMonthly->setIsSubscription(false)
                      ->setAmount(23000)
@@ -29,7 +29,7 @@ class PriceFixtures extends Fixture
 
         $priceSingle = new Price();
         $priceSingle->setIsUnitary(true)
-                    ->setAmount(1500);
+                    ->setAmount(self::SINGLE_PRICE_AMOUNT);
 
         $manager->persist($priceSingle);
         $this->addReference('price-single', $priceSingle);
@@ -42,17 +42,5 @@ class PriceFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('price-voucher', $priceVoucher);
-    }
-
-    private function loadVoucherTypes(ObjectManager $manager): void
-    {
-        $voucherType = new VoucherType();
-        $voucherType->setUnits(10);
-        $voucherType->setValidityMonths(12);
-
-        $manager->persist($voucherType);
-        $manager->flush();
-
-        $this->addReference('voucherType10Units', $voucherType);
     }
 }

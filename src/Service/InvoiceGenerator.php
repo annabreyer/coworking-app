@@ -34,7 +34,7 @@ class InvoiceGenerator
         }
 
         if (false === $invoice->getBookings()->first() || 1 < $invoice->getBookings()->count()) {
-            throw new \InvalidArgumentException('Invoice must have at exactly one booking.');
+            throw new \InvalidArgumentException('Invoice must have exactly one booking.');
         }
 
         if (null === $invoice->getAmount()) {
@@ -46,17 +46,18 @@ class InvoiceGenerator
         $this->addClientData($invoice);
         $this->writeBookingLine($invoice->getBookings()->first());
 
-        if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount());
-            $this->addDueMention($invoice);
-        }
-
         if ($invoice->isFullyPaidByVoucher()) {
             $this->addVoucherPayment($invoice);
         }
 
-        if (false === $invoice->getPayments()->isEmpty()) {
+        if ($invoice->isFullyPaidByPayPal()) {
             $this->writeTotalAmount($invoice->getAmount());
+            $this->addAlreadyPaidMention($invoice);
+        }
+
+        if (false === $invoice->isFullyPaid()) {
+            $this->writeTotalAmount($invoice->getAmount());
+            $this->addDueMention($invoice);
         }
 
         $this->saveInvoice($invoice);
@@ -250,6 +251,18 @@ class InvoiceGenerator
         }
 
         $dueMessage = $this->translator->trans('booking.invoice.due');
+        $this->setBoldFont();
+        $this->writeValue(15, 210, 200, 8, $dueMessage);
+        $this->setStandardFont();
+    }
+
+    private function addAlreadyPaidMention(Invoice $invoice): void
+    {
+        if (false === $invoice->isFullyPaidByPayPal()) {
+            return;
+        }
+
+        $dueMessage = $this->translator->trans('booking.invoice.already_paid');
         $this->setBoldFont();
         $this->writeValue(15, 210, 200, 8, $dueMessage);
         $this->setStandardFont();

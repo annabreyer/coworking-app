@@ -25,7 +25,7 @@ class Invoice
     #[ORM\Column]
     private ?int $amount = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 15)]
     private ?string $number = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -228,7 +228,26 @@ class Invoice
         }
 
         foreach ($this->payments as $payment) {
-            if (Payment::PAYMENT_TYPE_TRANSACTION === $payment->getType()) {
+            if (in_array($payment->getType(), [Payment::PAYMENT_TYPE_PAYPAL, Payment::PAYMENT_TYPE_TRANSACTION])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function isFullyPaidByPayPal(): bool
+    {
+        if (0 === $this->payments->count()) {
+            return false;
+        }
+
+        if (false === $this->isFullyPaid()) {
+            return false;
+        }
+
+        foreach ($this->payments as $payment) {
+            if (in_array($payment->getType(), [Payment::PAYMENT_TYPE_VOUCHER, Payment::PAYMENT_TYPE_TRANSACTION])) {
                 return false;
             }
         }
@@ -247,7 +266,7 @@ class Invoice
         }
 
         foreach ($this->payments as $payment) {
-            if (Payment::PAYMENT_TYPE_VOUCHER === $payment->getType()) {
+            if (in_array($payment->getType(), [Payment::PAYMENT_TYPE_VOUCHER, Payment::PAYMENT_TYPE_PAYPAL])) {
                 return false;
             }
         }

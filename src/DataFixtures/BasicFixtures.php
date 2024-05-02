@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\DataFixtures;
 
@@ -9,14 +9,18 @@ use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserTermsOfUse;
+use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AppFixtures extends Fixture
+class BasicFixtures extends Fixture
 {
+    public const ROOM_FOR_BOOKINGS = 'Room 3';
+    public const FULLY_BOOKED_ROOM = 'Room 1';
+
     protected Generator $faker;
 
     public function __construct(private UserPasswordHasherInterface $hasher)
@@ -30,6 +34,7 @@ class AppFixtures extends Fixture
         $this->loadUsers($manager);
         $this->loadBusinessDays($manager);
         $this->loadRooms($manager);
+        $this->loadVoucherTypes($manager);
 
         $manager->flush();
     }
@@ -129,7 +134,7 @@ class AppFixtures extends Fixture
     public function loadRooms(ObjectManager $manager)
     {
         $room = new Room();
-        $room->setName('Room 1');
+        $room->setName(self::FULLY_BOOKED_ROOM);
         $room->setCapacity(6);
 
         $manager->persist($room);
@@ -141,7 +146,7 @@ class AppFixtures extends Fixture
         $manager->persist($room2);
 
         $room3 = new Room();
-        $room3->setName('Room 3');
+        $room3->setName(self::ROOM_FOR_BOOKINGS);
         $room3->setCapacity(2);
 
         $manager->persist($room3);
@@ -149,5 +154,27 @@ class AppFixtures extends Fixture
 
         $this->addReference('room1', $room);
         $this->addReference('room3', $room3);
+    }
+
+    private function loadVoucherTypes(ObjectManager $manager): void
+    {
+        $voucherType10 = new VoucherType();
+        $voucherType10->setUnits(10);
+        $voucherType10->setValidityMonths(12);
+
+        $manager->persist($voucherType10);
+        $manager->flush();
+
+        $this->addReference('voucherType10Units', $voucherType10);
+
+
+        $voucherType = new VoucherType();
+        $voucherType->setValidityMonths(1)
+                    ->setUnits(1);
+
+        $manager->persist($voucherType);
+        $manager->flush();
+
+        $this->addReference('single-use-voucher-type', $voucherType);
     }
 }

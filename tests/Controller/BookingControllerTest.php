@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\DataFixtures\AppFixtures;
+use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\BookingFixtures;
 use App\DataFixtures\PriceFixtures;
+use App\Entity\Booking;
+use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
@@ -66,7 +68,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-04-30'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-        $databaseTool->loadFixtures([AppFixtures::class]);
+        $databaseTool->loadFixtures([BasicFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -311,7 +313,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-04-30'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-        $databaseTool->loadFixtures([AppFixtures::class]);
+        $databaseTool->loadFixtures([BasicFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -341,7 +343,7 @@ class BookingControllerTest extends WebTestCase
         static::mockTime(new \DateTimeImmutable('2024-04-30'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-        $databaseTool->loadFixtures([AppFixtures::class]);
+        $databaseTool->loadFixtures([BasicFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -587,7 +589,7 @@ class BookingControllerTest extends WebTestCase
 
         $date        = new \DateTimeImmutable('2024-04-01');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 1']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::FULLY_BOOKED_ROOM]);
 
         $uri     = '/booking/' . $businessDay->getId() . '/room';
         $crawler = $client->request('GET', $uri);
@@ -627,7 +629,7 @@ class BookingControllerTest extends WebTestCase
 
         $date        = new \DateTimeImmutable('2024-04-01');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $form    = $crawler->filter('#form-room')->form();
@@ -657,9 +659,9 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date        = new \DateTimeImmutable('2024-03-14');
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         $form    = $crawler->filter('#form-room')->form();
@@ -693,21 +695,8 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $bookingUser,
-                             ])
-        ;
-
         $uri = '/booking/77403q-959-850496-yt98r3ty34980/cancel';
-        $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
+        $client->request('POST', $uri, ['bookingId' => 9999]);
 
         $this->assertResponseRedirects('/user/bookings');
         $logger = static::getContainer()->get('monolog.logger');
@@ -741,17 +730,7 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $bookingUser,
-                             ])
-        ;
+        $booking     = $this->getBookingToBeCancelled($bookingUser);
 
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
@@ -770,16 +749,7 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
-        ;
+        $booking     = $this->getBookingToBeCancelled($testUser);
 
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => 99999]);
@@ -804,16 +774,7 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
-        ;
+        $booking     = $this->getBookingToBeCancelled($testUser);
 
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
@@ -842,15 +803,7 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = $bookingRepository->findOneBy([
-            'room'        => $room,
-            'businessDay' => $businessDay,
-            'user'        => $testUser,
-        ])
-        ;
+        $booking     = $this->getBookingToBeCancelled($testUser);
         $bookingId = $booking->getId();
 
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
@@ -871,17 +824,7 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
-        ;
-
+        $booking     = $this->getBookingToBeCancelled($testUser);
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
@@ -899,17 +842,7 @@ class BookingControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
-        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
-        $booking     = static::getContainer()->get(BookingRepository::class)
-                             ->findOneBy([
-                                 'room'        => $room,
-                                 'businessDay' => $businessDay,
-                                 'user'        => $testUser,
-                             ])
-        ;
-
+        $booking     = $this->getBookingToBeCancelled($testUser);
         $bookingDate = $booking->getBusinessDay()->getDate();
         $uri         = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
@@ -922,6 +855,22 @@ class BookingControllerTest extends WebTestCase
         $email = $this->getMailerMessage();
         $this->assertEmailTextBodyContains($email, (string) $bookingDate->format('d/m/Y'));
     }
+
+    private function getBookingToBeCancelled(User $user): Booking
+    {
+        $date        = new \DateTimeImmutable(BookingFixtures::BOOKING_TO_BE_CANCELLED_DATE);
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+
+        return static::getContainer()->get(BookingRepository::class)
+                             ->findOneBy([
+                                 'room'        => $room,
+                                 'businessDay' => $businessDay,
+                                 'user'        => $user,
+                             ])
+        ;
+    }
+
 
     protected function tearDown(): void
     {

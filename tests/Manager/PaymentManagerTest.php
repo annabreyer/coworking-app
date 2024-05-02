@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Tests\Manager;
 
-use App\DataFixtures\AppFixtures;
+use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\VoucherFixtures;
+use App\Entity\Booking;
 use App\Entity\Payment;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
@@ -35,18 +36,17 @@ class PaymentManagerTest extends KernelTestCase
     public function testHandleVoucherPaymentCreatesPayment(): void
     {
         $this->databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             VoucherFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $invoice     = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
+        $voucher     = $user->getVouchers()->first();
 
-        $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
-        $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
-
-        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
@@ -61,18 +61,17 @@ class PaymentManagerTest extends KernelTestCase
     public function testHandleVoucherPaymentSetsVoucherUseDate(): void
     {
         $this->databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             VoucherFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $invoice     = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
+        $voucher     = $user->getVouchers()->first();
 
-        $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
-        $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
-
-        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
@@ -85,18 +84,17 @@ class PaymentManagerTest extends KernelTestCase
     public function testHandleVoucherPaymentUpdatesInvoiceAmount(): void
     {
         $this->databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             VoucherFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $invoice     = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
+        $voucher     = $user->getVouchers()->first();
 
-        $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
-        $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 2000);
-
-        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::createMock(AdminMailerService::class)
@@ -110,18 +108,17 @@ class PaymentManagerTest extends KernelTestCase
     public function testHandleVoucherSendsAdminEmailWhenInvoiceIsNegative(): void
     {
         $this->databaseTool->loadFixtures([
-            AppFixtures::class,
+            BasicFixtures::class,
             VoucherFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $invoice     = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 1000);
+        $voucher     = $user->getVouchers()->first();
 
-        $booking = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
-        $invoice = static::getContainer()->get(InvoiceManager::class)->createInvoiceFromBooking($booking, 1000);
-
-        $voucher        = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => 'VO20240001']);
         $paymentManager = new PaymentManager(
             static::getContainer()->get('doctrine.orm.entity_manager'),
             static::getContainer()->get(AdminMailerService::class)

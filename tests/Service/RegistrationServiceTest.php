@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\DataFixtures\BasicFixtures;
 use App\Entity\User;
 use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
@@ -46,9 +47,7 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserSavesAcceptedDataProtectionAndCodeOfConduct(): void
     {
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
         $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
@@ -62,9 +61,7 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserChecksIfDataProtectionIsAlreadyAccepted(): void
     {
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
         $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
@@ -78,9 +75,7 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserChecksIfCodeOfConductIsAlreadyAccepted(): void
     {
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
         $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);

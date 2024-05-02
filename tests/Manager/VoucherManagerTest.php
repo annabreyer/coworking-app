@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
+use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\PriceFixtures;
+use App\DataFixtures\VoucherFixtures;
 use App\Entity\Voucher;
 use App\Manager\VoucherManager;
 use App\Repository\PriceRepository;
@@ -33,7 +36,7 @@ class VoucherManagerTest extends KernelTestCase
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            'App\DataFixtures\BasicFixtures',
             'App\DataFixtures\VoucherFixtures',
             'App\DataFixtures\PriceFixtures',
         ]);
@@ -53,9 +56,9 @@ class VoucherManagerTest extends KernelTestCase
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\VoucherFixtures',
-            'App\DataFixtures\PriceFixtures',
+            BasicFixtures::class,
+            VoucherFixtures::class,
+            PriceFixtures::class
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -78,9 +81,9 @@ class VoucherManagerTest extends KernelTestCase
         $now = new \DateTimeImmutable('2024-03-01');
         static::mockTime($now);
         $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\VoucherFixtures',
-            'App\DataFixtures\PriceFixtures',
+            BasicFixtures::class,
+            VoucherFixtures::class,
+            PriceFixtures::class
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);

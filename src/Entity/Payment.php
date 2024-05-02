@@ -16,14 +16,15 @@ class Payment
 
     public const PAYMENT_TYPE_VOUCHER     = 'voucher';
     public const PAYMENT_TYPE_TRANSACTION = 'transaction';
+    public const PAYMENT_TYPE_PAYPAL      = 'paypal';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $amount = null;
+    #[ORM\Column(nullable: true)]
+    private int $amount = 0;
 
     #[ORM\Column(length: 100)]
     private string $type;
@@ -40,6 +41,10 @@ class Payment
     #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Transaction $transaction = null;
 
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'payments')]
+    #[ORM\Column(name: 'paypal_order_id', nullable: true)]
+    private ?PayPalOrder $payPalOrder = null;
+
     /**
      * @return array<string>
      */
@@ -48,6 +53,7 @@ class Payment
         return [
             self::PAYMENT_TYPE_VOUCHER     => self::PAYMENT_TYPE_VOUCHER,
             self::PAYMENT_TYPE_TRANSACTION => self::PAYMENT_TYPE_TRANSACTION,
+            self::PAYMENT_TYPE_PAYPAL      => self::PAYMENT_TYPE_PAYPAL,
         ];
     }
 
@@ -66,7 +72,7 @@ class Payment
         return $this->id;
     }
 
-    public function getAmount(): ?int
+    public function getAmount(): int
     {
         return $this->amount;
     }
@@ -132,5 +138,22 @@ class Payment
     public function isTransactionPayment(): bool
     {
         return self::PAYMENT_TYPE_TRANSACTION === $this->type;
+    }
+
+    public function isPayPalPayment(): bool
+    {
+        return self::PAYMENT_TYPE_PAYPAL === $this->type;
+    }
+
+    public function getPayPalOrder(): ?PayPalOrder
+    {
+        return $this->payPalOrder;
+    }
+
+    public function setPayPalOrder(?PayPalOrder $payPalOrder): static
+    {
+        $this->payPalOrder = $payPalOrder;
+
+        return $this;
     }
 }

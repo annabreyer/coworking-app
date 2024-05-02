@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
-use App\DataFixtures\AppFixtures;
+use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
+use App\DataFixtures\BookingWithOutInvoiceFixture;
+use App\DataFixtures\InvoiceFixtures;
+use App\DataFixtures\PriceFixtures;
 use App\Entity\Invoice;
 use App\Manager\InvoiceManager;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
-use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use App\Service\InvoiceGenerator;
@@ -50,15 +53,11 @@ class InvoiceManagerTest extends KernelTestCase
     public function testCreateInvoiceFromBookingThrowsExceptionIfBookingHasNoUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\PriceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BookingWithoutInvoiceFixture::class]);
 
-        $date        = new \DateTimeImmutable('2024-04-01');
+        $date        = new \DateTimeImmutable(BookingWithoutInvoiceFixture::BUSINESS_DAY_DATE);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
         $booking     = static::getContainer()->get(BookingRepository::class)
                              ->findOneBy([
                                  'room'        => $room,
@@ -66,30 +65,24 @@ class InvoiceManagerTest extends KernelTestCase
                              ])
         ;
 
-        $price = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-
         $booking->setUser(null);
         $invoiceManager = $this->getInvoiceManager();
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Booking must have a user');
-        $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
+        $this->expectExceptionMessage('Booking must have a user.');
+        $invoiceManager->createInvoiceFromBooking($booking, PriceFixtures::SINGLE_PRICE_AMOUNT);
     }
 
     public function testCreateInvoiceFromBookingReturnsInvoiceIfBookingAlreadyHasOne(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\PriceFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
         $userRepository = static::getContainer()->get(UserRepository::class);
         $invoiceUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $date           = new \DateTimeImmutable('2024-04-01');
+        $date           = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
         $businessDay    = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room           = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 3']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
         $booking        = static::getContainer()->get(BookingRepository::class)
                                 ->findOneBy([
                                     'room'        => $room,
@@ -98,9 +91,8 @@ class InvoiceManagerTest extends KernelTestCase
                                 ])
         ;
 
-        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
-        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
+        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, PriceFixtures::SINGLE_PRICE_AMOUNT);
 
         self::assertSame($invoice, $booking->getInvoice());
     }
@@ -108,37 +100,33 @@ class InvoiceManagerTest extends KernelTestCase
     public function testCreateInvoiceFromBookingCreatesAndReturnsInvoice(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\PriceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BookingWithOutInvoiceFixture::class]);
 
-        $date        = new \DateTimeImmutable('2024-04-02');
+        $date        = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => 'Room 1']);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $booking     = static::getContainer()->get(BookingRepository::class)
                              ->findOneBy([
                                  'room'        => $room,
                                  'businessDay' => $businessDay,
+                                 'user'        => $user,
                              ])
         ;
 
-        $price          = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
         $invoiceManager = $this->getInvoiceManager();
-        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, $price->getAmount());
+        $invoice        = $invoiceManager->createInvoiceFromBooking($booking, PriceFixtures::SINGLE_PRICE_AMOUNT);
+        self::assertNotNull($invoice);
 
         self::assertSame($booking->getUser(), $invoice->getUser());
-        self::assertSame($price->getAmount(), $invoice->getAmount());
+        self::assertSame(PriceFixtures::SINGLE_PRICE_AMOUNT, $invoice->getAmount());
         self::assertSame($booking, $invoice->getBookings()->first());
     }
 
     public function testGetInvoiceNumberStartsWithOneIfNoInvoicesExist(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
 
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
@@ -151,7 +139,7 @@ class InvoiceManagerTest extends KernelTestCase
     public function testGetInvoiceNumberIncrementsExistingInvoice(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([AppFixtures::class]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
 
         $invoice = new Invoice();
@@ -176,11 +164,7 @@ class InvoiceManagerTest extends KernelTestCase
     public function testGetInvoiceNumberIncrementsExistingInvoiceWithDifferentYear(): void
     {
         static::mockTime(new \DateTimeImmutable('2023-01-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\BookingFixtures',
-            'App\DataFixtures\InvoiceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([InvoiceFixtures::class]);
 
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();

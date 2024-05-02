@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\EventSubscriber;
 
+use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\PriceFixtures;
 use App\Repository\BusinessDayRepository;
 use App\Repository\UserActionsRepository;
 use App\Repository\UserRepository;
@@ -29,7 +31,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -60,7 +62,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
@@ -78,7 +80,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -98,7 +100,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -119,7 +121,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -140,7 +142,7 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            'App\DataFixtures\AppFixtures',
+            BasicFixtures::class,
         ]);
 
         $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -164,8 +166,8 @@ class UserActionSubscriberTest extends WebTestCase
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $databaseTool->loadFixtures([
-            'App\DataFixtures\AppFixtures',
-            'App\DataFixtures\PriceFixtures',
+            BasicFixtures::class,
+            PriceFixtures::class
         ]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);

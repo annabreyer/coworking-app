@@ -6,6 +6,7 @@ namespace App\Manager;
 
 use App\Entity\Invoice;
 use App\Entity\Payment;
+use App\Entity\PayPalOrder;
 use App\Entity\Voucher;
 use App\Service\AdminMailerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,5 +49,37 @@ class PaymentManager
         if (0 > $invoiceAmount) {
             $this->adminMailer->notifyAdminAboutNegativeInvoice($invoice);
         }
+    }
+
+    public function getPayPalOrder(Invoice $invoice): PayPalOrder
+    {
+        if (null === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $payPalOrder = new PayPalOrder();
+        $payPalOrder->setStatus(PayPalOrder::STATUS_PENDING);
+        $payPalOrder->setAmount($invoice->getAmount()/100);
+
+        $this->entityManager->persist($payPalOrder);
+        $this->entityManager->flush();
+
+        return $payPalOrder;
+    }
+
+    public function finalizePaypalPayment(Invoice $invoice, PayPalOrder $order): void
+    {
+        if (PayPalOrder::STATUS_PAID !== $order->getStatus()) {
+            throw new \InvalidArgumentException('PaypalPayment must have a paid PayPalOrder.');
+        }
+
+        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
+        $payment
+            ->setAmount($order->getAmount() * 100)
+            ->setDate($this->now())
+            ->setPayPalOrder($order);
+
+        $this->entityManager->persist($payment);
+        $this->entityManager->flush();
     }
 }

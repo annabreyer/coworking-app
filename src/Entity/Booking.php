@@ -142,4 +142,10 @@ class Booking
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->room->getName() . ' - ' . $this->businessDay->getDate()->format('d.m.Y');
+    }
+
 }
