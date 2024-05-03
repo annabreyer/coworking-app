@@ -29,7 +29,7 @@ class UserManagerTest extends KernelTestCase
         $userManager = new UserManager($userPasswordHasher, $entityManager);
         $userManager->saveUserPassword($user, $plainPassword);
 
-        static::assertNotSame($plainPassword, $user->getPassword());
+        self::assertNotSame($plainPassword, $user->getPassword());
     }
 
     public function testSaveUserPasswordPersistUserIfNotAlreadyPersisted(): void
@@ -50,6 +50,6 @@ class UserManagerTest extends KernelTestCase
         $userManager = new UserManager($userPasswordHasher, $entityManager);
         $userManager->saveUserPassword($user, $plainPassword);
 
-        static::assertNotNull($user->getCreatedAt());
+        self::assertNotNull($user->getCreatedAt());
     }
 }

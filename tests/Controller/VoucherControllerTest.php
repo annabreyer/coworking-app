@@ -11,7 +11,6 @@ use App\Repository\PriceRepository;
 use App\Repository\UserRepository;
 use App\Repository\VoucherRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -229,7 +228,7 @@ class VoucherControllerTest extends WebTestCase
                           ->findBy(['user' => $user])
         ;
 
-        static::assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
+        self::assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
@@ -264,7 +263,7 @@ class VoucherControllerTest extends WebTestCase
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        static::assertFileExists($filePath);
+        self::assertFileExists($filePath);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void

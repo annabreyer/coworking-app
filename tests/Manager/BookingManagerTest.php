@@ -91,7 +91,7 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
         $booking->setBusinessDay($businessDay);
 
-        static::assertTrue($bookingManager->canBookingBeCancelled($booking));
+        self::assertTrue($bookingManager->canBookingBeCancelled($booking));
     }
 
     public function testCanBookingReturnsFalseIfBookingIsInThePast(): void
@@ -106,6 +106,6 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
         $booking->setBusinessDay($businessDay);
 
-        static::assertFalse($bookingManager->canBookingBeCancelled($booking));
+        self::assertFalse($bookingManager->canBookingBeCancelled($booking));
     }
 }

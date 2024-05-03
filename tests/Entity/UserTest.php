@@ -44,7 +44,7 @@ class UserTest extends TestCase
 
         $validVouchers = $user->getValidVouchers();
 
-        static::assertCount(1, $validVouchers);
-        static::assertContains($voucher1, $validVouchers);
+        self::assertCount(1, $validVouchers);
+        self::assertContains($voucher1, $validVouchers);
     }
 }

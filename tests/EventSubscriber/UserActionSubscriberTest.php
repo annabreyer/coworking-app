@@ -32,7 +32,7 @@ class UserActionSubscriberTest extends WebTestCase
             'requestUri' => '/user/edit',
             'user'       => $user]);
 
-        static::assertNull($userAction);
+        self::assertNull($userAction);
     }
 
     public function testOnKernelRequestDoesNothingForUnauthenticatedUser(): void
@@ -45,7 +45,7 @@ class UserActionSubscriberTest extends WebTestCase
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy([
             'requestUri' => '/user/edit',
             'user'       => $user]);
-        static::assertNull($userAction);
+        self::assertNull($userAction);
     }
 
     public function testOnKernelRequestDoesNothingForAdminAndSuperAdmin(): void
@@ -63,7 +63,7 @@ class UserActionSubscriberTest extends WebTestCase
             'requestUri' => '/user/edit',
             'user'       => $user]);
 
-        static::assertNull($userAction);
+        self::assertNull($userAction);
     }
 
     public function testLoggedInUserPostActionIsSaved(): void
@@ -79,11 +79,11 @@ class UserActionSubscriberTest extends WebTestCase
         $client->request('POST', '/user/edit', $testdata);
 
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $user]);
-        static::assertNotNull($userAction);
-        static::assertSame('/user/edit', $userAction->getRequestUri());
-        static::assertSame($user, $userAction->getUser());
-        static::assertSame($testdata, $userAction->getData());
-        static::assertSame('POST', $userAction->getMethod());
+        self::assertNotNull($userAction);
+        self::assertSame('/user/edit', $userAction->getRequestUri());
+        self::assertSame($user, $userAction->getUser());
+        self::assertSame($testdata, $userAction->getData());
+        self::assertSame('POST', $userAction->getMethod());
     }
 
     public function testLoggedInUserPutActionIsSaved(): void
@@ -100,11 +100,11 @@ class UserActionSubscriberTest extends WebTestCase
         $client->request('PUT', '/user/edit', $testdata);
 
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $user]);
-        static::assertNotNull($userAction);
-        static::assertSame('/user/edit', $userAction->getRequestUri());
-        static::assertSame($user, $userAction->getUser());
-        static::assertSame($testdata, $userAction->getData());
-        static::assertSame('PUT', $userAction->getMethod());
+        self::assertNotNull($userAction);
+        self::assertSame('/user/edit', $userAction->getRequestUri());
+        self::assertSame($user, $userAction->getUser());
+        self::assertSame($testdata, $userAction->getData());
+        self::assertSame('PUT', $userAction->getMethod());
     }
 
     public function testLoggedInUserPatchActionIsSaved(): void
@@ -121,11 +121,11 @@ class UserActionSubscriberTest extends WebTestCase
         $client->request('PATCH', '/user/edit', $testdata);
 
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $user]);
-        static::assertNotNull($userAction);
-        static::assertSame('/user/edit', $userAction->getRequestUri());
-        static::assertSame($user, $userAction->getUser());
-        static::assertSame($testdata, $userAction->getData());
-        static::assertSame('PATCH', $userAction->getMethod());
+        self::assertNotNull($userAction);
+        self::assertSame('/user/edit', $userAction->getRequestUri());
+        self::assertSame($user, $userAction->getUser());
+        self::assertSame($testdata, $userAction->getData());
+        self::assertSame('PATCH', $userAction->getMethod());
     }
 
     public function testLoggedInUserDeleteActionIsSaved(): void
@@ -142,11 +142,11 @@ class UserActionSubscriberTest extends WebTestCase
         $client->request('DELETE', '/user/edit', $testdata);
 
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $user]);
-        static::assertNotNull($userAction);
-        static::assertSame('/user/edit', $userAction->getRequestUri());
-        static::assertSame($user, $userAction->getUser());
-        static::assertSame($testdata, $userAction->getData());
-        static::assertSame('DELETE', $userAction->getMethod());
+        self::assertNotNull($userAction);
+        self::assertSame('/user/edit', $userAction->getRequestUri());
+        self::assertSame($user, $userAction->getUser());
+        self::assertSame($testdata, $userAction->getData());
+        self::assertSame('DELETE', $userAction->getMethod());
     }
 
     public function testExcludedUriIsExcluded()
@@ -174,6 +174,6 @@ class UserActionSubscriberTest extends WebTestCase
 
         static::assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
         $userAction = static::getContainer()->get(UserActionsRepository::class)->findOneBy(['user' => $testUser]);
-        static::assertNull($userAction);
+        self::assertNull($userAction);
     }
 }

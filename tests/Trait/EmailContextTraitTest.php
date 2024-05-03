@@ -19,12 +19,12 @@ class EmailContextTraitTest extends TestCase
         $translationKey    = 'test';
 
         $context = $emailContextTrait->getStandardEmailContext($translator, $translationKey);
-        static::assertIsArray($context);
-        static::assertArrayHasKey('texts', $context);
-        static::assertIsArray($context['texts']);
-        static::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_SALUTATION, $context['texts']);
-        static::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS, $context['texts']);
-        static::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_EXPLANATION, $context['texts']);
-        static::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_SIGNATURE, $context['texts']);
+        self::assertIsArray($context);
+        self::assertArrayHasKey('texts', $context);
+        self::assertIsArray($context['texts']);
+        self::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_SALUTATION, $context['texts']);
+        self::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS, $context['texts']);
+        self::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_EXPLANATION, $context['texts']);
+        self::assertArrayHasKey(self::EMAIL_STANDARD_ELEMENT_SIGNATURE, $context['texts']);
     }
 }

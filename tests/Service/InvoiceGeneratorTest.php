@@ -89,13 +89,13 @@ class InvoiceGeneratorTest extends KernelTestCase
                              ])
         ;
 
-        static::assertNotNull($booking);
+        self::assertNotNull($booking);
 
         $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
                           ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
 
-        static::assertNotNull($invoice);
+        self::assertNotNull($invoice);
         $invoice->addBooking($booking);
 
         $this->expectException(\Exception::class);
@@ -182,7 +182,7 @@ class InvoiceGeneratorTest extends KernelTestCase
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $expectedPath     = 'invoiceDirectory/2024/03';
-        static::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
+        self::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
     }
 
     private function getInvoiceGenerator(): InvoiceGenerator

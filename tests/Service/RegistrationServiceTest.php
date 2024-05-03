@@ -55,8 +55,8 @@ class RegistrationServiceTest extends KernelTestCase
 
         $registrationService->registerUser($user, $plainPassword);
 
-        static::assertNotNull($user->getAcceptedDataProtection());
-        static::assertNotNull($user->getAcceptedCodeOfConduct());
+        self::assertNotNull($user->getAcceptedDataProtection());
+        self::assertNotNull($user->getAcceptedCodeOfConduct());
     }
 
     public function testRegisterUserChecksIfDataProtectionIsAlreadyAccepted(): void

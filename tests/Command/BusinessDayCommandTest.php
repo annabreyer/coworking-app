@@ -26,7 +26,7 @@ class BusinessDayCommandTest extends KernelTestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        static::assertStringContainsString('You passed an argument: 20240101', $output);
+        self::assertStringContainsString('You passed an argument: 20240101', $output);
     }
 
     public function testBusinessDayCommandChecksDateFormat(): void
@@ -41,8 +41,8 @@ class BusinessDayCommandTest extends KernelTestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        static::assertStringContainsString('Invalid date format. Please use Ymd', $output);
-        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString('Invalid date format. Please use Ymd', $output);
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
     }
 
     public function testBusinessDayCommandCreatesBusinessDayUntilGivenDate(): void
@@ -57,9 +57,9 @@ class BusinessDayCommandTest extends KernelTestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        static::assertStringContainsString('BusinessDays will be generated until: 20240401', $output);
-        static::assertStringContainsString('Business Days have been generated!', $output);
-        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertStringContainsString('BusinessDays will be generated until: 20240401', $output);
+        self::assertStringContainsString('Business Days have been generated!', $output);
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
     }
 
     public function testBusinessDayCommandCreatesBusinessDayUntilSixMonthFromNow(): void
@@ -73,8 +73,8 @@ class BusinessDayCommandTest extends KernelTestCase
         $commandTester->execute([]);
 
         $output = $commandTester->getDisplay();
-        static::assertStringContainsString('BusinessDays will be generated until: 20240701', $output);
-        static::assertStringContainsString('Business Days have been generated!', $output);
-        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertStringContainsString('BusinessDays will be generated until: 20240701', $output);
+        self::assertStringContainsString('Business Days have been generated!', $output);
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
     }
 }

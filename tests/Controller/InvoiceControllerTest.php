@@ -9,7 +9,6 @@ use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\Repository\InvoiceRepository;
 use App\Repository\UserRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -35,19 +34,19 @@ class InvoiceControllerTest extends WebTestCase
 
         static::assertResponseRedirects('/');
         $logger = static::getContainer()->get('monolog.logger');
-        static::assertNotNull($logger);
+        self::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        static::assertNotNull($testHandler);
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertNotNull($testHandler);
+        self::assertTrue($testHandler->hasRecordThatContains(
             'Invoice not found.',
             Level::fromName('error')
         ));
-        static::assertTrue($testHandler->hasRecordThatContains(
+        self::assertTrue($testHandler->hasRecordThatContains(
             BookingPaymentControllerTest::FAKE_UUID,
             Level::fromName('error')
         ));
@@ -91,7 +90,7 @@ class InvoiceControllerTest extends WebTestCase
         static::assertResponseStatusCodeSame(Response::HTTP_OK);
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        static::assertFileExists($filePath);
+        self::assertFileExists($filePath);
     }
 
     public function testDownloadInvoiceReturnsPdfResponse()

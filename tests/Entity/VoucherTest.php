@@ -19,7 +19,7 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $voucher->setExpiryDate(new \DateTimeImmutable('yesterday'));
 
-        static::assertTrue($voucher->isExpired());
+        self::assertTrue($voucher->isExpired());
     }
 
     public function testIsExpiredReturnsFalseWhenExpiryDateIsInTheFuture(): void
@@ -27,7 +27,7 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
 
-        static::assertFalse($voucher->isExpired());
+        self::assertFalse($voucher->isExpired());
     }
 
     public function testHasBeenPaidReturnsTrueWhenAPaymentIsAttachedToTheAttachedInvoice(): void
@@ -41,7 +41,7 @@ class VoucherTest extends TestCase
 
         $voucher->setInvoice($invoice);
 
-        static::assertTrue($voucher->hasBeenPaid());
+        self::assertTrue($voucher->hasBeenPaid());
     }
 
     public function testHasBeenPaidReturnsFalseWhenAmountOnlyPartlyPaid(): void
@@ -57,7 +57,7 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $voucher->setInvoice($invoice);
 
-        static::assertFalse($voucher->hasBeenPaid());
+        self::assertFalse($voucher->hasBeenPaid());
     }
 
     public function testIsValidReturnsFalseWhenExpired(): void
@@ -65,7 +65,7 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $voucher->setExpiryDate(new \DateTimeImmutable('yesterday'));
 
-        static::assertFalse($voucher->isValid());
+        self::assertFalse($voucher->isValid());
     }
 
     public function testIsValidReturnsFalseWhenUseDateIsSet(): void
@@ -74,7 +74,7 @@ class VoucherTest extends TestCase
         $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
         $voucher->setUseDate(new \DateTimeImmutable('yesterday'));
 
-        static::assertFalse($voucher->isValid());
+        self::assertFalse($voucher->isValid());
     }
 
     public function testIsValidReturnsFalseWhenNoPaymentIsAttached(): void
@@ -85,7 +85,7 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $voucher->setInvoice($invoice);
 
-        static::assertFalse($voucher->isValid());
+        self::assertFalse($voucher->isValid());
     }
 
     public function testIsValidReturnsFalseWhenAttachedPaymentsDoNotCoverTheAmount(): void
@@ -99,7 +99,7 @@ class VoucherTest extends TestCase
         $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
         $voucher->setInvoice($invoice);
 
-        static::assertFalse($voucher->isValid());
+        self::assertFalse($voucher->isValid());
     }
 
     public function testIsValidReturnsTrueWhenNotExpiredAndNoUseDateAndPaymentsCoverTheAmount(): void
@@ -115,6 +115,6 @@ class VoucherTest extends TestCase
 
         $voucher->setInvoice($invoice);
 
-        static::assertTrue($voucher->isValid());
+        self::assertTrue($voucher->isValid());
     }
 }
