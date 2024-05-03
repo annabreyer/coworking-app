@@ -147,5 +147,4 @@ class Booking
     {
         return $this->room->getName() . ' - ' . $this->businessDay->getDate()->format('d.m.Y');
     }
-
 }

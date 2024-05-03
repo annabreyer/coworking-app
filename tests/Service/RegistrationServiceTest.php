@@ -55,8 +55,8 @@ class RegistrationServiceTest extends KernelTestCase
 
         $registrationService->registerUser($user, $plainPassword);
 
-        self::assertNotNull($user->getAcceptedDataProtection());
-        self::assertNotNull($user->getAcceptedCodeOfConduct());
+        static::assertNotNull($user->getAcceptedDataProtection());
+        static::assertNotNull($user->getAcceptedCodeOfConduct());
     }
 
     public function testRegisterUserChecksIfDataProtectionIsAlreadyAccepted(): void
@@ -125,7 +125,7 @@ class RegistrationServiceTest extends KernelTestCase
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $registrationService->sendRegistrationEmail($user);
 
-        $this->assertEmailCount(1);
+        static::assertEmailCount(1);
     }
 
     private function getRegistrationServiceWithEntityManager(): RegistrationService

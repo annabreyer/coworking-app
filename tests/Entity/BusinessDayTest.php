@@ -19,7 +19,7 @@ class BusinessDayTest extends KernelTestCase
         $booking->setRoom($room);
         $businessDay->addBooking($booking);
 
-        self::assertIsIterable($businessDay->getBookingsForRoom($room));
+        static::assertIsIterable($businessDay->getBookingsForRoom($room));
     }
 
     public function testGetBookingsForRoomReturnsCorrectRoom(): void
@@ -30,7 +30,7 @@ class BusinessDayTest extends KernelTestCase
         $booking->setRoom($room);
         $businessDay->addBooking($booking);
 
-        self::assertCount(1, $businessDay->getBookingsForRoom($room));
-        self::assertSame($booking, $businessDay->getBookingsForRoom($room)[0]);
+        static::assertCount(1, $businessDay->getBookingsForRoom($room));
+        static::assertSame($booking, $businessDay->getBookingsForRoom($room)[0]);
     }
 }

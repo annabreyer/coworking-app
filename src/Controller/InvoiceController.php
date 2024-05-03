@@ -22,8 +22,7 @@ class InvoiceController extends AbstractController
         Filesystem $filesystem,
         InvoiceRepository $invoiceRepository,
         LoggerInterface $logger
-    ): BinaryFileResponse|RedirectResponse
-    {
+    ): BinaryFileResponse|RedirectResponse {
         try {
             $invoice = $invoiceRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {

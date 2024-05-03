@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -12,7 +12,6 @@ use App\Repository\BookingRepository;
 use App\Repository\PriceRepository;
 use App\Repository\VoucherRepository;
 use App\Service\PayPalService;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -125,7 +124,7 @@ class BookingPaymentController extends AbstractController
             throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
-        if (null === $booking->getAmount()){
+        if (null === $booking->getAmount()) {
             return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
         }
 
@@ -158,6 +157,7 @@ class BookingPaymentController extends AbstractController
         }
         if (null === $booking) {
             $targetUrl = $this->generateUrl('booking_step_date');
+
             return $this->json(['error' => 'Booking not found.', 'targetUrl' => $targetUrl], Response::HTTP_BAD_REQUEST);
         }
 
@@ -178,14 +178,13 @@ class BookingPaymentController extends AbstractController
         }
 
         $payload = $request->getPayload()->all();
-        if (empty($payload) || empty ($payload['data']['orderID'])) {
+        if (empty($payload) || empty($payload['data']['orderID'])) {
             $targetUrl = $this->generateUrl('booking_payment_paypal', ['uuid' => $booking->getUuid()]);
 
             return $this->json(['error' => 'Payload is empty.', 'targetUrl' => $targetUrl], Response::HTTP_BAD_REQUEST);
         }
 
         if ($payPalService->handlePayment($booking->getInvoice(), $payload['data'])) {
-
             $paymentManager->finalizePaypalPayment($booking->GetInvoice());
             $this->bookingManager->handleBookingPaidByPaypal($booking);
 
@@ -194,12 +193,10 @@ class BookingPaymentController extends AbstractController
             return $this->json(['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl], Response::HTTP_OK);
         }
 
-
         $targetUrl = $this->generateUrl('booking_payment_paypal', ['uuid' => $booking->getUuid()]);
 
         return $this->json(['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl], Response::HTTP_BAD_REQUEST);
     }
-
 
     #[Route('/booking/{uuid}/payment/voucher', name: 'booking_payment_voucher')]
     public function payWithVoucher(string $uuid, Request $request, VoucherRepository $voucherRepository): Response
@@ -222,7 +219,7 @@ class BookingPaymentController extends AbstractController
             return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
 
-        if (null === $booking->getAmount()){
+        if (null === $booking->getAmount()) {
             return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
         }
 
@@ -271,8 +268,10 @@ class BookingPaymentController extends AbstractController
 
         if (null !== $voucher->getUseDate()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error',
-                'Voucher has already been used on ' . $voucher->getUseDate()->format('Y-m-d') . '.');
+            $this->addFlash(
+                'error',
+                'Voucher has already been used on ' . $voucher->getUseDate()->format('Y-m-d') . '.'
+            );
 
             return $this->renderVoucherPayment($response, $booking);
         }

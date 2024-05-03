@@ -14,13 +14,13 @@ use Doctrine\Persistence\ObjectManager;
 
 class BookingFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const BOOKING_WITH_INVOICE_NO_PAYMENT_DATE = '2024-04-02';
-    public const BOOKING_WITH_INVOICE_WITH_PAYMENT_DATE = '2024-03-01';
-    public const BOOKING_WITHOUT_AMOUNT_DATE = '2024-03-02';
-    public const BOOKING_WITHOUT_INVOICE_DATE = '2024-03-06';
-    public const BOOKING_TO_BE_CANCELLED_DATE = '2024-03-14';
-    public const BOOKING_STANDARD_DATE = '2024-04-01';
-    public const BOOKING_WITH_INVOICE_NO_PAYMENT_INVOICE_NUMBER = 'CO202400328';
+    public const BOOKING_WITH_INVOICE_NO_PAYMENT_DATE             = '2024-04-02';
+    public const BOOKING_WITH_INVOICE_WITH_PAYMENT_DATE           = '2024-03-01';
+    public const BOOKING_WITHOUT_AMOUNT_DATE                      = '2024-03-02';
+    public const BOOKING_WITHOUT_INVOICE_DATE                     = '2024-03-06';
+    public const BOOKING_TO_BE_CANCELLED_DATE                     = '2024-03-14';
+    public const BOOKING_STANDARD_DATE                            = '2024-04-01';
+    public const BOOKING_WITH_INVOICE_NO_PAYMENT_INVOICE_NUMBER   = 'CO202400328';
     public const BOOKING_WITH_INVOICE_WITH_PAYMENT_INVOICE_NUMBER = 'CO202400325';
 
     public function getDependencies()
@@ -62,7 +62,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $room = $this->getReference('room3', Room::class);
 
         $booking = new Booking();
-        $booking->setBusinessDay($this->getReference('businessDay-'.self::BOOKING_STANDARD_DATE, BusinessDay::class));
+        $booking->setBusinessDay($this->getReference('businessDay-' . self::BOOKING_STANDARD_DATE, BusinessDay::class));
         $booking->setRoom($room);
         $booking->setUser($user);
         $booking->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT);
@@ -76,7 +76,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $room = $this->getReference('room3', Room::class);
 
         $booking = new Booking();
-        $booking->setBusinessDay($this->getReference('businessDay-'.self::BOOKING_TO_BE_CANCELLED_DATE, BusinessDay::class));
+        $booking->setBusinessDay($this->getReference('businessDay-' . self::BOOKING_TO_BE_CANCELLED_DATE, BusinessDay::class));
         $booking->setRoom($room);
         $booking->setUser($user);
         $booking->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT);

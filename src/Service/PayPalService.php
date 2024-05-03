@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Invoice;
@@ -13,7 +15,7 @@ class PayPalService
     public const INTENT_CAPTURE   = 'CAPTURE';
     public const STATUS_APPROVED  = 'APPROVED';
     public const STATUS_COMPLETED = 'COMPLETED';
-    private const ERROR_MESSAGE = 'PayPalOrderData error. Expected %s, got: %s. PayPalOrderId: %s';
+    private const ERROR_MESSAGE   = 'PayPalOrderData error. Expected %s, got: %s. PayPalOrderId: %s';
     private ?string $accessToken;
 
     public function __construct(
@@ -31,19 +33,19 @@ class PayPalService
     public function getQueryParametersForJsSdk(): string
     {
         $payPalParameters = [
-            'client-id'        => $this->clientId,
-            'commit'           => 'true',
+            'client-id' => $this->clientId,
+            'commit'    => 'true',
             // Show a 'Pay Now' button
             'components'       => 'buttons',
             'currency'         => 'EUR',
             'debug'            => $this->debug,
             'integration-date' => '2024-04-29',
             // Do not update this date, it ensures backward-compat
-            'intent'           => 'authorize',
-            //capture later via http client
-            'disable-funding'  => 'credit,card,giropay,sepa',
+            'intent' => 'authorize',
+            // capture later via http client
+            'disable-funding' => 'credit,card,giropay,sepa',
             // Disables buttons, see https://developer.paypal.com/sdk/js/configuration/#link-disablefunding
-            'locale'           => 'de_DE',
+            'locale' => 'de_DE',
         ];
 
         return http_build_query($payPalParameters);
@@ -61,12 +63,14 @@ class PayPalService
 
         $responseBody = $this->orderClient->request(
             'GET',
-            $this->getGetEndpointUrl($paypalOrderId), [
-            'headers' => ['Authorization' => 'Bearer ' . $this->getAccessToken(),],
-        ]);
+            $this->getGetEndpointUrl($paypalOrderId),
+            [
+                'headers' => ['Authorization' => 'Bearer ' . $this->getAccessToken()],
+            ]
+        );
 
         if (Response::HTTP_OK !== $responseBody->getStatusCode()) {
-            $this->logger->error('GetPaypalOrderData returned Status Code: '.$responseBody->getStatusCode(). ' PayPalOrderId: ' . $paypalOrderId);
+            $this->logger->error('GetPaypalOrderData returned Status Code: ' . $responseBody->getStatusCode() . ' PayPalOrderId: ' . $paypalOrderId);
 
             return false;
         }
@@ -79,13 +83,13 @@ class PayPalService
             return false;
         }
 
-        if ($paypalOrderData['intent'] !== self::INTENT_CAPTURE) {
+        if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {
             $this->logger->error(sprintf(self::ERROR_MESSAGE, self::INTENT_CAPTURE, $paypalOrderData['intent'], $paypalOrderId));
 
             return false;
         }
 
-        if ($paypalOrderData['status'] !== self::STATUS_APPROVED) {
+        if (self::STATUS_APPROVED !== $paypalOrderData['status']) {
             $this->logger->error(sprintf(self::ERROR_MESSAGE, self::STATUS_APPROVED, $paypalOrderData['status'], $paypalOrderId));
 
             return false;
@@ -96,8 +100,8 @@ class PayPalService
 
             return false;
         }
-        $amount = $invoice->getAmount()/100;
-        if ($amount !== (int)$paypalOrderData['purchase_units'][0]['amount']['value']) {
+        $amount = $invoice->getAmount() / 100;
+        if ($amount !== (int) $paypalOrderData['purchase_units'][0]['amount']['value']) {
             $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, $paypalOrderData['purchase_units'][0]['amount']['value'], $paypalOrderData['id']));
 
             return false;
@@ -110,6 +114,7 @@ class PayPalService
         }
 
         $this->logger->error('PayPalOrderId: ' . $paypalOrderId . ' could not be captured.');
+
         return false;
     }
 
@@ -121,7 +126,9 @@ class PayPalService
 
         $responseBody = $this->authClient->request(
             'POST',
-            $this->getAuthEndpointUrl(), ['body' => 'grant_type=client_credentials']);
+            $this->getAuthEndpointUrl(),
+            ['body' => 'grant_type=client_credentials']
+        );
 
         $this->accessToken = $responseBody->toArray()['access_token'];
 
@@ -132,20 +139,21 @@ class PayPalService
     {
         $responseBody = $this->paymentClient->request(
             'POST',
-            $this->getCaptureEndpointUrl($paypalOrderId), ['headers' => [
+            $this->getCaptureEndpointUrl($paypalOrderId),
+            ['headers' => [
                 'Authorization'     => 'Bearer ' . $this->getAccessToken(),
                 'Paypal-Request-Id' => $invoice->getUuid(),
             ],
-        ]);
-
+            ]
+        );
 
         if (Response::HTTP_OK !== $responseBody->getStatusCode()) {
-            $this->logger->error('PayPalCapturePayment returned Status Code '.$responseBody->getStatusCode(). '. PayPalOrderId: ' . $paypalOrderId);
+            $this->logger->error('PayPalCapturePayment returned Status Code ' . $responseBody->getStatusCode() . '. PayPalOrderId: ' . $paypalOrderId);
 
             return false;
         }
 
-        $response  = $responseBody->toArray();
+        $response = $responseBody->toArray();
 
         if (empty($response)) {
             $this->logger->error('Capture response is empty. PayPalOrderId: ' . $paypalOrderId);
@@ -153,8 +161,7 @@ class PayPalService
             return false;
         }
 
-
-        if (false === \array_key_exists('status', $response) || $response['status'] !== self::STATUS_COMPLETED) {
+        if (false === \array_key_exists('status', $response) || self::STATUS_COMPLETED !== $response['status']) {
             $this->logger->error(sprintf('CapturePayment error. Expected %s, got: %s. PayPalOrderId: %s', self::STATUS_COMPLETED, $response['status'], $paypalOrderId));
 
             return false;

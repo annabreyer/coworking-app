@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -166,7 +166,6 @@ class BasicFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('voucherType10Units', $voucherType10);
-
 
         $voucherType = new VoucherType();
         $voucherType->setValidityMonths(1)

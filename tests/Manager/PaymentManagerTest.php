@@ -1,12 +1,11 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
 use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\VoucherFixtures;
-use App\Entity\Booking;
 use App\Entity\Payment;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
@@ -14,7 +13,6 @@ use App\Manager\PaymentManager;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
-use App\Repository\VoucherRepository;
 use App\Service\AdminMailerService;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
@@ -54,8 +52,8 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        self::assertNotNull($invoice->getPayments()->first());
-        self::assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
+        static::assertNotNull($invoice->getPayments()->first());
+        static::assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
     }
 
     public function testHandleVoucherPaymentSetsVoucherUseDate(): void
@@ -78,7 +76,7 @@ class PaymentManagerTest extends KernelTestCase
         );
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        self::assertNotNull($voucher->getUseDate());
+        static::assertNotNull($voucher->getUseDate());
     }
 
     public function testHandleVoucherPaymentUpdatesInvoiceAmount(): void
@@ -102,7 +100,7 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        self::assertSame(500, $invoice->getAmount());
+        static::assertSame(500, $invoice->getAmount());
     }
 
     public function testHandleVoucherSendsAdminEmailWhenInvoiceIsNegative(): void
@@ -126,7 +124,7 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        $this->assertEmailCount(1);
+        static::assertEmailCount(1);
     }
 
     protected function tearDown(): void

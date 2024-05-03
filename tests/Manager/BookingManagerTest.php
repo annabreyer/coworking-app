@@ -26,8 +26,8 @@ class BookingManagerTest extends TestCase
         $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
         $booking        = new Booking();
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Booking must have a business day and a date.');
+        static::expectException(\LogicException::class);
+        static::expectExceptionMessage('Booking must have a business day and a date.');
         $bookingManager->canBookingBeCancelled($booking);
     }
 
@@ -42,8 +42,8 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Time limit cancel booking is wrongly configured.');
+        static::expectException(\LogicException::class);
+        static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
         $bookingManager->canBookingBeCancelled($booking);
     }
 
@@ -58,8 +58,8 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Time limit cancel booking is wrongly configured.');
+        static::expectException(\LogicException::class);
+        static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
         $bookingManager->canBookingBeCancelled($booking);
     }
 
@@ -74,8 +74,8 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Time limit cancel booking is wrongly configured.');
+        static::expectException(\LogicException::class);
+        static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
         $bookingManager->canBookingBeCancelled($booking);
     }
 
@@ -91,7 +91,7 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
         $booking->setBusinessDay($businessDay);
 
-        self::assertTrue($bookingManager->canBookingBeCancelled($booking));
+        static::assertTrue($bookingManager->canBookingBeCancelled($booking));
     }
 
     public function testCanBookingReturnsFalseIfBookingIsInThePast(): void
@@ -106,6 +106,6 @@ class BookingManagerTest extends TestCase
         $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
         $booking->setBusinessDay($businessDay);
 
-        self::assertFalse($bookingManager->canBookingBeCancelled($booking));
+        static::assertFalse($bookingManager->canBookingBeCancelled($booking));
     }
 }

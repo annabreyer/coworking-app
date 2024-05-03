@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Service;
 
 use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\Repository\InvoiceRepository;
 use App\Service\PayPalService;
-use Doctrine\ORM\EntityManagerInterface;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Monolog\Handler\TestHandler;
@@ -39,7 +38,7 @@ class PayPalServiceTest extends WebTestCase
         $payPalService = $container->get(PayPalService::class);
 
         $expected = 'client-id=123456789&commit=true&components=buttons&currency=EUR&debug=true&integration-date=2024-04-29&intent=authorize&disable-funding=credit%2Ccard%2Cgiropay%2Csepa&locale=de_DE';
-        self::assertEquals($expected, $payPalService->getQueryParametersForJsSdk());
+        static::assertSame($expected, $payPalService->getQueryParametersForJsSdk());
     }
 
     public function testHandlePaymentLogsErrorForMissingPayPalOrderId(): void
@@ -54,18 +53,18 @@ class PayPalServiceTest extends WebTestCase
         $payPalService = $container->get(PayPalService::class);
 
         $requestData = ['orderID' => ''];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderId is empty.',
             Level::fromName('error')
         ));
@@ -81,22 +80,27 @@ class PayPalServiceTest extends WebTestCase
 
         $payPalOrderId     = '123456789';
         $orderResponseBody = $this->getMockOrderClientResponseBody($payPalOrderId);
-        $payPalService     = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_BAD_REQUEST, Response::HTTP_OK,
-            $orderResponseBody, json_encode([]));
-        $requestData       = ['orderID' => $payPalOrderId];
+        $payPalService     = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_OK,
+            $orderResponseBody,
+            json_encode([])
+        );
+        $requestData = ['orderID' => $payPalOrderId];
 
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'GetPaypalOrderData returned Status Code: ' . Response::HTTP_BAD_REQUEST . ' PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -111,21 +115,26 @@ class PayPalServiceTest extends WebTestCase
         static::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            json_encode([]), json_encode([]));
-        $requestData   = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            json_encode([]),
+            json_encode([])
+        );
+        $requestData = ['orderID' => $payPalOrderId];
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderData is empty. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -141,21 +150,26 @@ class PayPalServiceTest extends WebTestCase
 
         $payPalOrderId = '123456789';
         $body          = $this->getMockOrderClientResponseBody($payPalOrderId, PayPalService::INTENT_AUTHORIZE);
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $body, json_encode([]));
-        $requestData   = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $body,
+            json_encode([])
+        );
+        $requestData = ['orderID' => $payPalOrderId];
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderData error. Expected CAPTURE, got: AUTHORIZE. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -170,23 +184,31 @@ class PayPalServiceTest extends WebTestCase
         static::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
-        $body          = $this->getMockOrderClientResponseBody($payPalOrderId, PayPalService::INTENT_CAPTURE,
-            PayPalService::STATUS_COMPLETED);
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $body, json_encode([]));
-        $requestData   = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        $body          = $this->getMockOrderClientResponseBody(
+            $payPalOrderId,
+            PayPalService::INTENT_CAPTURE,
+            PayPalService::STATUS_COMPLETED
+        );
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $body,
+            json_encode([])
+        );
+        $requestData = ['orderID' => $payPalOrderId];
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderData error. Expected APPROVED, got: COMPLETED. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -201,24 +223,34 @@ class PayPalServiceTest extends WebTestCase
         static::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
-        $body          = $this->getMockOrderClientResponseBody($payPalOrderId, PayPalService::INTENT_CAPTURE,
-            PayPalService::STATUS_APPROVED, '15.00', 'USD');
+        $body          = $this->getMockOrderClientResponseBody(
+            $payPalOrderId,
+            PayPalService::INTENT_CAPTURE,
+            PayPalService::STATUS_APPROVED,
+            '15.00',
+            'USD'
+        );
 
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $body, json_encode([]));
-        $requestData   = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $body,
+            json_encode([])
+        );
+        $requestData = ['orderID' => $payPalOrderId];
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderData error. Expected EUR, got: USD. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -234,24 +266,29 @@ class PayPalServiceTest extends WebTestCase
 
         $payPalOrderId = '123456789';
         $body          = $this->getMockOrderClientResponseBody($payPalOrderId);
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $body, json_encode([]));
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $body,
+            json_encode([])
+        );
 
-        $requestData   = ['orderID' => $payPalOrderId];
+        $requestData = ['orderID' => $payPalOrderId];
         $invoice->setAmount(1000);
 
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalOrderData error. Expected 10, got: 15.00. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -265,18 +302,23 @@ class PayPalServiceTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
         static::assertNotNull($invoice);
 
-        $payPalOrderId     = '123456789';
-        $orderResponseBody = $this->getMockOrderClientResponseBody($payPalOrderId);
+        $payPalOrderId       = '123456789';
+        $orderResponseBody   = $this->getMockOrderClientResponseBody($payPalOrderId);
         $paymentResponseBody = $this->getMockPaymentClientResponseBody();
 
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_BAD_REQUEST,
-            $orderResponseBody, $paymentResponseBody);
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_BAD_REQUEST,
+            $orderResponseBody,
+            $paymentResponseBody
+        );
 
         $requestData = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -284,8 +326,8 @@ class PayPalServiceTest extends WebTestCase
             }
         }
 
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'PayPalCapturePayment returned Status Code ' . Response::HTTP_BAD_REQUEST . '. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -301,14 +343,19 @@ class PayPalServiceTest extends WebTestCase
 
         $payPalOrderId     = '123456789';
         $orderResponseBody = $this->getMockOrderClientResponseBody($payPalOrderId);
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $orderResponseBody, json_encode([]));
+        $payPalService     = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $orderResponseBody,
+            json_encode([])
+        );
 
         $requestData = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -316,8 +363,8 @@ class PayPalServiceTest extends WebTestCase
             }
         }
 
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Capture response is empty. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -331,17 +378,22 @@ class PayPalServiceTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
         static::assertNotNull($invoice);
 
-        $payPalOrderId     = '123456789';
-        $orderResponseBody = $this->getMockOrderClientResponseBody($payPalOrderId);
+        $payPalOrderId       = '123456789';
+        $orderResponseBody   = $this->getMockOrderClientResponseBody($payPalOrderId);
         $paymentResponseBody = $this->getMockPaymentClientResponseBody(PayPalService::STATUS_APPROVED);
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $orderResponseBody, $paymentResponseBody);
+        $payPalService       = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $orderResponseBody,
+            $paymentResponseBody
+        );
 
         $requestData = ['orderID' => $payPalOrderId];
-        $this->assertFalse($payPalService->handlePayment($invoice, $requestData));
+        static::assertFalse($payPalService->handlePayment($invoice, $requestData));
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -349,8 +401,8 @@ class PayPalServiceTest extends WebTestCase
             }
         }
 
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'CapturePayment error. Expected COMPLETED, got: APPROVED. PayPalOrderId: ' . $payPalOrderId,
             Level::fromName('error')
         ));
@@ -364,12 +416,17 @@ class PayPalServiceTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
         static::assertNotNull($invoice);
 
-        $payPalOrderId     = '123456789';
-        $payPalService = $this->getPayPalService(Response::HTTP_OK, Response::HTTP_OK, Response::HTTP_OK,
-            $this->getMockOrderClientResponseBody($payPalOrderId), $this->getMockPaymentClientResponseBody());
+        $payPalOrderId = '123456789';
+        $payPalService = $this->getPayPalService(
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            Response::HTTP_OK,
+            $this->getMockOrderClientResponseBody($payPalOrderId),
+            $this->getMockPaymentClientResponseBody()
+        );
 
         $requestData = ['orderID' => $payPalOrderId];
-        $this->assertTrue($payPalService->handlePayment($invoice, $requestData));
+        static::assertTrue($payPalService->handlePayment($invoice, $requestData));
     }
 
     private function getPayPalService(
@@ -396,7 +453,7 @@ class PayPalServiceTest extends WebTestCase
 
     private function getMockAuthHttpClient(int $expectedStatusCode): HttpClientInterface
     {
-        $body             = json_encode([
+        $body = json_encode([
             'access_token' => 'A21AAFEpH4PsADK7qSS7pSRsgzfENtu-Q1ysgEDVDESseMHBYXVJYE8ovjj68elIDy8nF26AwPhfXTIeWAZHSLIsQkSYz9ifg',
             'token_type'   => 'Bearer',
             'expires_in'   => 32400,
@@ -424,13 +481,14 @@ class PayPalServiceTest extends WebTestCase
         string $amount = '15.00',
         string $currency = 'EUR'
     ): string {
-        return json_encode([
+        return json_encode(
+            [
                 'id'             => $id,
                 'status'         => $status,
                 'intent'         => $intent,
                 'payment_source' => [
                     'paypal' => [
-                        'name'          => [
+                        'name' => [
                             'given_name' => 'John',
                             'surname'    => 'Doe',
                         ],

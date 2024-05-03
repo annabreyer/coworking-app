@@ -1,10 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
 use App\Entity\Booking;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class BookingWithOutInvoiceFixture extends BookingFixtures
@@ -15,9 +15,9 @@ class BookingWithOutInvoiceFixture extends BookingFixtures
     {
         parent::load($manager);
 
-        $user = $this->getReference('user1');
-        $room = $this->getReference('room3');
-        $businessDay = $this->getReference('businessDay-'. self::BUSINESS_DAY_DATE);
+        $user        = $this->getReference('user1');
+        $room        = $this->getReference('room3');
+        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE);
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay);

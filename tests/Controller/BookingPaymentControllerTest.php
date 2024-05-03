@@ -52,24 +52,24 @@ class BookingPaymentControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $uri = '/booking/'.self::FAKE_UUID.'/payment';
+        $uri = '/booking/' . self::FAKE_UUID . '/payment';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking');
+        static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertTrue($testHandler->hasRecordThatContains(
             self::FAKE_UUID,
             Level::fromName('error')
         ));
@@ -86,13 +86,13 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $bookingUser = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
+        $date        = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking     = $this->getBooking($bookingUser, $date);
 
         $uri = '/booking/' . $booking->getUuid() . '/payment';
         $client->request('GET', $uri);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testStepPaymentRendersTemplateOnGet(): void
@@ -111,8 +111,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
 
-        $this->assertResponseIsSuccessful();
-        self::assertCount(3, $crawler->filter('li'));
+        static::assertResponseIsSuccessful();
+        static::assertCount(3, $crawler->filter('li'));
     }
 
     public function testStepPaymentTemplateContainsPaymentMethodForm(): void
@@ -131,8 +131,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment';
         $crawler = $client->request('GET', $uri);
 
-        $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('form'));
+        static::assertResponseIsSuccessful();
+        static::assertCount(1, $crawler->filter('form'));
     }
 
     public function testStepPaymentFormSubmitErrorWithInvalidCsrfToken(): void
@@ -155,8 +155,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['token' => 'invalid']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
     }
 
     public function testStepPaymentFormSubmitWithoutPriceId(): void
@@ -179,8 +179,8 @@ class BookingPaymentControllerTest extends WebTestCase
         unset($form['priceId']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'PriceId is missing.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'PriceId is missing.');
     }
 
     public function testStepPaymentFormSubmitWithInvalidPriceId(): void
@@ -203,8 +203,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['priceId' => '999999']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Price not found.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Price not found.');
     }
 
     public function testStepPaymentFormSubmitWithMissingPaymentMethod(): void
@@ -227,8 +227,8 @@ class BookingPaymentControllerTest extends WebTestCase
         unset($form['paymentMethod']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Payment method is missing.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Payment method is missing.');
     }
 
     public function testStepPaymentFormSubmitWithInvalidPaymentMethod(): void
@@ -251,8 +251,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form['paymentMethod'] = 'creditCard';
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Payment method not found.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Payment method not found.');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceAddsAmountToBookingAndRedirects(): void
@@ -267,7 +267,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNull($booking->getAmount());
+        static::assertNull($booking->getAmount());
 
         $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
@@ -276,9 +276,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
-        self::assertNotNull($booking->getAmount());
+        static::assertNotNull($booking->getAmount());
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
@@ -293,7 +293,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNull($booking->getInvoice());
+        static::assertNull($booking->getInvoice());
 
         $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
@@ -305,12 +305,12 @@ class BookingPaymentControllerTest extends WebTestCase
                          ->findOneBy(['user' => $bookingUser])
         ;
 
-        self::assertNotNull($invoice);
-        self::assertSame($booking->getId(), $invoice->getBookings()->first()->getId());
+        static::assertNotNull($invoice);
+        static::assertSame($booking->getId(), $invoice->getBookings()->first()->getId());
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        self::assertFileExists($filePath);
+        static::assertFileExists($filePath);
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
@@ -325,7 +325,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNull($booking->getInvoice());
+        static::assertNull($booking->getInvoice());
 
         $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
@@ -333,10 +333,10 @@ class BookingPaymentControllerTest extends WebTestCase
         $form['paymentMethod'] = 'invoice';
         $client->submit($form);
 
-        $this->assertEmailCount(2);
+        static::assertEmailCount(2);
 
         $email = $this->getMailerMessage();
-        $this->assertEmailAttachmentCount($email, 1);
+        static::assertEmailAttachmentCount($email, 1);
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodPayPalAddsAmountToBookingAndRedirects(): void
@@ -351,7 +351,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNull($booking->getAmount());
+        static::assertNull($booking->getAmount());
 
         $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
@@ -360,9 +360,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
-        self::assertNotNull($booking->getAmount());
+        static::assertNotNull($booking->getAmount());
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/paypal');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/paypal');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodVoucherAddsAmountToBookingAndRedirects(): void
@@ -377,7 +377,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNull($booking->getAmount());
+        static::assertNull($booking->getAmount());
 
         $uri                   = '/booking/' . $booking->getUuid() . '/payment';
         $crawler               = $client->request('GET', $uri);
@@ -386,9 +386,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
-        self::assertNotNull($booking->getAmount());
+        static::assertNotNull($booking->getAmount());
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/voucher');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/voucher');
     }
 
     public function testPayWithPayPalLogsErrorAndRedirectsWhenBookingIsNotFound(): void
@@ -404,21 +404,21 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri = '/booking/hyf-5678-hnbgyu/payment/paypal';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking');
+        static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
@@ -440,7 +440,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri         = '/booking/' . $booking->getUuid() . '/payment/paypal';
         $client->request('GET', $uri);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testPayWithPayPalRedirectsWhenBookingHasNoAmount(): void
@@ -458,8 +458,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment/paypal';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
     }
+
     public function testPayWithPayPalRedirectsWhenBookingIsAlreadyPaid(): void
     {
         $client       = static::createClient();
@@ -475,7 +476,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment/paypal';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 
     public function testPayWithPayPalCreatesInvoiceIfItDoesNotAlreadyExist(): void
@@ -492,15 +493,15 @@ class BookingPaymentControllerTest extends WebTestCase
         $booking = $this->getBooking($bookingUser, $date);
         $uri     = '/booking/' . $booking->getUuid() . '/payment/paypal';
 
-        $this->assertNull($booking->getInvoice());
+        static::assertNull($booking->getInvoice());
 
         $client->request('GET', $uri);
 
-        $this->assertResponseIsSuccessful();
+        static::assertResponseIsSuccessful();
 
         static::getContainer()->get('doctrine')->getManager()->refresh($booking);
-        $this->assertNotNull($booking->getInvoice());
-        $this->assertSelectorExists('div#paypal-button-container');
+        static::assertNotNull($booking->getInvoice());
+        static::assertSelectorExists('div#paypal-button-container');
     }
 
     public function testCapturePayPalPaymentLogsErrorAndReturnsTargetUrlWhenBookingIsNotFound(): void
@@ -517,27 +518,27 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->request('POST', $uri);
 
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSame('Booking not found.', $data['error']);
-        $this->assertSame('/booking', $data['targetUrl']);
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSame('Booking not found.', $data['error']);
+        static::assertSame('/booking', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentChecksIfBookingUserIsConnectedUser(): void
@@ -556,7 +557,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri         = '/booking/' . $booking->getUuid() . '/paypal/capture';
         $client->request('POST', $uri);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testCapturePayPalPaymentAndReturnsTargetUrlWhenBookingIsAlreadyPaid(): void
@@ -575,9 +576,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->request('POST', $uri);
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSame('Booking has already been paid.', $data['error']);
-        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/confirmation', $data['targetUrl']);
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSame('Booking has already been paid.', $data['error']);
+        static::assertSame('/booking/' . $booking->getUuid() . '/payment/confirmation', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentAndReturnsTargetUrlWhenNoInvoiceExists(): void
@@ -596,9 +597,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->request('POST', $uri);
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSame('Invoice is missing.', $data['error']);
-        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSame('Invoice is missing.', $data['error']);
+        static::assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentChecksPayload(): void
@@ -617,9 +618,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->request('POST', $uri);
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSame('Payload is empty.', $data['error']);
-        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSame('Payload is empty.', $data['error']);
+        static::assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentReturnsTargetUrlWhenCaptureIsNotSuccessfull(): void
@@ -643,7 +644,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNotNull($booking->getInvoice());
+        static::assertNotNull($booking->getInvoice());
 
         $client->request(
             'POST',
@@ -655,10 +656,11 @@ class BookingPaymentControllerTest extends WebTestCase
         );
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSame('Payment has not been processed.', $data['error']);
-        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSame('Payment has not been processed.', $data['error']);
+        static::assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
     }
+
     public function testCapturePayPalPaymentCreatesPaymentAndReturnsTargetUrlWhenCaptureIsSuccessfull(): void
     {
         $client            = static::createClient();
@@ -680,7 +682,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $date    = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
-        $this->assertNotNull($booking->getInvoice());
+        static::assertNotNull($booking->getInvoice());
 
         $client->request(
             'POST',
@@ -692,14 +694,15 @@ class BookingPaymentControllerTest extends WebTestCase
         );
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        static::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         $paymentRepository = static::getContainer()->get(PaymentRepository::class);
-        $payment           = $paymentRepository->findOneBy(['invoice' => $booking->getInvoice(), 'type'=> Payment::PAYMENT_TYPE_PAYPAL]);
-        $this->assertNotNull($payment);
-        $this->assertSame('Payment has been processed.', $data['success']);
-        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/confirmation', $data['targetUrl']);
+        $payment           = $paymentRepository->findOneBy(['invoice' => $booking->getInvoice(), 'type' => Payment::PAYMENT_TYPE_PAYPAL]);
+        static::assertNotNull($payment);
+        static::assertSame('Payment has been processed.', $data['success']);
+        static::assertSame('/booking/' . $booking->getUuid() . '/payment/confirmation', $data['targetUrl']);
     }
+
     public function testPayWithVoucherLogsErrorAndRedirectsWhenBookingIsNotFound(): void
     {
         $client       = static::createClient();
@@ -713,21 +716,21 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri = '/booking/hyf-5678-hnbgyu/payment/voucher';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking');
+        static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertTrue($testHandler->hasRecordThatContains(
             'hyf-5678-hnbgyu',
             Level::fromName('error')
         ));
@@ -749,7 +752,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri         = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $client->request('GET', $uri);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testPayWithVoucherRedirectsWhenBookingHasNoAmount(): void
@@ -767,7 +770,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
     }
 
     public function testPayWithVoucherRedirectsWhenBookingIsAlreadyPaid(): void
@@ -785,7 +788,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 
     public function testPayWithVoucherRendersTemplateOnGet(): void
@@ -803,8 +806,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri     = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $crawler = $client->request('GET', $uri);
 
-        $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('form'));
+        static::assertResponseIsSuccessful();
+        static::assertCount(1, $crawler->filter('form'));
     }
 
     public function testPayWithVoucherFormSubmitErrorWithInvalidCsrfToken(): void
@@ -828,8 +831,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['token' => 'invalid']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWithoutVoucherCode(): void
@@ -853,8 +856,8 @@ class BookingPaymentControllerTest extends WebTestCase
         unset($form['voucher']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Voucher code is missing.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Voucher code is missing.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWithInvalidVoucherCode(): void
@@ -877,8 +880,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => 'invalid']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Voucher not found.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Voucher not found.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherIsNotValidForUser(): void
@@ -892,7 +895,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->loginUser($bookingUser);
 
         $adminVoucher = static::getContainer()->get(VoucherRepository::class)->findOneBy(['code' => VoucherFixtures::ADMIN_VOUCHER_CODE]);
-        $date    = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
+        $date         = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
         $booking      = $this->getBooking($bookingUser, $date);
         $uri          = '/booking/' . $booking->getUuid() . '/payment/voucher';
         $crawler      = $client->request('GET', $uri);
@@ -900,8 +903,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => $adminVoucher->getCode()]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Voucher is not valid for this user.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Voucher is not valid for this user.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherIsExpired(): void
@@ -922,8 +925,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => VoucherFixtures::EXPIRED_VOUCHER_CODE]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Voucher is expired.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Voucher is expired.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherHasAlreadyBeenUsed(): void
@@ -968,8 +971,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => VoucherFixtures::VOUCHER_WITHOUT_PAYMENT_CODE]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Voucher has not been paid and cannot be used.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Voucher has not been paid and cannot be used.');
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherRedirects(): void
@@ -992,7 +995,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => $voucher->getCode()]);
         $client->submit($form);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherCreatesInvoice(): void
@@ -1018,12 +1021,12 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()
                          ->get(InvoiceRepository::class)
                          ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
-        self::assertNotNull($invoice);
-        self::assertSame($invoice->getBookings()->first()->getId(), $booking->getId());
+        static::assertNotNull($invoice);
+        static::assertSame($invoice->getBookings()->first()->getId(), $booking->getId());
 
         $invoiceGenerator = static::getContainer()->get(InvoiceGenerator::class);
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        self::assertFileExists($filePath);
+        static::assertFileExists($filePath);
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherCreatesVoucherPayment(): void
@@ -1049,8 +1052,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()
                          ->get(InvoiceRepository::class)
                          ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
-        self::assertNotNull($invoice);
-        self::assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
+        static::assertNotNull($invoice);
+        static::assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherSendsInvoiceToClient(): void
@@ -1072,10 +1075,10 @@ class BookingPaymentControllerTest extends WebTestCase
         $form->setValues(['voucher' => $voucher->getCode()]);
         $client->submit($form);
 
-        $this->assertEmailCount(1);
+        static::assertEmailCount(1);
 
         $email = $this->getMailerMessage();
-        $this->assertEmailAttachmentCount($email, 1);
+        static::assertEmailAttachmentCount($email, 1);
     }
 
     public function testPaymentConfirmationLogsErrorAndRedirectsWhenBookingIsNotFound(): void
@@ -1088,24 +1091,24 @@ class BookingPaymentControllerTest extends WebTestCase
         $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
-        $uri = '/booking/'.self::FAKE_UUID.'/payment/confirmation';
+        $uri = '/booking/' . self::FAKE_UUID . '/payment/confirmation';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking');
+        static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
-        self::assertNotNull($logger);
+        static::assertNotNull($logger);
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
             }
         }
-        self::assertNotNull($testHandler);
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertNotNull($testHandler);
+        static::assertTrue($testHandler->hasRecordThatContains(
             'Booking not found.',
             Level::fromName('error')
         ));
-        self::assertTrue($testHandler->hasRecordThatContains(
+        static::assertTrue($testHandler->hasRecordThatContains(
             self::FAKE_UUID,
             Level::fromName('error')
         ));
@@ -1127,7 +1130,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $uri         = '/booking/' . $booking->getUuid() . '/payment/confirmation';
         $client->request('GET', $uri);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testPaymentConfirmationRedirectsIfNoInvoice(): void
@@ -1140,12 +1143,12 @@ class BookingPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $date = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
+        $date    = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
         $booking = $this->getBooking($bookingUser, $date);
         $uri     = '/booking/' . $booking->getUuid() . '/payment/confirmation';
         $client->request('GET', $uri);
 
-        $this->assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
     }
 
     public function testPaymentConfirmationRendersTemplate(): void
@@ -1161,11 +1164,11 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithPaymentFixture::INVOICE_NUMBER]);
         $uri     = '/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation';
         $crawler = $client->request('GET', $uri);
+        static::assertResponseIsSuccessful();
 
-        $this->assertResponseIsSuccessful();
         $expectedUri = '/invoice/' . $invoice->getUuid() . '/download';
         $link        = $crawler->filter('a')->first();
-        self::assertSame($expectedUri, $link->attr('href'));
+        static::assertSame($expectedUri, $link->attr('href'));
     }
 
     private function getBooking(User $user, \DateTimeImmutable $date): Booking

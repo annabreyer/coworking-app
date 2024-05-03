@@ -17,13 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VoucherControllerTest extends WebTestCase
 {
-    protected ?AbstractDatabaseTool $databaseTool;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testIndexTemplateContainsFormWithVoucherTypeAndPaymentMethod(): void
     {
         $client       = static::createClient();
@@ -39,10 +32,10 @@ class VoucherControllerTest extends WebTestCase
         $client->loginUser($user);
 
         $client->request('GET', '/voucher');
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('form');
-        $this->assertSelectorExists('select[name="voucherPrice"]');
-        $this->assertSelectorExists('input[name="paymentMethod"]');
+        static::assertResponseIsSuccessful();
+        static::assertSelectorExists('form');
+        static::assertSelectorExists('select[name="voucherPrice"]');
+        static::assertSelectorExists('input[name="paymentMethod"]');
     }
 
     public function testIndexFormSubmitWithInvalidToken(): void
@@ -65,8 +58,8 @@ class VoucherControllerTest extends WebTestCase
         $form->setValues(['token' => 'invalid']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
     }
 
     public function testIndexFormSubmitWithMissingVoucherPriceId(): void
@@ -89,8 +82,8 @@ class VoucherControllerTest extends WebTestCase
         unset($form['voucherPrice']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Please select a voucher.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Please select a voucher.');
     }
 
     public function testIndexFormSubmitWithInvalidVoucherPriceId(): void
@@ -113,8 +106,8 @@ class VoucherControllerTest extends WebTestCase
         $form->setValues(['voucherPrice' => 999999]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Selected voucher not found in the database.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Selected voucher not found in the database.');
     }
 
     public function testIndexFormSubmitWithMissingPaymentMethod(): void
@@ -143,8 +136,8 @@ class VoucherControllerTest extends WebTestCase
         unset($form['paymentMethod']);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Please select a payment method.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Please select a payment method.');
     }
 
     public function testIndexFormSubmitWithInvalidPaymentMethod(): void
@@ -172,8 +165,8 @@ class VoucherControllerTest extends WebTestCase
         $form->setValues(['voucherPrice' => $voucherPrice[0]->getId()]);
         $client->submit($form);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertSelectorTextContains('div.alert', 'Invalid payment method selected.');
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('div.alert', 'Invalid payment method selected.');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceRedirects(): void
@@ -202,7 +195,7 @@ class VoucherControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertResponseRedirects('/user/vouchers');
+        static::assertResponseRedirects('/user/vouchers');
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceCreatesVouchers(): void
@@ -236,7 +229,7 @@ class VoucherControllerTest extends WebTestCase
                           ->findBy(['user' => $user])
         ;
 
-        self::assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
+        static::assertCount($voucherPrice[0]->getVoucherType()->getUnits(), $vouchers);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceGeneratesInvoice(): void
@@ -271,7 +264,7 @@ class VoucherControllerTest extends WebTestCase
 
         $invoiceGenerator = static::getContainer()->get('App\Service\InvoiceGenerator');
         $filePath         = $invoiceGenerator->getTargetDirectory($invoice);
-        self::assertFileExists($filePath);
+        static::assertFileExists($filePath);
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMail(): void
@@ -300,14 +293,8 @@ class VoucherControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        $this->assertEmailCount(2);
+        static::assertEmailCount(2);
         $email = $this->getMailerMessage();
-        $this->assertEmailAttachmentCount($email, 1);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        $this->databaseTool = null;
+        static::assertEmailAttachmentCount($email, 1);
     }
 }

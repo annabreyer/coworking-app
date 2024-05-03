@@ -45,17 +45,17 @@ class InvoiceManagerTest extends KernelTestCase
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $invoiceManager = $this->getInvoiceManager();
 
-        self::assertSame('00001', $invoiceManager::getClientNumber(1));
-        self::assertSame('00111', $invoiceManager::getClientNumber(111));
-        self::assertSame('11111', $invoiceManager::getClientNumber(11111));
+        static::assertSame('00001', $invoiceManager::getClientNumber(1));
+        static::assertSame('00111', $invoiceManager::getClientNumber(111));
+        static::assertSame('11111', $invoiceManager::getClientNumber(11111));
     }
 
     public function testCreateInvoiceFromBookingThrowsExceptionIfBookingHasNoUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([BookingWithoutInvoiceFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithOutInvoiceFixture::class]);
 
-        $date        = new \DateTimeImmutable(BookingWithoutInvoiceFixture::BUSINESS_DAY_DATE);
+        $date        = new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
         $booking     = static::getContainer()->get(BookingRepository::class)
@@ -82,7 +82,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $date           = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
         $businessDay    = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
-        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $room           = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
         $booking        = static::getContainer()->get(BookingRepository::class)
                                 ->findOneBy([
                                     'room'        => $room,
@@ -94,7 +94,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, PriceFixtures::SINGLE_PRICE_AMOUNT);
 
-        self::assertSame($invoice, $booking->getInvoice());
+        static::assertSame($invoice, $booking->getInvoice());
     }
 
     public function testCreateInvoiceFromBookingCreatesAndReturnsInvoice(): void
@@ -116,11 +116,11 @@ class InvoiceManagerTest extends KernelTestCase
 
         $invoiceManager = $this->getInvoiceManager();
         $invoice        = $invoiceManager->createInvoiceFromBooking($booking, PriceFixtures::SINGLE_PRICE_AMOUNT);
-        self::assertNotNull($invoice);
+        static::assertNotNull($invoice);
 
-        self::assertSame($booking->getUser(), $invoice->getUser());
-        self::assertSame(PriceFixtures::SINGLE_PRICE_AMOUNT, $invoice->getAmount());
-        self::assertSame($booking, $invoice->getBookings()->first());
+        static::assertSame($booking->getUser(), $invoice->getUser());
+        static::assertSame(PriceFixtures::SINGLE_PRICE_AMOUNT, $invoice->getAmount());
+        static::assertSame($booking, $invoice->getBookings()->first());
     }
 
     public function testGetInvoiceNumberStartsWithOneIfNoInvoicesExist(): void
@@ -133,7 +133,7 @@ class InvoiceManagerTest extends KernelTestCase
         $prefix         = self::getContainer()->getParameter('invoice_prefix');
         $expectedNumber = $prefix . date('Y') . '0001';
 
-        self::assertSame($expectedNumber, $invoiceNumber);
+        static::assertSame($expectedNumber, $invoiceNumber);
     }
 
     public function testGetInvoiceNumberIncrementsExistingInvoice(): void
@@ -158,7 +158,7 @@ class InvoiceManagerTest extends KernelTestCase
         $prefix         = self::getContainer()->getParameter('invoice_prefix');
         $expectedNumber = $prefix . date('Y') . '1001';
 
-        self::assertSame($expectedNumber, $invoiceNumber);
+        static::assertSame($expectedNumber, $invoiceNumber);
     }
 
     public function testGetInvoiceNumberIncrementsExistingInvoiceWithDifferentYear(): void
@@ -172,7 +172,7 @@ class InvoiceManagerTest extends KernelTestCase
         // Only one fixture for 2023
         $expectedNumber = $prefix . '20230002';
 
-        self::assertSame($expectedNumber, $invoiceNumber);
+        static::assertSame($expectedNumber, $invoiceNumber);
     }
 
     private function getInvoiceManager(): InvoiceManager

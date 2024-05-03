@@ -61,11 +61,11 @@ class EmailVerifierTest extends KernelTestCase
         $user    = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $context = $emailVerifier->getEmailConfirmationContext('app_verify_email', $user);
 
-        self::assertIsArray($context);
-        self::assertArrayHasKey('signedUrl', $context);
-        self::assertArrayHasKey('expiresAtMessageKey', $context);
-        self::assertArrayHasKey('expiresAtMessageData', $context);
-        self::assertIsArray($context['expiresAtMessageData']);
+        static::assertIsArray($context);
+        static::assertArrayHasKey('signedUrl', $context);
+        static::assertArrayHasKey('expiresAtMessageKey', $context);
+        static::assertArrayHasKey('expiresAtMessageData', $context);
+        static::assertIsArray($context['expiresAtMessageData']);
     }
 
     public function testHandleEmailConfirmationChecksUser(): void
@@ -90,6 +90,6 @@ class EmailVerifierTest extends KernelTestCase
 
         $emailVerifier->handleEmailConfirmation($request, $user);
 
-        self::assertTrue($user->IsVerified());
+        static::assertTrue($user->IsVerified());
     }
 }

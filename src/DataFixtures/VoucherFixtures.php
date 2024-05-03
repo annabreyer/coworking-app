@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -153,7 +153,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $voucherPaymentDate  = new \DateTimeImmutable('2024-03-05');
         $bookingDate         = new \DateTimeImmutable('2024-03-21');
         $businessDay         = $this->getReference('businessDay-' . $bookingDate->format('Y-m-d'), BusinessDay::class);
-        $bookingInvoiceDate = new \DateTimeImmutable('2024-03-14');
+        $bookingInvoiceDate  = new \DateTimeImmutable('2024-03-14');
 
         $voucherInvoice = new Invoice();
         $voucherInvoice->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
@@ -182,7 +182,6 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
 
         $manager->persist($voucher);
         $manager->flush();
-
 
         $booking = new Booking();
         $booking->setUser($user)

@@ -37,6 +37,6 @@ class PasswordForgottenServiceTest extends KernelTestCase
         $token = new ResetPasswordToken('token', new \DateTime('+1 day'), time() - 3600);
         $passwordForgottenService->sendPasswordForgottenEmail($user, $token);
 
-        $this->assertEmailCount(1);
+        static::assertEmailCount(1);
     }
 }

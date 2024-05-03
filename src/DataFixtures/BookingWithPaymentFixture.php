@@ -1,26 +1,26 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Payment;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class BookingWithPaymentFixture extends BookingFixtures
 {
-    public const INVOICE_NUMBER = self::BOOKING_WITH_INVOICE_WITH_PAYMENT_INVOICE_NUMBER;
+    public const INVOICE_NUMBER    = self::BOOKING_WITH_INVOICE_WITH_PAYMENT_INVOICE_NUMBER;
     public const BUSINESS_DAY_DATE = self::BOOKING_WITH_INVOICE_WITH_PAYMENT_DATE;
 
     public function load(ObjectManager $manager)
     {
-        parent ::load($manager);
+        parent::load($manager);
 
-        $user = $this->getReference('user1');
-        $room = $this->getReference('room3');
-        $businessDay = $this->getReference('businessDay-'. self::BUSINESS_DAY_DATE);
+        $user        = $this->getReference('user1');
+        $room        = $this->getReference('room3');
+        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE);
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay);

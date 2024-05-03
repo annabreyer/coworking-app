@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\Booking;
-use App\Entity\BusinessDay;
 use App\Entity\Invoice;
-use App\Entity\Price;
-use App\Entity\Room;
-use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -17,6 +12,7 @@ use Doctrine\Persistence\ObjectManager;
 class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 {
     public const STANDARD_BOOKING_INVOICE_NUMBER = 'CO20240001';
+
     public function getDependencies()
     {
         return [
@@ -29,6 +25,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
         $this->loadInvoiceFromLastYear($manager);
         $this->loadStandardBookingInvoice($manager);
     }
+
     private function loadInvoiceFromLastYear(ObjectManager $manager): void
     {
         $user    = $this->getReference('user1');
@@ -43,7 +40,6 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-
     private function loadStandardBookingInvoice(ObjectManager $manager): void
     {
         $user    = $this->getReference('user1');
@@ -57,5 +53,4 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($invoice);
         $manager->flush();
     }
-
 }

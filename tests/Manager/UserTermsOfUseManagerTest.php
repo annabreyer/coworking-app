@@ -46,6 +46,6 @@ class UserTermsOfUseManagerTest extends KernelTestCase
         $userTermsOfUseManager = new UserTermsOfUseManager($termsOfUseRepository, $this->entityManager);
         $userTermsOfUseManager->saveAcceptanceTermsOfUse($user);
 
-        self::assertNotNull($user->getAcceptedTermsOfUse());
+        static::assertNotNull($user->getAcceptedTermsOfUse());
     }
 }

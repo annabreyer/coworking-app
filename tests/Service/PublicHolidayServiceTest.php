@@ -14,19 +14,19 @@ class PublicHolidayServiceTest extends TestCase
         $publicHolidayService = new PublicHolidayService();
         $publicHolidays       = $publicHolidayService->getGermanPublicHolidays()->getHolidays();
 
-        self::assertIsArray($publicHolidays);
-        self::assertNotEmpty($publicHolidays);
+        static::assertIsArray($publicHolidays);
+        static::assertNotEmpty($publicHolidays);
 
-        self::assertArrayHasKey(PublicHolidayService::NEW_YEARS_DAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::GOOD_FRIDAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::EASTER_MONDAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::INTL_WORKERS_DAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::ASCENSION, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::PENTECOST, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::PENTECOST_MONDAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::GERMAN_UNITY_DAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::CHRISTMAS_DAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::SECOND_CHRISTMAS_DAY, $publicHolidays);
-        self::assertArrayHasKey(PublicHolidayService::NEW_YEARS_EVE, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::NEW_YEARS_DAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::GOOD_FRIDAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::EASTER_MONDAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::INTL_WORKERS_DAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::ASCENSION, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::PENTECOST, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::PENTECOST_MONDAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::GERMAN_UNITY_DAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::CHRISTMAS_DAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::SECOND_CHRISTMAS_DAY, $publicHolidays);
+        static::assertArrayHasKey(PublicHolidayService::NEW_YEARS_EVE, $publicHolidays);
     }
 }

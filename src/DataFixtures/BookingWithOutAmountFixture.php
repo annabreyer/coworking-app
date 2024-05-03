@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\DataFixtures;
 
@@ -8,13 +10,14 @@ use Doctrine\Persistence\ObjectManager;
 class BookingWithOutAmountFixture extends BookingFixtures
 {
     public const BUSINESS_DAY_DATE = self::BOOKING_WITHOUT_AMOUNT_DATE;
+
     public function load(ObjectManager $manager)
     {
         parent::load($manager);
 
-        $businessDay = $this->getReference('businessDay-'. self::BUSINESS_DAY_DATE);
-        $user = $this->getReference('user1');
-        $room = $this->getReference('room3');
+        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE);
+        $user        = $this->getReference('user1');
+        $room        = $this->getReference('room3');
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay);
@@ -23,6 +26,5 @@ class BookingWithOutAmountFixture extends BookingFixtures
 
         $manager->persist($booking);
         $manager->flush();
-
     }
 }

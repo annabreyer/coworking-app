@@ -15,7 +15,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaid());
+        static::assertFalse($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsFalseWhenPaymentsDoNotCoverTheAmount(): void
@@ -25,7 +25,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(50);
 
-        self::assertFalse($invoice->isFullyPaid());
+        static::assertFalse($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsTrueWhenPaymentsCoverTheAmount(): void
@@ -36,7 +36,7 @@ class InvoiceTest extends TestCase
         $payment->setAmount(100);
         $invoice->addPayment($payment);
 
-        self::assertTrue($invoice->isFullyPaid());
+        static::assertTrue($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidReturnsTrueWhenPaymentsExceedTheAmount(): void
@@ -49,7 +49,7 @@ class InvoiceTest extends TestCase
         $payment2 = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment2->setAmount(50);
 
-        self::assertTrue($invoice->isFullyPaid());
+        static::assertTrue($invoice->isFullyPaid());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenThereAreNoPayments(): void
@@ -57,7 +57,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByVoucher());
+        static::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenPaymentIsTransaction(): void
@@ -67,7 +67,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByVoucher());
+        static::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsFalseWhenPaymentsAreMixed(): void
@@ -80,7 +80,7 @@ class InvoiceTest extends TestCase
         $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $voucherPayment->setAmount(50);
 
-        self::assertFalse($invoice->isFullyPaidByVoucher());
+        static::assertFalse($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByVoucherReturnsTrueWhenPaymentIsVoucher(): void
@@ -91,7 +91,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(100);
 
-        self::assertTrue($invoice->isFullyPaidByVoucher());
+        static::assertTrue($invoice->isFullyPaidByVoucher());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenThereAreNoPayments(): void
@@ -99,7 +99,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByTransaction());
+        static::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenPaymentIsVoucher(): void
@@ -109,7 +109,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByTransaction());
+        static::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsFalseWhenPaymentsAreMixed(): void
@@ -123,7 +123,7 @@ class InvoiceTest extends TestCase
         $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
         $voucherPayment->setAmount(50);
 
-        self::assertFalse($invoice->isFullyPaidByTransaction());
+        static::assertFalse($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByTransactionReturnsTrueWhenPaymentIsTransaction(): void
@@ -134,7 +134,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
         $payment->setAmount(100);
 
-        self::assertTrue($invoice->isFullyPaidByTransaction());
+        static::assertTrue($invoice->isFullyPaidByTransaction());
     }
 
     public function testIsFullyPaidByPayPalReturnsFalseWhenThereAreNoPayments(): void
@@ -142,7 +142,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByPayPal());
+        static::assertFalse($invoice->isFullyPaidByPayPal());
     }
 
     public function testIsFullyPaidByPayPalReturnsFalseWhenPaymentIsTransaction(): void
@@ -152,7 +152,7 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(100);
 
-        self::assertFalse($invoice->isFullyPaidByPayPal());
+        static::assertFalse($invoice->isFullyPaidByPayPal());
     }
 
     public function testIsFullyPaidByPayPalReturnsFalseWhenPaymentsAreMixed(): void
@@ -166,7 +166,7 @@ class InvoiceTest extends TestCase
         $voucherPayment = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
         $voucherPayment->setAmount(50);
 
-        self::assertFalse($invoice->isFullyPaidByPayPal());
+        static::assertFalse($invoice->isFullyPaidByPayPal());
     }
 
     public function testIsFullyPaidByPayPalReturnsTrueWhenPaymentIsPayPal(): void
@@ -177,6 +177,6 @@ class InvoiceTest extends TestCase
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
         $payment->setAmount(100);
 
-        self::assertTrue($invoice->isFullyPaidByPayPal());
+        static::assertTrue($invoice->isFullyPaidByPayPal());
     }
 }

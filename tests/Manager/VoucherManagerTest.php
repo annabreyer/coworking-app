@@ -48,8 +48,8 @@ class VoucherManagerTest extends KernelTestCase
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
         $vouchers = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
-        self::assertCount(10, $vouchers);
-        self::assertContainsOnlyInstancesOf(Voucher::class, $vouchers);
+        static::assertCount(10, $vouchers);
+        static::assertContainsOnlyInstancesOf(Voucher::class, $vouchers);
     }
 
     public function testCreateVouchersSetsADifferentCodeForAllVouchers(): void
@@ -58,7 +58,7 @@ class VoucherManagerTest extends KernelTestCase
         $this->databaseTool->loadFixtures([
             BasicFixtures::class,
             VoucherFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -73,7 +73,7 @@ class VoucherManagerTest extends KernelTestCase
             $codes[] = $voucher->getCode();
         }
 
-        self::assertCount(10, array_unique($codes));
+        static::assertCount(10, array_unique($codes));
     }
 
     public function testCreateVouchersSetsTheCorrectExpirationDate(): void
@@ -83,7 +83,7 @@ class VoucherManagerTest extends KernelTestCase
         $this->databaseTool->loadFixtures([
             BasicFixtures::class,
             VoucherFixtures::class,
-            PriceFixtures::class
+            PriceFixtures::class,
         ]);
 
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
@@ -94,7 +94,7 @@ class VoucherManagerTest extends KernelTestCase
 
         $vouchers       = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
         $expirationDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');
-        self::assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
+        static::assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
     }
 
     protected function tearDown(): void

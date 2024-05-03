@@ -81,21 +81,21 @@ class InvoiceGeneratorTest extends KernelTestCase
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
 
-        $booking     = static::getContainer()->get(BookingRepository::class)
+        $booking = static::getContainer()->get(BookingRepository::class)
                              ->findOneBy([
                                  'room'        => $room,
                                  'businessDay' => $businessDay,
-                                 'user' => $user
+                                 'user'        => $user,
                              ])
         ;
 
-        $this->assertNotNull($booking);
+        static::assertNotNull($booking);
 
         $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
                           ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
 
-        $this->assertNotNull($invoice);
+        static::assertNotNull($invoice);
         $invoice->addBooking($booking);
 
         $this->expectException(\Exception::class);
@@ -120,7 +120,7 @@ class InvoiceGeneratorTest extends KernelTestCase
         $this->databaseTool->loadFixtures([
             BookingFixtures::class,
             InvoiceFixtures::class,
-            VoucherFixtures::class
+            VoucherFixtures::class,
         ]);
 
         $singlePrice      = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
@@ -135,7 +135,7 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateVoucherInvoiceThrowsExceptionIfPriceHasNoVoucherType(): void
     {
         $this->databaseTool->loadFixtures([
-            VoucherFixtures::class
+            VoucherFixtures::class,
         ]);
 
         $voucherPrice = new Price();
@@ -156,7 +156,7 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGenerateVoucherInvoiceThrowsExceptionIfInvoiceVoucherCountDoesNotMatchVoucherType(): void
     {
         $this->databaseTool->loadFixtures([
-            VoucherFixtures::class
+            VoucherFixtures::class,
         ]);
 
         $voucherPrice     = static::getContainer()->get(PriceRepository::class)->findActiveVoucherPrices()[0];
@@ -174,7 +174,7 @@ class InvoiceGeneratorTest extends KernelTestCase
     public function testGetTargetDirectoryIsComposedOfYearAndMonth(): void
     {
         $this->databaseTool->loadFixtures([
-            InvoiceFixtures::class
+            InvoiceFixtures::class,
         ]);
         $invoice = static::getContainer()
                           ->get(InvoiceRepository::class)
@@ -182,7 +182,7 @@ class InvoiceGeneratorTest extends KernelTestCase
 
         $invoiceGenerator = $this->getInvoiceGenerator();
         $expectedPath     = 'invoiceDirectory/2024/03';
-        self::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
+        static::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
     }
 
     private function getInvoiceGenerator(): InvoiceGenerator
