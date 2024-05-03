@@ -8,7 +8,6 @@ use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\BookingFixtures;
 use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\DataFixtures\BookingWithOutInvoiceFixture;
-use App\DataFixtures\BookingWithPaymentFixture;
 use App\DataFixtures\InvoiceFixtures;
 use App\DataFixtures\VoucherFixtures;
 use App\Entity\Invoice;

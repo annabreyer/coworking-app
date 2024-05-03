@@ -149,7 +149,6 @@ class BookingPaymentController extends AbstractController
         Request $request,
         PayPalService $payPalService,
         PaymentManager $paymentManager,
-        EntityManagerInterface $entityManager
     ): Response {
         try {
             $booking = $this->bookingRepository->findOneBy(['uuid' => $uuid]);
@@ -185,25 +184,20 @@ class BookingPaymentController extends AbstractController
             return $this->json(['error' => 'Payload is empty.', 'targetUrl' => $targetUrl], Response::HTTP_BAD_REQUEST);
         }
 
-        $entityManager->getConnection()->beginTransaction();
-        try {
-            $payPalOrder = $paymentManager->getPayPalOrder($booking->getInvoice());
-            $success     = $payPalService->handlePayment($payPalOrder, $payload['data']);
+        if ($payPalService->handlePayment($booking->getInvoice(), $payload['data'])) {
 
-            if ($success) {
-                $paymentManager->finalizePaypalPayment($booking, $payPalOrder);
-            }
+            $paymentManager->finalizePaypalPayment($booking->GetInvoice());
+            $this->bookingManager->handleBookingPaidByPaypal($booking);
 
-            $entityManager->getConnection()->commit();
-        } catch (\Exception $exception) {
-            $entityManager->getConnection()->rollBack();
-            throw $exception; //@todo better error handling
+            $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
+
+            return $this->json(['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl], Response::HTTP_OK);
         }
 
-        $this->bookingManager->handleBookingPaymentByInvoice($booking);
-        $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
 
-        return $this->json(['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl], Response::HTTP_OK);
+        $targetUrl = $this->generateUrl('booking_payment_paypal', ['uuid' => $booking->getUuid()]);
+
+        return $this->json(['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl], Response::HTTP_BAD_REQUEST);
     }
 
 

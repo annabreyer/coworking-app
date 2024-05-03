@@ -41,10 +41,6 @@ class Payment
     #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Transaction $transaction = null;
 
-    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'payments')]
-    #[ORM\Column(name: 'paypal_order_id', nullable: true)]
-    private ?PayPalOrder $payPalOrder = null;
-
     /**
      * @return array<string>
      */
@@ -143,17 +139,5 @@ class Payment
     public function isPayPalPayment(): bool
     {
         return self::PAYMENT_TYPE_PAYPAL === $this->type;
-    }
-
-    public function getPayPalOrder(): ?PayPalOrder
-    {
-        return $this->payPalOrder;
-    }
-
-    public function setPayPalOrder(?PayPalOrder $payPalOrder): static
-    {
-        $this->payPalOrder = $payPalOrder;
-
-        return $this;
     }
 }

@@ -92,7 +92,7 @@ class BookingManager
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, 0);
+            $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $booking->getAmount());
             $this->paymentManager->handleVoucherPayment($invoice, $voucher);
 
             $this->entityManager->getConnection()->commit();
@@ -103,5 +103,12 @@ class BookingManager
 
         $this->invoiceManager->generateBookingInvoicePdf($invoice);
         $this->invoiceManager->sendBookingInvoiceToUser($invoice);
+    }
+
+    public function handleBookingPaidByPaypal(Booking $booking): void
+    {
+        $this->invoiceManager->generateBookingInvoicePdf($booking->getInvoice());
+        $this->invoiceManager->sendBookingInvoiceToUser($booking->getInvoice());
+        $this->invoiceManager->sendInvoiceToDocumentVault($booking->getInvoice());
     }
 }

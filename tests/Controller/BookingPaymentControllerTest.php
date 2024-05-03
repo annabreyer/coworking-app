@@ -18,12 +18,13 @@ use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
+use App\Repository\PaymentRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use App\Repository\VoucherRepository;
 use App\Service\InvoiceGenerator;
+use App\Service\PayPalService;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -35,7 +36,6 @@ class BookingPaymentControllerTest extends WebTestCase
     use ClockSensitiveTrait;
 
     public const FAKE_UUID = 'hyf-5678-hnbgyu';
-    protected ?AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
@@ -622,6 +622,84 @@ class BookingPaymentControllerTest extends WebTestCase
         $this->assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
     }
 
+    public function testCapturePayPalPaymentReturnsTargetUrlWhenCaptureIsNotSuccessfull(): void
+    {
+        $client            = static::createClient();
+        $mockPaypalService = $this->getMockBuilder(PayPalService::class)
+                                  ->disableOriginalConstructor()
+                                  ->onlyMethods(['handlePayment'])
+                                  ->getMock();
+
+        $mockPaypalService->method('handlePayment')->willReturn(false);
+
+        static::getContainer()->set(PayPalService::class, $mockPaypalService);
+
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
+        $booking = $this->getBooking($bookingUser, $date);
+        $this->assertNotNull($booking->getInvoice());
+
+        $client->request(
+            'POST',
+            '/booking/' . $booking->getUuid() . '/paypal/capture',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['data' => ['orderID' => '123456']])
+        );
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertSame('Payment has not been processed.', $data['error']);
+        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/paypal', $data['targetUrl']);
+    }
+    public function testCapturePayPalPaymentCreatesPaymentAndReturnsTargetUrlWhenCaptureIsSuccessfull(): void
+    {
+        $client            = static::createClient();
+        $mockPaypalService = $this->getMockBuilder(PayPalService::class)
+                                  ->disableOriginalConstructor()
+                                  ->onlyMethods(['handlePayment'])
+                                  ->getMock();
+
+        $mockPaypalService->method('handlePayment')->willReturn(true);
+
+        static::getContainer()->set(PayPalService::class, $mockPaypalService);
+
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $date    = new \DateTimeImmutable(BookingWithInvoiceNoPaymentFixture::BUSINESS_DAY_DATE);
+        $booking = $this->getBooking($bookingUser, $date);
+        $this->assertNotNull($booking->getInvoice());
+
+        $client->request(
+            'POST',
+            '/booking/' . $booking->getUuid() . '/paypal/capture',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['data' => ['orderID' => '123456']])
+        );
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $paymentRepository = static::getContainer()->get(PaymentRepository::class);
+        $payment           = $paymentRepository->findOneBy(['invoice' => $booking->getInvoice(), 'type'=> Payment::PAYMENT_TYPE_PAYPAL]);
+        $this->assertNotNull($payment);
+        $this->assertSame('Payment has been processed.', $data['success']);
+        $this->assertSame('/booking/' . $booking->getUuid() . '/payment/confirmation', $data['targetUrl']);
+    }
     public function testPayWithVoucherLogsErrorAndRedirectsWhenBookingIsNotFound(): void
     {
         $client       = static::createClient();
@@ -1108,6 +1186,5 @@ class BookingPaymentControllerTest extends WebTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->databaseTool = null;
     }
 }
