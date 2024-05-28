@@ -1,29 +1,26 @@
-{%  extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}{{ 'voucher.purchase.title'|trans }}{% endblock %}
-
-{% block body %}
-    <h1>{{ 'voucher.purchase.title'|trans }}</h1>
-
-    {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
-    {% endfor %}
-
+{% block header %}{{ 'voucher.purchase.title'|trans }}{% endblock %}
+{% block content %}
     <form method="POST" action="{{ path('voucher_index') }}">
         <select name="voucherPrice">
             {% for voucherPrice in voucherPrices %}
                 <option value="{{ voucherPrice.id }}">
-                    {{ voucherPrice.voucherType.units }} {{ 'voucher.purchase.units'|trans }} - {{ voucherPrice.amount/100 }} EUR
+                    {{ voucherPrice.voucherType.units }} {{ 'voucher.purchase.units'|trans }}
+                    - {{ voucherPrice.amount/100 }} EUR
                 </option>
             {% endfor %}
         </select>
-        <label for="paymentMethod">{{ 'payment_method'|trans }}</label>
-        {% for paymentMethod in paymentMethods %}
-            <input type="radio" id="{{ paymentMethod }}" name="paymentMethod" value="{{ paymentMethod }}">
-            <label for="{{ paymentMethod }}">{{ paymentMethod|trans }}</label><br>
-        {% endfor %}
+        <div>
+            <label for="paymentMethod">{{ 'payment_method'|trans }}</label><br>
+            {% for paymentMethod in paymentMethods %}
+                <input type="radio" id="{{ paymentMethod }}" name="paymentMethod" value="{{ paymentMethod }}">
+                <label for="{{ paymentMethod }}">{{ paymentMethod|trans }}</label><br>
+            {% endfor %}
+        </div>
 
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
-        <input type="submit" value="{{ 'voucher.purchase.form.action'|trans }}">
+        <button type="submit">{{ 'voucher.purchase.form.action'|trans }}</button>
     </form>
 {% endblock %}

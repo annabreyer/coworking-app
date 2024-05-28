@@ -1,15 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ 'booking.page.title'|trans }}{% endblock %}
+{% block header %}{{ 'booking.page.title'|trans }}{% endblock %}
 
-
-{% block body %}
-    <h1>{{ 'booking.page.title'|trans }}</h1>
-
-    {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
-    {% endfor %}
-
+{% block main  %}
+    <section>
     <form id="form-date" method="post" action="{{ path('booking_step_date') }}">
         <label for="date">{{ 'booking.page.form.date.label'|trans }}</label>
         <input type="date" id="date" name="date"
@@ -18,7 +13,8 @@
                value="{{ date }}">
         <input type="hidden" name="token_date" value="{{ csrf_token('date') }}">
     </form>
-
+    </section>
+    <section>
     {% if step == 2 %}
         <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
             <label for="room">{{ 'booking.page.form.room.label'|trans }}</label>
@@ -29,21 +25,22 @@
                     </option>
                 {% endfor %}
             </select>
-            <button type="submit">{{ 'booking.page.form.action'|trans }}</button>
+            <br>
             <input type="hidden" name="token" value="{{ csrf_token('room') }}">
+            <button type="submit">{{ 'booking.page.form.action'|trans }}</button>
         </form>
     {% endif %}
 
     {%  for price in prices %}
         {%  if price.isVoucher %}
-            <p>{{ 'price.voucher'|trans }}: {{ price.amount/100 }} € ({{ price.voucherType.units }} {{ 'price.voucher.units'|trans }})</p>
+            <p><a href="{{ path('voucher_index') }}"> {{ 'price.voucher'|trans }}: {{ price.amount/100 }} € ({{ price.voucherType.units }} {{ 'price.voucher.units'|trans }})</a></p>
         {%  elseif price.isUnitary %}
             <p>{{ 'price.unitary'|trans }}: {{ price.amount/100 }} €</p>
         {% elseif price.isSubscription %}
             <p>{{ 'price.subscription'|trans }}: {{ price.amount/100 }} €</p>
         {%  endif %}
     {% endfor %}
-
+    </section>
     <script>
         document.getElementById('date').addEventListener('change', function () {
             this.form.submit();

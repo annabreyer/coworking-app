@@ -11,7 +11,6 @@ parameters:
   invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_prefix: 'CO'
   client_number_prefix: 'CO'
-  available_payment_methods: ['invoice', 'paypal']
 
 services:
     # default configuration for services in *this* file
@@ -25,7 +24,6 @@ services:
           $invoicePrefix: '%invoice_prefix%'
           $invoiceDirectory: '%invoice_directory%'
           $invoiceClientNumberPrefix: '%client_number_prefix%'
-          $availablePaymentMethods: '%available_payment_methods%'
           $documentVaultEmail: '%document_vault_email%'
           $paypalFormAction: '%env(PAYPAL_FORM_ACTION)%'
           $paypalBusinessId: '%env(PAYPAL_BUSINESS_ID)%'

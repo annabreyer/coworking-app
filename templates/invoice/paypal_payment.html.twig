@@ -1,17 +1,26 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{% endblock %}
+{% block javascripts %}
+<script src="https://www.paypal.com/sdk/js?{{ parameters|raw }}"></script>
+{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+    {%  if invoice.isBookingInvoice %}
+    {{'booking.invoice.description'|trans({
+        '%date%' : invoice.bookings.first.businessDay.Date|date('d.m.Y'),
+        '%room%' : invoice.bookings.first.room.name,
+    })}}
 
-{% block body %}
+    {% endif %}
+    {% if invoice.isVoucherInvoice %}
+        {{  'voucher.invoice.description'|trans({
+        '%units%'          : invoice.vouchers.first.voucherType.units,
+        '%validityMonths%' : invoice.vouchers.first.voucherType.getValidityMonths,
+        }) }};
+    {% endif %}
 
-    <h1>{{ 'Booking'|trans }}</h1>
-    You have made the following booking:
-
-    <ul>
-        <li>Room: {{ booking.room.name }}</li>
-        <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
-        <li>Amount: {{ booking.amount / 100 }} EUR</li>
-    </ul>
+     {{  (invoice.amount / 100)|number_format(2, ',', '.')}} EUR
 
     {% for error in app.flashes('error') %}
         <div class="alert alert-danger" role="alert">{{ error }}</div>
@@ -22,18 +31,17 @@
     {% endfor %}
 
     <div id="paypal-button-container" style="width: 300px"></div>
-    <script src="https://www.paypal.com/sdk/js?{{ parameters|raw }}"></script>
     <script>
         paypal.Buttons({
             createOrder: (data, actions) => {
                 return actions.order.create({
-                    intent: 'authorize',  // authorize for capture via backend
+                    intent: 'capture',  // authorize for capture via backend
                     purchase_units: [{
                         amount: {
-                            value: {{ booking.amount / 100 }},
+                            value: {{ invoice.amount / 100 }},
                         },
-                        description: '{{ booking }}',
-                        invoice_id: '{{ booking.invoice.number }}',
+                        description: '{{ invoice.number }}',
+                        invoice_id: '{{ invoice.number }}',
                     }],
                     application_context: {
                         brand_name: 'Ensemble Coworking Hahnheim',
@@ -44,7 +52,7 @@
             // Finalizes the transaction after payer approval
             onApprove: (data) => {
                 //@todo Spinner while processing
-                fetch('{{ path('booking_paypal_capture', {'uuid': booking.uuid}) }}', {
+                fetch('{{ path('invoice_payment_paypal_capture', {'uuid': invoice.uuid}) }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -55,6 +63,7 @@
                 }).then(function(response) {
                     return response.json();
                 }).then(function(data) {
+                    console.log(data);
                     window.location.href = data.targetUrl;
             })},
             // The user closed the window

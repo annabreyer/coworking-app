@@ -1,23 +1,22 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ 'booking.payment.title'|trans }}{% endblock %}
+{% block header %}{{ 'booking.payment.title'|trans }}{% endblock %}
 
-{% block body %}
-    <h1>{{ 'booking.payment.title'|trans }}</h1>
-    You have made the following booking:
+{% block main %}
+        <h2>You have made the following booking:</h2>
 
-    <ul>
-        <li>Room: {{ booking.room.name }}</li>
-        <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
-        <li>Price: {{ unitaryPrice.amount/100 }} EUR</li>
-    </ul>
+        <ul>
+            <li>Room: {{ booking.room.name }}</li>
+            <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
+            <li>Price: {{ unitaryPrice.amount/100 }} EUR</li>
+        </ul>
 
-    {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
-    {% endfor %}
+        {% for error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
+        {% endfor %}
 
-    Please choose your payment method.
-    <div>
+        <h3>Please choose your payment method.</h3>
         <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
             <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
             <input type="radio" id="paypal" name="paymentMethod" value="paypal">
@@ -30,11 +29,9 @@
             <br>
             <button type="submit">{{ 'booking.payment.form.action'|trans }}</button>
         </form>
-    </div>
 
-    If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a>
+        <p>If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a></p>
 
-    Payment is due at least 24h before the booking date.
-    Please note that cash payments are not accepted.
-
+        <p>Payment is due at least 24h before the booking date.<br>
+            Please note that cash payments are not accepted.</p>
 {% endblock %}

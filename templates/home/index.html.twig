@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    <h1>{% trans %}Welcome!{% endtrans %}</h1>
+{% block title %}{{ 'index.page.title'|trans }}{% endblock %}
+{% block header %}{{ 'index.page.title'|trans }}{% endblock %}
 
+{% block content %}
     {% for message in app.flashes('success') %}
         <div class="flash-success">
             {{ message|trans }}
@@ -14,11 +15,4 @@
             {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.
         </div>
     {% endif %}
-
-    <a href="{{ path('app_login') }}">Login</a>
-    <a href="{{ path('app_logout') }}">Logout</a>
-    <a href="{{ path('app_forgot_password_request') }}">Forgot Password</a>
-    <a href="{{ path('app_register') }}">Register</a>
-    <a href="{{ path('user_edit') }}">Edit</a>
-    <a href="{{ path('booking_step_date')}}">Booking</a>
 {% endblock %}

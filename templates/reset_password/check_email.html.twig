@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% trans %}reset_password.email_sent_page.title{% endtrans %}{% endblock %}
-
-{% block body %}
+{% block title %}{{'reset_password.email_sent_page.title'|trans}}{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
     <p>
-        {% trans %}reset_password.email_sent_page.info{% endtrans %}<br />
+        {{'reset_password.email_sent_page.info'|trans}}<br />
         {% trans with {'%timeLimit%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') } %}reset_password.email_sent_page.link_expiration{% endtrans %}
     </p>
     <p>

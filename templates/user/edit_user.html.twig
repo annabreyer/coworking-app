@@ -1,24 +1,24 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ 'user_account.edit_data.title'|trans }}{% endblock %}
+{% block header %}{{ 'user_account.edit_data.title'|trans }}{% endblock %}
 
-{% block body %}
-    <h1>{{ 'user_account.edit_data.title'|trans }}</h1>
+{% block content %}
     {{ form_errors(userForm) }}
 
-    {{ form_start(userForm) }}
-    {{ form_row(userForm.firstName) }}
-    {{ form_row(userForm.lastName) }}
-    {{ form_row(userForm.birthDate) }}
+        {{ form_start(userForm) }}
+        {{ form_row(userForm.firstName) }}
+        {{ form_row(userForm.lastName) }}
+        {{ form_row(userForm.birthDate) }}
 
-    {{ form_row(userForm.mobilePhone) }}
+        {{ form_row(userForm.mobilePhone) }}
 
-    {{ form_row(userForm.email) }}
+        {{ form_row(userForm.email) }}
 
-    {{ form_row(userForm.street) }}
-    {{ form_row(userForm.postCode) }}
-    {{ form_row(userForm.city) }}
+        {{ form_row(userForm.street) }}
+        {{ form_row(userForm.postCode) }}
+        {{ form_row(userForm.city) }}
 
-    <button type="submit" class="btn">{{ 'user_account.edit_data.form.action'|trans }}</button>
-    {{ form_end(userForm) }}
+        <button type="submit" class="btn">{{ 'user_account.edit_data.form.action'|trans }}</button>
+        {{ form_end(userForm) }}
 {% endblock %}

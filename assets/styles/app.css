@@ -1,3 +1,65 @@
-body {
-    background-color: skyblue;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: "MiamoRegular";
+        src: url('../fonts/webFonts/MiamoRegular/font.woff2') format('woff2'), url('../fonts/webFonts/MiamoRegular/font.woff') format('woff');
+    }
+    @font-face {
+        font-family: "MiamoScript";
+        src: url('../fonts/webFonts/MiamoScript/font.woff2') format('woff2'), url('../fonts/webFonts/MiamoScript/font.woff') format('woff');
+    }
+    header {
+        @apply bg-gradient-to-r from-blue via-blue-darkest to-blue;
+        @apply my-4;
+        @apply text-silverpink;
+
+        nav ul li a {
+            @apply text-xl;
+        }
+    }
+
+    h1 {
+        @apply text-5xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h2 {
+        @apply text-4xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h3 {
+        @apply text-3xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h4 {
+        @apply text-2xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    p {
+        @apply text-base;
+        @apply font-Helvetica;
+        @apply my-4;
+    }
+
+    main button {
+        @apply bg-red;
+        @apply text-yellow;
+        @apply px-4;
+        @apply py-2;
+        @apply rounded;
+        @apply my-4;
+    }
+    button:hover {
+        @apply bg-red-dark;
+    }
 }

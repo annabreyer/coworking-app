@@ -1,59 +1,56 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ 'user_account.bookings.title'|trans }}{% endblock %}
 
-{% block body %}
-    <h1>{{ 'user_account.bookings.title'|trans }}</h1>
-
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success" role="alert">{{ message|trans }}</div>
-    {% endfor %}
-
-    {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
-    {% endfor %}
-
-    <div class="mb-3">
-        <a href="{{ path('booking_step_date') }}" class="btn btn-primary">{{ 'user_account.bookings.new_button'|trans }}</a>
-    </div>
-
-    {% if user.bookings.isEmpty %}
-        {{ 'user_account.bookings.no_bookings'|trans }}
-    {% endif %}
-
-    <h2>{{ 'user_account.bookings.future_bookings.title'|trans }}</h2>
-
-    {% for booking in futureBookings %}
-        <div>
-            {{ booking.businessDay.date|date('Y-m-d') }}
-            {{ booking.room.name }}
-            {% if booking.businessDay.date > limit %}
-                <form action="{{ path('booking_cancel', {'uuid': booking.uuid })}}" method="post">
-                    <input type="hidden" name="bookingId" value="{{ booking.id }}">
-
-                    <button type="submit">{{ 'user_account.bookings.cancel_button'|trans }}</button>
-                </form>
-            {% endif %}
-
-            {% if booking.invoice %}
-                <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
-            {% endif %}
-
-            {% if booking.invoice.isFullyPaid != true %}
-                <a href="{{ path('booking_payment_paypal', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.paypal_link'|trans }}</a>
-            {% endif %}
-
+{% block header %}{{ 'user_account.bookings.title'|trans }}{% endblock %}
+{% block content %}
+        <div class="mb-3">
+            <a href="{{ path('booking_step_date') }}"
+               class="btn btn-primary">{{ 'user_account.bookings.new_button'|trans }}</a>
         </div>
-    {% endfor %}
+
+        {% if user.bookings.isEmpty %}
+            {{ 'user_account.bookings.no_bookings'|trans }}
+        {% endif %}
+
+        <h2>{{ 'user_account.bookings.future_bookings.title'|trans }}</h2>
+
+        {% for booking in futureBookings %}
+            <div>
+                {{ booking.businessDay.date|date('Y-m-d') }}
+                {{ booking.room.name }}
+                {% if booking.businessDay.date > limit %}
+                    <form action="{{ path('booking_cancel', {'uuid': booking.uuid }) }}" method="post">
+                        <input type="hidden" name="bookingId" value="{{ booking.id }}">
+
+                        <button type="submit">{{ 'user_account.bookings.cancel_button'|trans }}</button>
+                    </form>
+                {% endif %}
+
+                {% if booking.invoice %}
+                    <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}"
+                       target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
+
+
+                    {% if booking.invoice.isFullyPaid != true %}
+                        <a href="{{ path('invoice_payment_paypal', {'uuid': booking.invoice.uuid }) }}"
+                           target="_blank">{{ 'user_account.bookings.paypal_link'|trans }}</a>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+        {% endfor %}
 
     <h2>{{ 'user_account.bookings.this_year_bookings.title'|trans }}</h2>
 
     {% for booking in thisYearBookings %}
         <div>
-        {{ booking.businessDay.date|date('Y-m-d') }}
-        {{ booking.room.name }}
-        {% if booking.invoice %}
-            <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}" target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
-        {% endif %}
+            {{ booking.businessDay.date|date('Y-m-d') }}
+            {{ booking.room.name }}
+            {% if booking.invoice %}
+                <a href="{{ path('invoice_download', {'uuid': booking.invoice.uuid }) }}"
+                   target="_blank">{{ 'user_account.bookings.invoice_link'|trans }}</a>
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

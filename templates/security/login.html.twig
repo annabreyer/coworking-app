@@ -1,10 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {% trans %}login.page.title{% endtrans %}
-{% endblock %}
-
-{% block body %}
+{% block title %}{{ 'login.page.title'|trans }}{% endblock %}
+{% block header %}{{ 'login.page.title'|trans }}{% endblock %}
+{% block content %}
     <form method="post">
         {% if error %}
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -12,22 +10,24 @@
 
         {% if app.user %}
             <div class="mb-3">
-                {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}},
+                {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier}) }},
                 <a href="{{ path('app_logout') }}">logout</a>
             </div>
         {% endif %}
 
-        <h1 class="h3 mb-3 font-weight-normal">{% trans %}login.form.title{% endtrans %}</h1>
+        <h2>{{ 'login.form.title'|trans }}</h2>
         <label for="username">{% trans %}email{% endtrans %}</label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control"
+               autocomplete="email" required autofocus>
         <label for="password">{% trans %}password{% endtrans %}</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password"
+               required>
 
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}"
         >
 
-        <button class="btn btn-lg btn-primary" type="submit">
+        <button class="btn" type="submit">
             {% trans %}login.form.button{% endtrans %}
         </button>
     </form>

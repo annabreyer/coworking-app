@@ -2,28 +2,29 @@
 
 {% block title %}{{ 'Booking'|trans }}{% endblock %}
 
-{% block body %}
-    <h1>{{ 'Booking'|trans }}</h1>
-    You have made the following booking:
+{% block header %}{{ 'Booking'|trans }}§{% endblock %}
+{% block main %}
+        <h2>You have made the following booking:</h2>
 
-    <ul>
-        <li>Room: {{ booking.room.name }}</li>
-        <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
-    </ul>
+        <ul>
+            <li>Room: {{ booking.room.name }}</li>
+            <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
+        </ul>
 
-    {% for error in app.flashes('error') %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
-    {% endfor %}
+        {% for error in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endfor %}
 
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success" role="alert">{{ message }}</div>
-    {% endfor %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success" role="alert">{{ message }}</div>
+        {% endfor %}
 
-    <form method="post">
-        <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
-        <label for="voucher">{{ 'Voucher'|trans }}</label>
-        <input id="voucher" type="text" name="voucher" placeholder="{{ 'Voucher'|trans }}">
-        <input type="submit" value="{{ 'Confirm'|trans }}" class="btn btn-primary">
-    </form>
-    <div>You can find your already bought vouchers in your <a href="{{ path('user_vouchers') }}">account.</a> </div>
+        <form method="post">
+            <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
+            <label for="voucher">{{ 'Voucher'|trans }}</label>
+            <input id="voucher" type="text" name="voucher" placeholder="{{ 'Voucher'|trans }}">
+            <input type="submit" value="{{ 'Confirm'|trans }}" class="btn btn-primary">
+        </form>
+
+        <p>You can find your already bought vouchers in your <a href="{{ path('user_vouchers') }}">account.</a></p>
 {% endblock %}
