@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Manager;
 
+use App\Entity\Invoice;
 use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
@@ -25,11 +26,11 @@ class VoucherManager
         return mb_strtoupper(bin2hex(random_bytes(5)));
     }
 
-    public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue): Collection
+    public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue, Invoice $invoice): void
     {
         $vouchers        = $voucherType->getUnits();
         $validityMonths  = $voucherType->getValidityMonths() ?? 0;
-        $createdVouchers = new ArrayCollection();
+
         for ($i = 0; $i < $vouchers; ++$i) {
             $voucher = new Voucher();
             $voucher->setUser($user);
@@ -39,11 +40,10 @@ class VoucherManager
             $voucher->setValue($unitaryValue);
             $this->entityManager->persist($voucher);
 
-            $createdVouchers->add($voucher);
+            $invoice->addVoucher($voucher);
         }
-        $this->entityManager->flush();
 
-        return $createdVouchers;
+        $this->entityManager->flush();
     }
 
     private function calculateExpiryDate(int $validityMonths): \DateTimeImmutable

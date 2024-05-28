@@ -34,8 +34,6 @@ class BasicFixtures extends Fixture
         $this->loadUsers($manager);
         $this->loadBusinessDays($manager);
         $this->loadRooms($manager);
-        $this->loadVoucherTypes($manager);
-
         $manager->flush();
     }
 
@@ -154,26 +152,5 @@ class BasicFixtures extends Fixture
 
         $this->addReference('room1', $room);
         $this->addReference('room3', $room3);
-    }
-
-    private function loadVoucherTypes(ObjectManager $manager): void
-    {
-        $voucherType10 = new VoucherType();
-        $voucherType10->setUnits(10);
-        $voucherType10->setValidityMonths(12);
-
-        $manager->persist($voucherType10);
-        $manager->flush();
-
-        $this->addReference('voucherType10Units', $voucherType10);
-
-        $voucherType = new VoucherType();
-        $voucherType->setValidityMonths(1)
-                    ->setUnits(1);
-
-        $manager->persist($voucherType);
-        $manager->flush();
-
-        $this->addReference('single-use-voucher-type', $voucherType);
     }
 }

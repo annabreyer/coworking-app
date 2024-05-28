@@ -7,12 +7,19 @@ namespace App\DataFixtures;
 use App\Entity\Price;
 use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class PriceFixtures extends Fixture
+class PriceFixtures extends Fixture implements DependentFixtureInterface
 {
     public const SINGLE_PRICE_AMOUNT = 1500;
 
+    public function getDependencies()
+    {
+        return [
+            VoucherTypeFixtures::class,
+        ];
+    }
     public function load(ObjectManager $manager)
     {
         $this->loadPrices($manager);

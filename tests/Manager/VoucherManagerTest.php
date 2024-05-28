@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Manager;
 
 use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\InvoiceFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\DataFixtures\VoucherFixtures;
 use App\Entity\Voucher;
 use App\Manager\VoucherManager;
+use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
 use App\Repository\UserRepository;
+use App\Repository\VoucherRepository;
 use App\Repository\VoucherTypeRepository;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
@@ -35,19 +38,17 @@ class VoucherManagerTest extends KernelTestCase
     public function testCreateVouchersGeneratesVouchers(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            'App\DataFixtures\BasicFixtures',
-            'App\DataFixtures\VoucherFixtures',
-            'App\DataFixtures\PriceFixtures',
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class, VoucherFixtures::class, PriceFixtures::class, InvoiceFixtures::class]);
 
-        $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-        $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
-
+        $user           = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $singlePrice    = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
+        $voucherType    = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
+        $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $vouchers = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
+        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+
+        $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         self::assertCount(10, $vouchers);
         self::assertContainsOnlyInstancesOf(Voucher::class, $vouchers);
     }
@@ -55,19 +56,17 @@ class VoucherManagerTest extends KernelTestCase
     public function testCreateVouchersSetsADifferentCodeForAllVouchers(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $this->databaseTool->loadFixtures([
-            BasicFixtures::class,
-            VoucherFixtures::class,
-            PriceFixtures::class,
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class, VoucherFixtures::class, PriceFixtures::class, InvoiceFixtures::class]);
 
-        $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-        $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
-
+        $user           = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $singlePrice    = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
+        $voucherType    = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
+        $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $vouchers = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
+        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+
+        $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         $codes    = [];
         foreach ($vouchers as $voucher) {
             $codes[] = $voucher->getCode();
@@ -80,19 +79,17 @@ class VoucherManagerTest extends KernelTestCase
     {
         $now = new \DateTimeImmutable('2024-03-01');
         static::mockTime($now);
-        $this->databaseTool->loadFixtures([
-            BasicFixtures::class,
-            VoucherFixtures::class,
-            PriceFixtures::class,
-        ]);
+        $this->databaseTool->loadFixtures([BasicFixtures::class, VoucherFixtures::class, PriceFixtures::class, InvoiceFixtures::class]);
 
-        $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $singlePrice = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-        $voucherType = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
-
+        $user           = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $singlePrice    = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
+        $voucherType    = static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
+        $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $vouchers       = $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount());
+        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+
+        $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         $expirationDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');
         self::assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
     }

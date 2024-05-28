@@ -46,6 +46,9 @@ class Invoice
     #[ORM\Column(type: 'uuid')]
     private Uuid $uuid;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $payPalOrderId = null;
+
     public function __construct()
     {
         $this->uuid     = Uuid::v7();
@@ -210,9 +213,14 @@ class Invoice
         return $this->uuid;
     }
 
-    public function setUuid(Uuid $uuid): static
+    public function getPayPalOrderId(): ?string
     {
-        $this->uuid = $uuid;
+        return $this->payPalOrderId;
+    }
+
+    public function setPayPalOrderId(?string $payPalOrderId): static
+    {
+        $this->payPalOrderId = $payPalOrderId;
 
         return $this;
     }
@@ -273,4 +281,15 @@ class Invoice
 
         return true;
     }
+
+    public function isVoucherInvoice(): bool
+    {
+        return 0 < $this->vouchers->count();
+    }
+
+    public function isBookingInvoice(): bool
+    {
+        return 0 < $this->bookings->count();
+    }
+
 }
