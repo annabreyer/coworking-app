@@ -63,29 +63,21 @@ class InvoiceGenerator
         $this->saveInvoice($invoice);
     }
 
-    public function generateVoucherInvoice(Invoice $invoice, Price $voucherPrice): void
+    public function generateVoucherInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getId()) {
             throw new \InvalidArgumentException('Invoice must be persisted.');
         }
 
-        if (false === $voucherPrice->isVoucher()) {
-            throw new \InvalidArgumentException('Price must be a voucher.');
-        }
-
-        if (null === $voucherPrice->getVoucherType()) {
-            throw new \InvalidArgumentException('Price must have a voucher type.');
-        }
-
-        if ($voucherPrice->getVoucherType()->getUnits() !== $invoice->getVouchers()->count()) {
-            throw new \InvalidArgumentException('Voucher count does not match voucher type.');
+        if (0 === $invoice->getVouchers()->count()) {
+            throw new \InvalidArgumentException('Invoice has no vouchers.');
         }
 
         $this->setupInvoiceTemplate();
         $this->addInvoiceData($invoice);
         $this->addClientData($invoice);
         $this->writeFirstPositionNumber();
-        $this->writeVoucherDescription($voucherPrice->getVoucherType());
+        $this->writeVoucherDescription($invoice->getVouchers()->first()->getVoucherType());
         $this->writeAmount($invoice->getAmount());
         $this->writeTotalAmount($invoice->getAmount());
     }

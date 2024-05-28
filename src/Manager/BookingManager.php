@@ -77,38 +77,4 @@ class BookingManager
 
         return true;
     }
-
-    public function handleBookingPaymentByInvoice(Booking $booking): void
-    {
-        $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $booking->getAmount());
-
-        $this->invoiceManager->generateBookingInvoicePdf($invoice);
-        $this->invoiceManager->sendBookingInvoiceToUser($invoice);
-        $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
-    }
-
-    public function handleBookingPaymentByVoucher(Booking $booking, Voucher $voucher): void
-    {
-        $this->entityManager->getConnection()->beginTransaction();
-
-        try {
-            $invoice = $this->invoiceManager->createInvoiceFromBooking($booking, $booking->getAmount());
-            $this->paymentManager->handleVoucherPayment($invoice, $voucher);
-
-            $this->entityManager->getConnection()->commit();
-        } catch (\Exception $exception) {
-            $this->entityManager->getConnection()->rollBack();
-            throw $exception;
-        }
-
-        $this->invoiceManager->generateBookingInvoicePdf($invoice);
-        $this->invoiceManager->sendBookingInvoiceToUser($invoice);
-    }
-
-    public function handleBookingPaidByPaypal(Booking $booking): void
-    {
-        $this->invoiceManager->generateBookingInvoicePdf($booking->getInvoice());
-        $this->invoiceManager->sendBookingInvoiceToUser($booking->getInvoice());
-        $this->invoiceManager->sendInvoiceToDocumentVault($booking->getInvoice());
-    }
 }

@@ -115,62 +115,6 @@ class InvoiceGeneratorTest extends KernelTestCase
         $invoiceGenerator->generateBookingInvoice($invoice);
     }
 
-    public function testGenerateVoucherInvoiceThrowsExceptionIfPriceIsNoVoucherPrice(): void
-    {
-        $this->databaseTool->loadFixtures([
-            BookingFixtures::class,
-            InvoiceFixtures::class,
-            VoucherFixtures::class,
-        ]);
-
-        $singlePrice      = static::getContainer()->get(PriceRepository::class)->findActiveUnitaryPrice();
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
-        $invoiceGenerator = $this->getInvoiceGenerator();
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Price must be a voucher.');
-        $invoiceGenerator->generateVoucherInvoice($invoice, $singlePrice);
-    }
-
-    public function testGenerateVoucherInvoiceThrowsExceptionIfPriceHasNoVoucherType(): void
-    {
-        $this->databaseTool->loadFixtures([
-            VoucherFixtures::class,
-        ]);
-
-        $voucherPrice = new Price();
-        $voucherPrice->setAmount(1000)
-                     ->setIsActive(true)
-                     ->setIsVoucher(true)
-        ;
-
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
-        $invoiceGenerator = $this->getInvoiceGenerator();
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Price must have a voucher type.');
-
-        $invoiceGenerator->generateVoucherInvoice($invoice, $voucherPrice);
-    }
-
-    public function testGenerateVoucherInvoiceThrowsExceptionIfInvoiceVoucherCountDoesNotMatchVoucherType(): void
-    {
-        $this->databaseTool->loadFixtures([
-            VoucherFixtures::class,
-        ]);
-
-        $voucherPrice     = static::getContainer()->get(PriceRepository::class)->findActiveVoucherPrices()[0];
-        $invoice          = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => VoucherFixtures::VOUCHER_INVOICE_NUMBER]);
-        $invoiceGenerator = $this->getInvoiceGenerator();
-
-        $voucherPrice->getVoucherType()->setUnits(2);
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Voucher count does not match voucher type.');
-
-        $invoiceGenerator->generateVoucherInvoice($invoice, $voucherPrice);
-    }
-
     public function testGetTargetDirectoryIsComposedOfYearAndMonth(): void
     {
         $this->databaseTool->loadFixtures([

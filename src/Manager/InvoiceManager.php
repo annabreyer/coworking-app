@@ -8,10 +8,10 @@ use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Entity\User;
+use App\Entity\VoucherType;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -91,10 +91,9 @@ class InvoiceManager
             throw new \InvalidArgumentException('Invoice must have a booking');
         }
 
-        $uuid = $invoice->getBookings()->first()->getUuid();
         $link = $this->urlGenerator->generate(
-            'booking_payment_paypal',
-            ['uuid' => $uuid],
+            'invoice_payment_paypal',
+            ['uuid' => $invoice->getUuid()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
@@ -117,7 +116,7 @@ class InvoiceManager
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
 
-    public function createVoucherInvoice(User $user, Price $price, Collection $vouchers): Invoice
+    public function createVoucherInvoice(User $user, Price $price): Invoice
     {
         if (null === $price->getAmount()) {
             throw new \InvalidArgumentException('Price must have an amount.');
@@ -130,7 +129,6 @@ class InvoiceManager
                 ->setAmount($price->getAmount())
                 ->setNumber($invoiceNumber)
                 ->setDate($this->now())
-                ->setVouchers($vouchers)
         ;
 
         $this->entityManager->persist($invoice);
@@ -139,12 +137,12 @@ class InvoiceManager
         return $invoice;
     }
 
-    public function generateVoucherInvoicePdf(Invoice $invoice, Price $voucherPrice): void
+    public function generateVoucherInvoicePdf(Invoice $invoice): void
     {
-        $this->invoiceGenerator->generateVoucherInvoice($invoice, $voucherPrice);
+        $this->invoiceGenerator->generateVoucherInvoice($invoice);
     }
 
-    public function sendVoucherInvoiceToUser(Invoice $invoice, Price $voucherPrice): void
+    public function sendVoucherInvoiceToUser(Invoice $invoice): void
     {
         if (null === $invoice->getUser()) {
             throw new \InvalidArgumentException('Invoice must have a user');
@@ -155,8 +153,8 @@ class InvoiceManager
         }
 
         $link = $this->urlGenerator->generate(
-            'voucher_payment_paypal',
-            ['voucherPriceId' => $voucherPrice->getId()],
+            'invoice_payment_paypal',
+            ['uuid' => $invoice->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
