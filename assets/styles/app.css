@@ -11,13 +11,19 @@
         font-family: "MiamoScript";
         src: url('../fonts/webFonts/MiamoScript/font.woff2') format('woff2'), url('../fonts/webFonts/MiamoScript/font.woff') format('woff');
     }
+
+    body {
+        @apply bg-yellow-light;
+        @apply text-red-darkest;
+        @apply font-Helvetica;
+    }
     header {
         @apply bg-gradient-to-r from-blue via-blue-darkest to-blue;
-        @apply my-4;
         @apply text-silverpink;
 
         nav ul li a {
             @apply text-xl;
+            @apply font-MiamoRegular;
         }
     }
 
@@ -51,6 +57,11 @@
         @apply my-4;
     }
 
+    main {
+        @apply bg-yellow-light;
+        @apply text-red-darkest;
+    }
+
     main button {
         @apply bg-red;
         @apply text-yellow;
@@ -59,7 +70,7 @@
         @apply rounded;
         @apply my-4;
     }
-    button:hover {
+    main button:hover {
         @apply bg-red-dark;
     }
 }
