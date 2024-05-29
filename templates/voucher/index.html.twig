@@ -3,24 +3,38 @@
 {% block title %}{{ 'voucher.purchase.title'|trans }}{% endblock %}
 {% block header %}{{ 'voucher.purchase.title'|trans }}{% endblock %}
 {% block content %}
+<section>
     <form method="POST" action="{{ path('voucher_index') }}">
-        <select name="voucherPrice">
+        <h3>{{ 'voucher.purchase.units'|trans }}</h3>
+        <ul class="grid w-full gap-6 md:grid-cols-2">
             {% for voucherPrice in voucherPrices %}
-                <option value="{{ voucherPrice.id }}">
-                    {{ voucherPrice.voucherType.units }} {{ 'voucher.purchase.units'|trans }}
-                    - {{ voucherPrice.amount/100 }} EUR
-                </option>
+                <li>
+                    <input type="radio" id="{{ voucherPrice.id }}" name="voucherPrice" value="{{ voucherPrice.id }}" class="hidden peer" required />
+                    <label for="{{ voucherPrice.id }}" class="inline-flex items-center justify-between w-full p-5 border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-yellow peer-checked:text-yellow hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
+                        <div class="block">
+                            <div class="w-full text-lg font-semibold">{{ voucherPrice.voucherType.units }} {{ 'voucher.purchase.units'|trans }}</div>
+                            <div class="w-full">{{ voucherPrice.amount/100 }} EUR</div>
+                        </div>
+                    </label>
+                </li>
             {% endfor %}
-        </select>
-        <div>
-            <label for="paymentMethod">{{ 'payment_method'|trans }}</label><br>
+        </ul>
+
+        <h3>{{ 'payment_method'|trans }}</h3>
+        <div class="flex">
             {% for paymentMethod in paymentMethods %}
-                <input type="radio" id="{{ paymentMethod }}" name="paymentMethod" value="{{ paymentMethod }}">
-                <label for="{{ paymentMethod }}">{{ paymentMethod|trans }}</label><br>
+                <div class="flex items-center me-4">
+                    <input id="{{ paymentMethod }}" type="radio" value="{{ paymentMethod }}" name="paymentMethod"
+                           class="w-4 h-4 text-yellow focus:ring-yellow dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <label for="{{ paymentMethod }}" class="ms-2 text-md font-medium dark:text-gray-300">{{ paymentMethod|trans }}</label>
+                </div>
             {% endfor %}
         </div>
 
+
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
-        <button type="submit">{{ 'voucher.purchase.form.action'|trans }}</button>
+        <button type="submit" class="px-6 py-3.5 text-base font-medium focus:ring-4 focus:outline-none focus:ring-yellow rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            {{ 'voucher.purchase.form.action'|trans }}</button>
     </form>
+</section>
 {% endblock %}
