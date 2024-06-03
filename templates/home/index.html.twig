@@ -4,15 +4,7 @@
 {% block header %}{{ 'index.page.title'|trans }}{% endblock %}
 
 {% block content %}
-    {% for message in app.flashes('success') %}
-        <div class="flash-success">
-            {{ message|trans }}
-        </div>
-    {% endfor %}
-
     {% if app.user %}
-        <div class="mb-3">
             {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.
-        </div>
     {% endif %}
 {% endblock %}
