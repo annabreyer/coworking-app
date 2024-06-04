@@ -1,9 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'booking.confirmation'|trans }}{% endblock %}
-{% block header %}{{ 'booking.confirmation'|trans }}{% endblock %}
+{% block title %}{{ 'booking.confirmation.page.title'|trans }}{% endblock %}
+{% block header %}{{ 'booking.confirmation.page.title'|trans }}{% endblock %}
 
-{% block main %}
-   <p> Your invoice has been sent to your email address. You can also download it by clicking the link below:
-    <a href="{{ path('invoice_download', {'uuid': invoice.uuid}) }}">Download invoice</a></p>
+{% block content %}
+    <section class="self-center">
+        <p>{{ 'booking.confirmation.page.text'|trans }}</p>
+        <button>
+            <a href="{{ path('invoice_download', {'uuid': invoice.uuid}) }}" target="_blank">
+                {{ 'booking.confirmation.page.button'|trans }}
+            </a>
+        </button>
+    </section>
 {% endblock %}

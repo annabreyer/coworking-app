@@ -92,7 +92,6 @@ booking:
       date.label: 'Datum'
       room.label: 'Raum'
       action: 'Buchen'
-  confirmation: 'Deine Buchung wurde bestätigt.'
   invoice:
     description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
@@ -109,6 +108,17 @@ booking:
     title: 'Zahlung'
     form:
       action: 'Bezahlen'
+    info_section:
+      title: 'Zahlungsinformationen'
+      point_1: 'Bitte beachte, dass Deine Buchung erst nach Zahlungseingang gültig ist.'
+      point_2: 'Stornierungen sind bis 24 Stunden vor Buchungsdatum möglich.'
+      point_3: 'Bei Stornierungen innerhalb von 24 Stunden vor Buchungsdatum wird der volle Betrag fällig.'
+      button: 'Gutscheine kannst Du hier kaufen!'
+  confirmation:
+    page:
+      title: 'Deine Buchung wurde bestätigt.'
+      text: 'Deine Rechnung wurde per E-Mail versendet. Du kannst sie auch hier herunterladen.'
+      button: 'Rechnung herunterladen'
 
 
 #voucher purchase Page

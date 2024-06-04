@@ -4,34 +4,60 @@
 {% block header %}{{ 'booking.payment.title'|trans }}{% endblock %}
 
 {% block main %}
-        <h2>You have made the following booking:</h2>
+    <section class="self-center">
+        <h3>{{ 'booking.payment.recap.card.title'|trans }}</h3>
+        <div class="flex flex-col items-center bg-yellow border border-red text-red rounded-lg shadow md:flex-row md:max-w-xl mx-auto">
+            <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+                 src="{{ asset('images/booking.png') }}" alt="">
+            <div class="flex flex-col justify-between p-4 leading-normal">
+                <h5 class="mb-2 text-2xl font-bold tracking-tight">
+                    {{ 'booking.payment.recap.card.date'|trans }} {{ booking.businessDay.date|date('d.m.Y') }}
+                </h5>
+                <p class="mb-3 font-normal">
+                    {{ 'booking.payment.recap.card.room'|trans }} {{ booking.room.name }}</p>
+                <p class="mb-3 font-normal">
+                    {{ 'booking.payment.recap.card.price'|trans }} {{ unitaryPrice.amount/100 }} EUR</p>
+            </div>
+        </div>
 
-        <ul>
-            <li>Room: {{ booking.room.name }}</li>
-            <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
-            <li>Price: {{ unitaryPrice.amount/100 }} EUR</li>
-        </ul>
+        <div class="mt-10">
+            <h3>{{ 'booking.payment.payment_form.title'|trans }}</h3>
+            <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
+                <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
+                <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="text-yellow my-2">
+                <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
+                <input type="radio" id="voucher" name="paymentMethod" value="voucher" class="text-yellow my-2">
+                <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
+                <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow my-2">
+                <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
+                <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
+                <br>
+                <button type="submit">{{ 'booking.payment.form.action'|trans }}</button>
+            </form>
 
-        {% for error in app.flashes('error') %}
-            <div class="alert alert-danger" role="alert">{{ error|trans }}</div>
-        {% endfor %}
 
-        <h3>Please choose your payment method.</h3>
-        <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
-            <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
-            <input type="radio" id="paypal" name="paymentMethod" value="paypal">
-            <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
-            <input type="radio" id="voucher" name="paymentMethod" value="voucher">
-            <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
-            <input type="radio" id="invoice" name="paymentMethod" value="invoice">
-            <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
-            <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
-            <br>
-            <button type="submit">{{ 'booking.payment.form.action'|trans }}</button>
-        </form>
+            <div class="flex p-4 mb-4 text-red rounded-lg bg-yellow-light border border-red" role="alert">
+                <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true"
+                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+                <span class="sr-only">Info</span>
+                <div>
+                    <span class="font-bold">{{ 'booking.payment.info_section.title'|trans }}</span>
+                    <ul class="mt-1.5 list-disc list-inside mb-4">
+                        <li>{{ 'booking.payment.info_section.point_1'|trans }}</li>
+                        <li>{{ 'booking.payment.info_section.point_2'|trans }}</li>
+                        <li>{{ 'booking.payment.info_section.point_3'|trans }}</li>
+                    </ul>
+                    <a href="{{ path('voucher_index') }}" class="inline-flex items-center px-3 py-2 font-medium text-center text-yellow-lightest bg-red rounded-lg hover:bg-red-dark focus:ring-4 focus:outline-none focus:ring-silverpink">
+                        {{ 'booking.payment.info_section.button'|trans }}
+                        <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <p>If you do not have any vouchers you can buy them here: <a href="{{ path('voucher_index') }}">Vouchers</a></p>
-
-        <p>Payment is due at least 24h before the booking date.<br>
-            Please note that cash payments are not accepted.</p>
 {% endblock %}

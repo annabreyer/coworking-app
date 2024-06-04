@@ -17,6 +17,7 @@
         @apply text-red-darkest;
         @apply font-Helvetica;
     }
+
     header {
         @apply bg-gradient-to-r from-blue via-blue-darkest to-blue;
         @apply text-silverpink;
@@ -57,6 +58,16 @@
         @apply my-4;
     }
 
+    label {
+        @apply text-xl;
+        @apply font-MiamoRegular;
+    }
+
+    input {
+        @apply text-xl;
+        @apply font-Helvetica;
+    }
+
     main {
         @apply bg-yellow-lightest;
         @apply text-red-darkest;
@@ -70,6 +81,7 @@
         @apply rounded;
         @apply my-4;
     }
+
     main button:hover {
         @apply bg-red-dark;
     }
