@@ -13,7 +13,7 @@
     }
 
     body {
-        @apply bg-yellow-light;
+        @apply bg-yellow-lightest;
         @apply text-red-darkest;
         @apply font-Helvetica;
     }
@@ -58,7 +58,7 @@
     }
 
     main {
-        @apply bg-yellow-light;
+        @apply bg-yellow-lightest;
         @apply text-red-darkest;
     }
 

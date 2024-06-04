@@ -11,7 +11,8 @@ module.exports = {
         },
         colors: {
             yellow: {
-                light: '#fef9e7',
+                lightest: '#fef9e7',
+                light: '#fcedb7',
                 DEFAULT: '#f5c40e',
                 dark: '#ac890a',
             },
