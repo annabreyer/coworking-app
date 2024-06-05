@@ -4,7 +4,7 @@
 {% block header %}{{ 'user_account.bookings.title'|trans }}{% endblock %}
 {% block content %}
     <section class="self-center">
-        <button>
+        <button class="text-xl">
             <a href="{{ path('booking_step_date') }}">{{ 'user_account.bookings.new_button'|trans }}</a>
         </button>
 
@@ -28,8 +28,8 @@
         {% endif %}
 
         <div class="overflow-x-auto mt-4" id="current-bookings">
-            <table class="w-full text-sm text-left rtl:text-right">
-                <thead class="text-xs uppercase bg-yellow dark:bg-gray-700 dark:text-gray-400">
+            <table class="w-full text-base text-left rtl:text-right">
+                <thead class="uppercase bg-yellow dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3 flex">
                         <div class="flex items-start">
@@ -51,7 +51,7 @@
                 <tbody>
                 {% for booking in futureBookings %}
                     <tr class="bg-yellow-light border-b hover:bg-sunray">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap dark:text-white">
                             {{ booking.businessDay.date|date('Y-m-d') }}
                         </th>
                         <td class="px-6 py-4">
@@ -91,8 +91,8 @@
 
         <div class="overflow-x-auto shadow-md sm:rounded-lg mt-4 hidden" id="past-bookings">
             <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
-            <table class="w-full text-sm text-left rtl:text-right">
-                <thead class="text-sm text-red-dark uppercase bg-yellow">
+            <table class="w-full text-left rtl:text-right">
+                <thead class="text-red-dark uppercase bg-yellow">
                     <tr>
                         <th scope="col" class="px-6 py-3 flex">
                             <div class="flex items-start">

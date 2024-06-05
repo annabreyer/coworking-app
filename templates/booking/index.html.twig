@@ -3,7 +3,7 @@
 {% block title %}{{ 'booking.page.title'|trans }}{% endblock %}
 {% block header %}{{ 'booking.page.title'|trans }}{% endblock %}
 
-{% block main  %}
+{% block content  %}
     <section class="self-center grid grid-cols-1 md:grid-cols-2 ">
         <form id="form-date" method="post" action="{{ path('booking_step_date') }}" >
             <div class="grid grid-cols-1 mx-4">
@@ -12,7 +12,7 @@
                        max="{{ lastDay }}"
                        min="{{ firstDay }}"
                        value="{{ date }}"
-                       class="bg-yellow-light border border-yellow-dark rounded-lg p-2 w-full"
+                       class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica"
                 >
             </div>
             <input type="hidden" name="token_date" value="{{ csrf_token('date') }}">
@@ -22,7 +22,7 @@
         <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
             <div class="grid grid-cols-1 mx-4">
                 <label for="room">{{ 'booking.page.form.room.label'|trans }}</label>
-                <select id="room" name="room" class="bg-yellow-light border border-yellow-dark rounded-lg p-2 w-full">
+                <select id="room" name="room" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
                     {% for option in bookingOption %}
                         <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }} >
                             {{ option.roomName }}
@@ -31,20 +31,20 @@
                 </select>
                 <input type="hidden" name="token" value="{{ csrf_token('room') }}">
             </div>
-            <button type="submit" class="mx-4 md:-mx-10">{{ 'booking.page.form.action'|trans }}</button>
+            <button type="submit" class="mx-4 md:-mx-10 text-lg">{{ 'booking.page.form.action'|trans }}</button>
         </form>
     {% endif %}
     </section>
 
-    <section>
+    <section class="mt-20">
         <h3>{{ 'booking.page.prices.title' }}</h3>
         <div class="self-center grid grid-cols-1 md:grid-cols-2 space-x-4">
         {% for price in prices %}
             {%  if price.isVoucher %}
-                <a href="{{ path('voucher_index') }}" class="block max-w-sm p-6 rounded-lg shadow bg-silverpink-light border border-silverpink-dark">
-                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ 'price.voucher'|trans }}: {{ price.amount/100 }} € </h5>
-                    <p class="font-normal text-gray-700 dark:text-gray-400">{{ price.voucherType.units }} {{ 'price.voucher.units'|trans }}.</p>
-                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-yellow-lightest bg-red rounded-lg hover:bg-red-dark focus:ring-4 focus:outline-none focus:ring-yellow">
+                <a href="{{ path('voucher_index') }}" class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ 'price.voucher'|trans }}: {{ price.amount/100 }} € </h5>
+                    <p class="font-normal text-yellow-lightest">{{ price.voucherType.units }} {{ 'price.voucher.units'|trans }}.</p>
+                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-red-darkest bg-yellow rounded-lg hover:bg-yellow-light focus:ring-4 focus:outline-none focus:ring-yellow">
                         {{ 'booking.page.prices.voucher_card.link' }}
                         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
@@ -52,14 +52,14 @@
                     </span>
                 </a>
             {%  elseif price.isUnitary %}
-                <div class="block max-w-sm p-6 rounded-lg shadow bg-blue-light border border-blue">
-                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ 'price.unitary'|trans }}: {{ price.amount/100 }} €</h5>
-                    <p class="font-normal text-gray-700 dark:text-gray-400">TEXT TO BE ADDED</p>
+                <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ 'price.unitary'|trans }}: {{ price.amount/100 }} €</h5>
+                    <p class="font-normal text-yellow-lightest">TEXT TO BE ADDED</p>
                 </div>
             {% elseif price.isSubscription %}
                 <div href="{{ path('voucher_index') }}" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow">
-                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ 'price.subscription'|trans }}: {{ price.amount/100 }} €</h5>
-                    <p class="font-normal text-gray-700 dark:text-gray-400">{{ price.voucherType.units }} {{ 'price.voucher.units'|trans }}.</p>
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ 'price.subscription'|trans }}: {{ price.amount/100 }} €</h5>
+                    <p class="font-normal text-yellow-lightest">{{ price.voucherType.units }} {{ 'price.voucher.units'|trans }}.</p>
                 </div>
             {%  endif %}
         {% endfor %}

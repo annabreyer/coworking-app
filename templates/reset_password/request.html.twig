@@ -1,16 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{'reset_password.page.title'|trans}}{% endblock %}
-{% block header %}{{'reset_password.page.title'|trans}}{% endblock %}
+{% block title %}{{ 'reset_password.page.title'|trans }}{% endblock %}
+{% block header %}{{ 'reset_password.page.title'|trans }}{% endblock %}
 {% block content %}
-    {{ form_start(requestForm) }}
+    <section class="self-center">
+        {{ form_start(requestForm) }}
         {{ form_row(requestForm.email) }}
         <div>
-            <small>
-                {% trans %}reset_password.page.instructions{% endtrans %}
-            </small>
+            {{ 'reset_password.page.instructions'|trans }}
         </div>
 
-        <button class="btn btn-primary">{% trans %}reset_password.page.button{% endtrans %}</button>
-    {{ form_end(requestForm) }}
+        <button>{{ 'reset_password.page.form.button'|trans }}</button>
+        {{ form_end(requestForm) }}
+    </section>
 {% endblock %}

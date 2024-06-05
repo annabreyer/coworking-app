@@ -5,18 +5,18 @@
 
 {% block main %}
     <section class="self-center">
-        <h3>{{ 'booking.payment.recap.card.title'|trans }}</h3>
+        <h3>{{ 'booking.recap.card.title'|trans }}</h3>
         <div class="flex flex-col items-center bg-yellow border border-red text-red rounded-lg shadow md:flex-row md:max-w-xl mx-auto">
             <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
                  src="{{ asset('images/booking.png') }}" alt="">
             <div class="flex flex-col justify-between p-4 leading-normal">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight">
-                    {{ 'booking.payment.recap.card.date'|trans }} {{ booking.businessDay.date|date('d.m.Y') }}
+                    {{ 'booking.recap.card.date'|trans }} {{ booking.businessDay.date|date('d.m.Y') }}
                 </h5>
                 <p class="mb-3 font-normal">
-                    {{ 'booking.payment.recap.card.room'|trans }} {{ booking.room.name }}</p>
+                    {{ 'booking.recap.card.room'|trans }} {{ booking.room.name }}</p>
                 <p class="mb-3 font-normal">
-                    {{ 'booking.payment.recap.card.price'|trans }} {{ unitaryPrice.amount/100 }} EUR</p>
+                    {{ 'booking.recap.card.price'|trans }} {{ unitaryPrice.amount/100 }} EUR</p>
             </div>
         </div>
 
@@ -24,15 +24,15 @@
             <h3>{{ 'booking.payment.payment_form.title'|trans }}</h3>
             <form method="post" action="{{ path('booking_step_payment', {'uuid' : booking.uuid}) }}">
                 <input type="hidden" name="priceId" value="{{ unitaryPrice.id }}">
-                <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="text-yellow my-2">
+                <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
                 <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
-                <input type="radio" id="voucher" name="paymentMethod" value="voucher" class="text-yellow my-2">
+                <input type="radio" id="voucher" name="paymentMethod" value="voucher" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
                 <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
-                <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow my-2">
+                <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
                 <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
                 <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
                 <br>
-                <button type="submit">{{ 'booking.payment.form.action'|trans }}</button>
+                <button type="submit" class="text-lg">{{ 'booking.payment.form.action'|trans }}</button>
             </form>
 
 

@@ -9,16 +9,18 @@
             {% for voucherPrice in voucherPrices %}
                 <li>
                     <input type="radio" id="{{ voucherPrice.id }}" name="voucherPrice" value="{{ voucherPrice.id }}" class="hidden peer" required />
-                    <label for="{{ voucherPrice.id }}" class="inline-flex items-center justify-between w-full p-5 border border-gray-200 rounded-lg cursor-pointer hover:bg-silverpink-light hover:text-silverpink-darkest dark:peer-checked:text-blue-500 peer-checked:border-yellow peer-checked:text-silverpink-darkest peer-checked:bg-silverpink-light hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
+                    <label for="{{ voucherPrice.id }}" class="inline-flex items-center justify-between w-full p-5 border bg-red border-red-darkest text-yellow-lightest rounded-lg cursor-pointer hover:bg-red-dark hover:text-yellow-lightest peer-checked:border-yellow peer-checked:text-yellow peer-checked:bg-red-dark">
                         <div class="block">
-                            <div class="w-full text-lg font-semibold">{{ voucherPrice.voucherType.units }} {{ 'voucher.purchase.units'|trans }}</div>
-                            <div class="w-full">{{ voucherPrice.amount/100 }} EUR</div>
+                            <div class="w-full text-lg font-semibold">{{ 'voucher.purchase.units'|trans({ '%units%' : voucherPrice.voucherType.units }) }}</div>
+                            <div class="w-full">{{ 'voucher.amount'|trans ({'%amount%' : voucherPrice.amount/100}) }}</div>
+                            <div class="w-full">{{ 'voucher.validity_months'|trans ({'%validityMonths%' :voucherPrice.voucherType.validityMonths}) }}</div>
                         </div>
                     </label>
                 </li>
             {% endfor %}
         </ul>
-        <div class="flex my-4">
+            <h4>{{ 'voucher.purchase.form.payment_method'|trans }}</h4>
+            <div class="flex flex-wrap my-4">
             {% for paymentMethod in paymentMethods %}
                 <div class="flex items-center me-4">
                     <input id="{{ paymentMethod }}" type="radio" value="{{ paymentMethod }}" name="paymentMethod"

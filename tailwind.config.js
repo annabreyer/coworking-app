@@ -41,7 +41,7 @@ module.exports = {
         },
         fontFamily: {
             Helvetica: ["Helvetica", "sans-serif"],
-            MiamoRegular: ["MiamoRegular", "sans-serif"],
+            MiamoRegular: ["MiamoRegular", "serif"],
             MiamoScript: ["MiamoScript", "cursive"],
         },
         extend: {},

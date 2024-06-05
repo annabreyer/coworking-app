@@ -3,28 +3,41 @@
 {% block title %}{{ 'Booking'|trans }}{% endblock %}
 
 {% block header %}{{ 'Booking'|trans }}§{% endblock %}
-{% block main %}
-        <h2>You have made the following booking:</h2>
+{% block content %}
+<section class="self-center">
+    <h3>{{ 'booking.payment.recap.card.title'|trans }}</h3>
+    <div class="flex flex-col items-center bg-yellow border border-red text-red rounded-lg shadow md:flex-row md:max-w-xl mx-auto">
+        <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+             src="{{ asset('images/booking.png') }}" alt="">
+        <div class="flex flex-col justify-between p-4 leading-normal">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight">
+                {{ 'booking.payment.recap.card.date'|trans }} {{ booking.businessDay.date|date('d.m.Y') }}
+            </h5>
+            <p class="mb-3 font-normal">
+                {{ 'booking.payment.recap.card.room'|trans }} {{ booking.room.name }}</p>
+            <p class="mb-3 font-normal">
+                {{ 'booking.payment.recap.card.price'|trans }} {{ booking.amount/100 }} EUR</p>
+        </div>
+    </div>
 
-        <ul>
-            <li>Room: {{ booking.room.name }}</li>
-            <li>Date: {{ booking.businessDay.date|date('d.m.Y') }}</li>
-        </ul>
+    <form method="post" class="mt-10">
+        <input type="hidden" name="token" value="{{ csrf_token('voucher') }}" >
+        <label for="voucher">{{ 'booking.payment.voucher.form.label'|trans }}</label>
+        <input id="voucher" type="text" name="voucher" placeholder="{{ 'booking.payment.voucher.form.placeholder'|trans }}" class="bg-yellow-light border border-yellow-dark rounded-lg p-2 w-full">
+        <button type="submit" class="btn btn-primary">{{ 'booking.payment.voucher.form.button'|trans }}</button>
+    </form>
 
-        {% for error in app.flashes('error') %}
-            <div class="alert alert-danger" role="alert">{{ error }}</div>
-        {% endfor %}
+    <div class="flex items-center p-4 mb-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <span class="sr-only">Info</span>
+        <div>
+            <span class="font-medium">
+                {{ 'booking.payment.voucher.info_text'|trans({'%url%': path('user_vouchers')})|raw }}
+            </span>
+        </div>
+    </div>
+</section>
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success" role="alert">{{ message }}</div>
-        {% endfor %}
-
-        <form method="post">
-            <input type="hidden" name="token" value="{{ csrf_token('voucher') }}">
-            <label for="voucher">{{ 'Voucher'|trans }}</label>
-            <input id="voucher" type="text" name="voucher" placeholder="{{ 'Voucher'|trans }}">
-            <input type="submit" value="{{ 'Confirm'|trans }}" class="btn btn-primary">
-        </form>
-
-        <p>You can find your already bought vouchers in your <a href="{{ path('user_vouchers') }}">account.</a></p>
 {% endblock %}

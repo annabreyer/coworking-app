@@ -1,13 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{'reset_password.email_sent_page.title'|trans}}{% endblock %}
+{% block title %}{{ 'reset_password.email_sent_page.title'|trans }}{% endblock %}
 {% block header %}{% endblock %}
 {% block content %}
-    <p>
-        {{'reset_password.email_sent_page.info'|trans}}<br />
-        {% trans with {'%timeLimit%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') } %}reset_password.email_sent_page.link_expiration{% endtrans %}
-    </p>
-    <p>
-        {{ 'reset_password.email_sent_page.help'|trans({'%url%': path('app_forgot_password_request')})|raw}}.
-    </p>
+    <section class="self-center">
+        <img class="rounded-t-lg h-96 md:h-auto md:w-48 mx-auto"
+             src="{{ asset('images/email_sent.png') }}" alt="">
+        <div class="flex flex-col justify-between p-4 mx-auto">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight">{{ 'reset_password.email_sent_page.info'|trans }}</h5>
+            <p class="mb-3 font-normal">{% trans with {'%timeLimit%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') } %}reset_password.email_sent_page.link_expiration{% endtrans %}</p>
+            <p>{{ 'reset_password.email_sent_page.help'|trans({'%url%': path('app_forgot_password_request')})|raw }}.</p>
+        </div>
+    </section>
 {% endblock %}

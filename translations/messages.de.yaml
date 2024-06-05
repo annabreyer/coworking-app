@@ -108,6 +108,8 @@ booking:
     title: 'Zahlung'
     form:
       action: 'Bezahlen'
+    voucher:
+        info_text: 'Du kannst Deine Gutscheine in Deinem <a href="%url%">Benutzerkonto</a> einsehen.'
     info_section:
       title: 'Zahlungsinformationen'
       point_1: 'Bitte beachte, dass Deine Buchung erst nach Zahlungseingang gültig ist.'
@@ -125,7 +127,6 @@ booking:
 voucher:
   purchase:
     title: 'Gutschein kaufen'
-    units: 'Anzahl'
     form:
       action: 'Kaufen'
   invoice:
