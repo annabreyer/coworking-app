@@ -9,34 +9,38 @@
     {{ form_row(registrationForm.firstName) }}
     {{ form_row(registrationForm.lastName) }}
     {{ form_row(registrationForm.birthDate) }}
-
     {{ form_row(registrationForm.mobilePhone) }}
-
     {{ form_row(registrationForm.email) }}
-
     {{ form_row(registrationForm.plainPassword, {
         label: 'Password'
     }) }}
-    <p>{% trans %}registration.form.acceptance{% endtrans %}</p>
+    <p class="text-lg">{{ 'registration.form.acceptance'|trans }}</p>
 
-    <div>
+    <div class="mb-4 flex text-red">
         {{ form_widget(registrationForm.termsOfUse) }}
-        <a href="{{ path('app_terms_of_use') }}" target="_blank">{{ form_label(registrationForm.termsOfUse) }}</a>
+        <a href="{{ path('app_terms_of_use') }}" target="_blank">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+        </a>
     </div>
 
-    <div>
+    <div class="mb-4 flex text-red">
         {{ form_widget(registrationForm.codeOfConduct) }}
-        <a href="{{ path('app_code_of_conduct') }}" target="_blank">{{ form_label(registrationForm.codeOfConduct) }}</a>
+        <a href="{{ path('app_code_of_conduct') }}" target="_blank">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+        </a>
     </div>
 
-    <div>
+    <div class="mb-4 flex text-red">
         {{ form_widget(registrationForm.dataProtection) }}
-        <a href="{{ path('app_data_protection') }}"
-           target="_blank">{{ form_label(registrationForm.dataProtection) }}</a>
+        <a href="{{ path('app_data_protection') }}" target="_blank">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+        </a>
     </div>
 
-    <button type="submit" class="btn">{% trans %}registration.form.action{% endtrans %}</button>
+    <button type="submit" class="text-lg">{{ 'registration.form.action'|trans }}</button>
     {{ form_end(registrationForm) }}
 
-    <p>{% trans %}registration.page.already.account{% endtrans %}<a href="{{ path('app_login') }}">{% trans %}registration.page.login.link{% endtrans %}</a></p>
+    <p class="text-lg">{{ 'registration.page.already.account'|trans }}
+        <a href="{{ path('app_login') }}"> {{ 'registration.page.login.link'|trans }}</a>
+    </p>
 {% endblock %}

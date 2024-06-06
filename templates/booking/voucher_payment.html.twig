@@ -1,29 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'Booking'|trans }}{% endblock %}
+{% block title %}{{ 'booking.payment.title'|trans }}{% endblock %}
 
-{% block header %}{{ 'Booking'|trans }}§{% endblock %}
+{% block header %}{{ 'booking.payment.title'|trans }}{% endblock %}
 {% block content %}
 <section class="self-center">
-    <h3>{{ 'booking.payment.recap.card.title'|trans }}</h3>
-    <div class="flex flex-col items-center bg-yellow border border-red text-red rounded-lg shadow md:flex-row md:max-w-xl mx-auto">
-        <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
-             src="{{ asset('images/booking.png') }}" alt="">
-        <div class="flex flex-col justify-between p-4 leading-normal">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight">
-                {{ 'booking.payment.recap.card.date'|trans }} {{ booking.businessDay.date|date('d.m.Y') }}
-            </h5>
-            <p class="mb-3 font-normal">
-                {{ 'booking.payment.recap.card.room'|trans }} {{ booking.room.name }}</p>
-            <p class="mb-3 font-normal">
-                {{ 'booking.payment.recap.card.price'|trans }} {{ booking.amount/100 }} EUR</p>
-        </div>
-    </div>
+    {% include 'booking/partials/booking_card.html.twig' with {'booking': booking, 'amount': booking.amount} %}
 
     <form method="post" class="mt-10">
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}" >
         <label for="voucher">{{ 'booking.payment.voucher.form.label'|trans }}</label>
-        <input id="voucher" type="text" name="voucher" placeholder="{{ 'booking.payment.voucher.form.placeholder'|trans }}" class="bg-yellow-light border border-yellow-dark rounded-lg p-2 w-full">
+        <input id="voucher" type="text" name="voucher" placeholder="{{ 'booking.payment.voucher.form.placeholder'|trans }}"
+               class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
         <button type="submit" class="btn btn-primary">{{ 'booking.payment.voucher.form.button'|trans }}</button>
     </form>
 

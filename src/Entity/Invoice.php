@@ -291,5 +291,4 @@ class Invoice
     {
         return 0 < $this->bookings->count();
     }
-
 }

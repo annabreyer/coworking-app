@@ -4,32 +4,33 @@
 {% block header %}{% endblock %}
 {% block content %}
     <section class="self-center">
+        <form method="post" class="max-w-sm mx-auto">
+            <h2>{{ 'login.form.title'|trans }}</h2>
+            <div class="mb-5">
+                <label for="username">{{ 'login.form.input.email'|trans }}</label>
+                <input type="email" value="{{ last_username }}" name="_username" id="username" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica"
+                       autocomplete="email" required autofocus>
+            </div>
+            <div class="mb-5">
+                <label for="password">{{ 'login.form.input.password'|trans }}</label>
+                <input type="password" name="_password" id="password"
+                       class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica"
+                       autocomplete="current-password"
+                       required>
 
-    <form method="post" class="max-w-sm mx-auto">
-        <h2>{{ 'login.form.title'|trans }}</h2>
-        <div class="mb-5">
-            <label for="username">{{ 'login.form.input.email'|trans }}</label>
-            <input type="email" value="{{ last_username }}" name="_username" id="username" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica
-"
-                   autocomplete="email" required autofocus>
-        </div>
-        <div class="mb-5">
-            <label for="password">{{ 'login.form.input.password'|trans }}</label>
-            <input type="password" name="_password" id="password" class="    text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica" autocomplete="current-password"
-                   required>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            </div>
 
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-        </div>
+            <button type="submit">
+                {{ 'login.form.button'|trans }}
+            </button>
+        </form>
 
-        <button type="submit">
-            {{ 'login.form.button'|trans }}
-        </button>
-    </form>
+        <p><a href="{{ path('app_forgot_password_request') }}"
+              class="underline">{{ 'login.page.password_forgotten'|trans }}?</a></p>
 
-    <p ><a href="{{ path('app_forgot_password_request') }}" class="underline">{{ 'login.form.password_forgotten'|trans }}?</a></p>
-
-    <p>{{ 'login.form.input.no_account'|trans }}
-        <a href="{{ path('app_register') }}" class="underline">{{ 'login.form.input.register'|trans }}</a>
-    </p>
+        <p>{{ 'login.page.no_account_yet'|trans }}
+            <a href="{{ path('app_register') }}" class="underline">{{ 'login.page.link.register'|trans }}</a>
+        </p>
     </section>
 {% endblock %}

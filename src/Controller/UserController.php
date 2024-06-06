@@ -1,12 +1,14 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserDataFormType;
 use App\Repository\BookingRepository;
+use App\Repository\InvoiceRepository;
+use App\Repository\VoucherRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -74,12 +76,23 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/vouchers', name: 'user_vouchers')]
-    public function showUserVouchers(): Response
+    public function showUserVouchers(InvoiceRepository $invoiceRepository): Response
     {
-        // @todo
+        /** @var User $user */
+        $user                 = $this->getUser();
+        $pendingPaymentVouchers = $user->getPendingPaymentVouchers();
+        $pendingPaymentInvoice = null;
+
+        if (0 < $pendingPaymentVouchers->count()) {
+            $pendingPaymentInvoice = $pendingPaymentVouchers->first()->getInvoice();
+        }
 
         return $this->render('user/vouchers.html.twig', [
-            'user' => $this->getUser(),
+            'user'                   => $user,
+            'expiredOrUsedVouchers'  => $user->getExpiredOrUsedVouchers(),
+            'validVouchers'          => $user->getValidVouchers(),
+            'pendingPaymentVouchers' => $pendingPaymentVouchers,
+            'unpaidVoucherInvoice'   => $pendingPaymentInvoice,
         ]);
     }
 }

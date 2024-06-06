@@ -52,6 +52,12 @@
         @apply my-4;
     }
 
+    h4 {
+        @apply text-xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
     p {
         @apply text-base;
         @apply font-Helvetica;

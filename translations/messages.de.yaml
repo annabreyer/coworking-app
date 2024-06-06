@@ -24,8 +24,21 @@ price:
   voucher: 'Mehrfachkarte'
   unitary: 'Einzelpreis'
   subscription: 'Abonnement'
-  voucher.units: 'Gutscheine'
+  voucher.units: 'Stück'
 
+menu:
+  main:
+    login: Login
+    register: Registrierung
+    home: Startseite
+    booking: Buchung
+    vouchers: Gutscheine
+  user:
+    dashboard: Dashboard
+    bookings: Buchungen
+    vouchers: Gutscheine
+    edit_user: Meine Daten
+    logout: Abmelden
 #forms
 label:
   repeat.password: 'Passwort wiederholen'
@@ -62,9 +75,12 @@ login:
     title: 'Anmelden!'
     no_account_yet: 'Du hast noch keinen Account?'
     link.register: 'Registrierung'
+    password_forgotten: 'Passwort vergessen'
   form:
     title: 'Bitte melde Dich an'
     button: 'Anmelden'
+    input.email: 'E-Mail'
+    input.password: 'Passwort'
 
 
 #reset passwort page
@@ -72,7 +88,7 @@ reset_password:
   page:
     title: 'Setze Dein Passwort zurück'
     instructions: 'Gib Deine E-Mail-Adresse ein, und wir senden Dir einen Link zum Zurücksetzen Deines Passworts.'
-    button: 'E-Mail zum Zurücksetzen des Passworts senden'
+    form.button: 'E-Mail zum Zurücksetzen des Passworts senden'
   email:
     subject: Dein Passwort zurücksetzen
     salutation: Hallo %firstName%!
@@ -92,6 +108,10 @@ booking:
       date.label: 'Datum'
       room.label: 'Raum'
       action: 'Buchen'
+    prices:
+      title: 'Preise'
+      voucher_card:
+          link: 'Mehrfachkarte kaufen'
   invoice:
     description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
@@ -104,12 +124,27 @@ booking:
       instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum.'
       explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
       signature: 'Vielen Dank!'
+  recap:
+    card:
+      title: 'Deine Buchung'
+      date: 'Datum'
+      room: 'Raum'
+      price: 'Preis'
+
   payment:
+    recap:
+      card:
+        title: 'Deine Buchung'
     title: 'Zahlung'
     form:
       action: 'Bezahlen'
+      title: 'Zahlungsmethode'
     voucher:
-        info_text: 'Du kannst Deine Gutscheine in Deinem <a href="%url%">Benutzerkonto</a> einsehen.'
+      form:
+        label: 'Gutscheincode'
+        placeholder: 'Gutscheincode eingeben'
+        button: 'Einlösen'
+      info_text: 'Du kannst Deine Gutscheine in Deinem <a href="%url%">Benutzerkonto</a> einsehen.'
     info_section:
       title: 'Zahlungsinformationen'
       point_1: 'Bitte beachte, dass Deine Buchung erst nach Zahlungseingang gültig ist.'
@@ -125,10 +160,19 @@ booking:
 
 #voucher purchase Page
 voucher:
+  voucher: 'Gutschein'
+  validity_months: '%validityMonths% Monate gültig'
+  units: '%units% Stück'
+  is_paid: 'Bezahlt'
+  is_expired: 'Abgelaufen'
+  has_been_used: 'Eingelöst'
+  to_be_paid: 'Zu bezahlen'
   purchase:
+    units: 'Anzahl'
     title: 'Gutschein kaufen'
     form:
       action: 'Kaufen'
+      payment_method: 'Zahlungsmethode'
   invoice:
     description: '%units% Stück %validityMonths% Monate gültig.'
     email:
@@ -143,11 +187,27 @@ You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
 
 user_account:
   title: 'Benutzerkonto'
+  close_account.card:
+    title: 'Konto schließen'
+    text: 'Um Dein Konto zu schließen, sende bitte eine E-Mail an %email%'
   edit_data:
     link: 'Meine Daten bearbeiten'
     title: 'Meine Daten'
     form.action: 'Speichern'
+    card:
+      title: 'Meine Daten'
+      text: 'Hier kannst Du Deine persönliche Daten inkl. Adresse bearbeiten.'
+      button: 'Daten bearbeiten'
+  password_forgotten:
+    card:
+      title: 'Passwort vergessen'
+      text: 'Um Dein Passwort zu ändern nutze bitte die Funktion Passwort vergessen.'
+      button: 'Passwort zurücksetzen'
   bookings:
+    card:
+      title: 'Meine Buchungen'
+      text: 'Hier findest Du eine Übersicht Deiner Buchungen.'
+      button: 'Zu meinen Buchungen'
     link: 'Meine Buchungen ansehen'
     title: 'Meine Buchungen'
     no_bookings: 'Du hast noch keine Buchungen.'
@@ -157,7 +217,6 @@ user_account:
     paypal_link: 'Bezahlen'
     future_bookings:
       title: 'Zukünftige Buchungen'
-
     this_year_bookings:
       title: 'Vergangene Buchungen'
     table:
@@ -165,6 +224,10 @@ user_account:
       room: Raum
       actions: Aktionen
   vouchers:
+    card:
+      title: 'Meine Gutscheine'
+      text: 'Hier findest Du eine Übersicht Deiner Gutscheine.'
+      button: 'Zu meinen Gutscheinen'
     link: 'Meine Gutscheine ansehen'
     title: 'Meine Gutscheine'
     no_vouchers: 'Du hast noch keine Gutscheine.'
@@ -173,14 +236,27 @@ user_account:
     use_date: 'Eingelöst am'
     has_been_paid: 'Bezahlt'
     is_valid: 'Gültig'
+    valid_vouchers:
+      title: 'Gültige Gutscheine'
+    expired_used_vouchers:
+      title: 'Abgelaufene oder eingelöste Gutscheine'
+    unpaid_vouchers:
+      info:
+        title: 'Du hast noch nicht bezahlte Gutscheine.'
+        text: 'Gutscheine können erst nach vollständiger Zahlung genutzt werden.'
+        button: 'Jetzt bezahlen'
 
+
+footer:
+  link:
+    imprint: Impressum
+    data_protection: Datenschutz
 
 
 Log out: Abmelden
 save: Speichern
 Edit my data: Meine Daten bearbeiten
 To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'
-To close your account, please send an Email to %email%: 'Um Dein Konto zu schließen, sende bitte eine E-Mail an %email%'
 
 
 
