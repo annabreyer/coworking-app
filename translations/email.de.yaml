@@ -1,0 +1,34 @@
+booking:
+  invoice:
+    subject: 'Coworking Hahnheim: Deine Rechnung'
+    salutation: 'Hallo %firstName%!'
+    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum.'
+    explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
+    signature: 'Vielen Dank!'
+    button_text: 'Mit Paypal bezahlen'
+
+voucher:
+  invoice:
+    subject: 'Coworking Hahnheim: Deine Rechnung'
+    salutation: 'Hallo %firstName%!'
+    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, sind die Gutscheine nicht gültig.'
+    explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
+    signature: 'Vielen Dank!'
+    button_text: 'Mit Paypal bezahlen'
+
+reset_password:
+    subject: 'Coworking Hahnheim: Dein Passwort zurücksetzen'
+    salutation: Hallo %firstName%!
+    instructions: Um Dein Passwort zurückzusetzen, klicke auf den folgenden Button
+    explanation: 'Dieser Link ist %timeLimit% lang gültig'
+    signature: Viele Grüße!
+    button_text: 'Passwort zurück setzten'
+
+registration:
+  email_verification:
+    subject: 'Coworking Hahnheim: Bitte bestätige Deine E-Mail-Adresse'
+    salutation: Hallo %firstName%!
+    instructions: Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst
+    explanation: 'Dieser Link ist %timeLimit% lang gültig'
+    signature: Viele Grüße!
+    button_text: E-Mail-Adresse bestätigen

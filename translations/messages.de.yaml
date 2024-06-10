@@ -59,13 +59,6 @@ registration:
     action: 'Registrieren'
   success: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'
   email_verification:
-    email:
-      subject: Bitte bestätige Deine E-Mail-Adresse
-      salutation: Hallo %firstName%!
-      instructions: Bitte bestätige Deine E-Mail-Adresse, indem Du auf den folgenden Link klickst
-      explanation: 'Dieser Link ist %timeLimit% lang gültig'
-      signature: Viele Grüße!
-      button: E-Mail-Adresse bestätigen
     success: 'Deine E-Mail-Adresse wurde bestätigt.'
 
 
@@ -89,12 +82,6 @@ reset_password:
     title: 'Setze Dein Passwort zurück'
     instructions: 'Gib Deine E-Mail-Adresse ein, und wir senden Dir einen Link zum Zurücksetzen Deines Passworts.'
     form.button: 'E-Mail zum Zurücksetzen des Passworts senden'
-  email:
-    subject: Dein Passwort zurücksetzen
-    salutation: Hallo %firstName%!
-    instructions: Um Dein Passwort zurückzusetzen, besuche bitte den folgenden Link
-    explanation: 'Dieser Link ist %timeLimit% lang gültig'
-    signature: Viele Grüße!
   email_sent_page:
     title: 'Die E-Mail zum Zurücksetzen Deines Passworts wurde gesendet.'
     info: 'Sofern ein Konto mit Deiner E-Mail-Adresse existiert, wurde soeben eine E-Mail gesendet, die einen Link enthält, den Du zum Zurücksetzen Deines Passworts verwenden kannst.'
@@ -118,12 +105,6 @@ booking:
     paid_by_voucher: 'Bezahlt mit Gutschein %voucherCode%'
     due: 'Fällig innerhalb von 10 Tagen oder mindestens 24 Stunden vor Buchungsdatum.'
     already_paid: 'Bezahlt am %date%'
-    email:
-      subject: 'Deine Rechnung'
-      salutation: 'Hallo %firstName%!'
-      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum.'
-      explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
-      signature: 'Vielen Dank!'
   recap:
     card:
       title: 'Deine Buchung'
@@ -175,12 +156,6 @@ voucher:
       payment_method: 'Zahlungsmethode'
   invoice:
     description: '%units% Stück %validityMonths% Monate gültig.'
-    email:
-      subject: 'Deine Rechnung'
-      salutation: 'Hallo %firstName%!'
-      instruction: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, sind die Gutscheine nicht gültig.'
-      explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Link:'
-      signature: 'Vielen Dank!'
 
 #homepage TODO
 You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'

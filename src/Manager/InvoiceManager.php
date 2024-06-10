@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Manager;
 
@@ -40,7 +40,7 @@ class InvoiceManager
 
     public static function getClientNumber(int $userId): string
     {
-        $number = (string) $userId;
+        $number = (string)$userId;
         $number = str_pad($number, 5, '0', STR_PAD_LEFT);
 
         return $number;
@@ -97,13 +97,22 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('booking.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('booking.invoice.subject',[], 'email');
+        $salutation = $this->translator->trans('booking.invoice.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
-        ]);
-        $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
-        $context['texts']['salutation'] = $salutation;
-        $context['link']                = $link;
+        ],'email');
+
+        $context = [
+            'link'  => $link,
+            'texts' => [
+                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.invoice.instructions',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('booking.invoice.explanation',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('booking.invoice.signature',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('booking.invoice.button_text',[], 'email'),
+            ],
+        ];
 
         if ($invoice->isFullyPaid()) {
             $context['link']                 = '';
@@ -158,13 +167,21 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('voucher.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject                        = $this->translator->trans('voucher.invoice.email.subject');
+        $salutation                     = $this->translator->trans('voucher.invoice.email.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ]);
-        $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
-        $context['texts']['salutation'] = $salutation;
-        $context['link']                = $link;
+        $context = [
+            'link'  => $link,
+            'texts' => [
+                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('voucher.invoice.instructions',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('voucher.invoice.explanation',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('voucher.invoice.signature',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('voucher.invoice.button_text',[], 'email'),
+            ],
+        ];
 
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
@@ -182,7 +199,7 @@ class InvoiceManager
         }
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int) $invoiceNumberElements[1];
+        $number                = (int)$invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
     }

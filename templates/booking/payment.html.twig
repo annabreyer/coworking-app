@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        {% include 'booking/partials/booking_card.html.twig' with {'booking': booking, 'amount': unitaryPrice} %}
+        {% include 'booking/partials/booking_recap_card.html.twig' with {'booking': booking, 'amount': unitaryPrice.amount } %}
 
         <div class="mt-10">
             <h3>{{ 'booking.payment.form.title'|trans }}</h3>

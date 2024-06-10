@@ -5,7 +5,7 @@
 {% block header %}{{ 'booking.payment.title'|trans }}{% endblock %}
 {% block content %}
 <section class="self-center">
-    {% include 'booking/partials/booking_card.html.twig' with {'booking': booking, 'amount': booking.amount} %}
+    {% include 'booking/partials/booking_recap_card.html.twig' with {'booking': booking, 'amount': booking.amount} %}
 
     <form method="post" class="mt-10">
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}" >

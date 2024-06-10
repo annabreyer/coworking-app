@@ -10,7 +10,7 @@
     <section class="self-center">
 
     {%  if invoice.isBookingInvoice %}
-        {% include 'booking/partials/booking_card.html.twig' with {'booking': invoice.bookings.first, 'amount': invoice.amount} %}
+        {% include 'booking/partials/booking_recap_card.html.twig' with {'booking': invoice.bookings.first, 'amount': invoice.amount} %}
     {% endif %}
 
     {% if invoice.isVoucherInvoice %}

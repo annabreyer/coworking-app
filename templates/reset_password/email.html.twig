@@ -1,5 +1,0 @@
-{%  extends 'email.base.html.twig' %}
-
-{% block link %}
-<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
-{% endblock %}
