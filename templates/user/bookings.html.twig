@@ -14,13 +14,17 @@
             <div class="text-sm font-medium text-center border-b border-gray-200" id="tab-nav">
                 <ul class="flex flex-wrap -mb-px">
                     <li class="me-2">
-                        <a href="#" class="inline-block p-4 text-red border-b-2 border-red-dark rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark active" aria-current="page">
-                            <h4>{{ 'user_account.bookings.future_bookings.title'|trans }}</h4>
+                        <a href="#"
+                           class="inline-block p-4 text-red border-b-2 border-red rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark active flex" aria-current="page">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-clock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h10" /><path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M18 16.5v1.5l.5 .5" /></svg>
+                            <span class="text-lg">{{ 'user_account.bookings.future_bookings.title'|trans }}</span>
                         </a>
                     </li>
                     <li class="me-2">
-                        <a href="#" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark">
-                            <h4>{{ 'user_account.bookings.this_year_bookings.title'|trans }}</h4>
+                        <a href="#"
+                           class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark flex">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-history"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" /></svg>
+                            <span class="text-lg">{{ 'user_account.bookings.this_year_bookings.title'|trans }}</span>
                         </a>
                     </li>
                 </ul>
@@ -167,13 +171,12 @@
             renderTabInactive(currentBookingsTab);
         });
 
-
         function renderTabActive(tab) {
             tab.classList.add('active');
             tab.classList.remove('hover:bg-yellow-light');
             tab.classList.remove('hover:border-yellow-dark');
             tab.classList.add('text-red');
-            tab.classList.add('border-red-dark');
+            tab.classList.add('border-red');
             tab.classList.remove('border-transparent');
         }
 
@@ -182,9 +185,8 @@
             tab.classList.add('hover:bg-yellow-light');
             tab.classList.add('hover:border-yellow-dark');
             tab.classList.remove('text-red');
-            tab.classList.remove('border-red-dark');
+            tab.classList.remove('border-red');
             tab.classList.add('border-transparent');
         }
-
     </script>
 {% endblock %}

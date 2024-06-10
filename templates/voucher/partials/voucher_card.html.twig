@@ -1,5 +1,5 @@
-<div class="block max-w-sm p-6 rounded-lg shadow m-1 {% if voucher.isValid %}bg-silverpink-light border border-silverpink hover:bg-silverpink {% else %}bg-silverpink-darkest{% endif %}">
-    <div class="inline-flex">
+<div class="block max-w-sm p-4 rounded-lg shadow m-1 {% if voucher.isValid %}bg-silverpink-light border border-silverpink hover:bg-silverpink {% else %}bg-silverpink-darkest{% endif %}">
+    <div class="flex flex-wrap md:inline-flex">
         {% if voucher.isValid %}
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 30 30" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -21,11 +21,11 @@
                 <path d="M3 3l18 18"/>
             </svg>
         {% endif %}
-        <h5 class="mb-2 text-2xl font-bold tracking-tight{% if voucher.isValid == false %} line-through{% endif %}">
+        <h5 class="text-xl font-bold tracking-tight{% if voucher.isValid == false %} line-through{% endif %}">
             {{ voucher.code }}
         </h5>
     </div>
-    <p class="font-normal">{{ 'user_account.vouchers.expiry_date'|trans }}: {{ voucher.expiryDate|date('Y-m-d') }}</p>
+    <p class="font-normal my-0.5">{{ 'user_account.vouchers.expiry_date'|trans }}: {{ voucher.expiryDate|date('d.m.Y') }}</p>
     {% if voucher.isValid and voucher.hasBeenPaid %}
         <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-green-400 border border-green-400">{{ 'voucher.is_paid'|trans }}</span>
     {% endif %}
@@ -38,5 +38,4 @@
     {% if voucher.isValid == false and voucher.useDate is not empty %}
         <span class="bg-pink-100 text-pink-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-pink-400 border border-pink-400">{{ 'voucher.has_been_used'|trans }}</span>
     {% endif %}
-
 </div>
