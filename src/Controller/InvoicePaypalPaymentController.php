@@ -35,7 +35,7 @@ class InvoicePaypalPaymentController extends AbstractController
 
         if (null === $invoice) {
             $this->addFlash('error', 'Invoice not found.');
-            return $this->redirectToRoute('user_show');
+            return $this->redirectToRoute('user_dashboard');
         }
 
         if ($invoice->isFullyPaid()){
@@ -45,7 +45,7 @@ class InvoicePaypalPaymentController extends AbstractController
                 return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
             }
 
-            return $this->redirectToRoute('user_show');
+            return $this->redirectToRoute('user_dashboard');
         }
 
         if (null !== $invoice->getPayPalOrderId()){
@@ -73,7 +73,7 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         if (null === $invoice) {
-            $targetUrl = $this->generateUrl('user_show');
+            $targetUrl = $this->generateUrl('user_dashboard');
 
             return $this->json(
                 ['error' => 'Invoice not found.', 'targetUrl' => $targetUrl],
@@ -82,7 +82,7 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         if ($invoice->isFullyPaid()) {
-            $targetUrl = $this->generateUrl('user_show');
+            $targetUrl = $this->generateUrl('user_dashboard');
 
             if ($invoice->isBookingInvoice()){
                 $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);

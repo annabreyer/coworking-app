@@ -1,10 +1,28 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'index' %}
 
-{% block title %}{{ 'index.page.title'|trans }}{% endblock %}
-{% block header %}{{ 'index.page.title'|trans }}{% endblock %}
+{% block title %}{{ 'page.title'|trans }}{% endblock %}
+{% block header %}{{ 'page.title'|trans }}{% endblock %}
 
 {% block content %}
-    {% if app.user %}
-            {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.
-    {% endif %}
+    <section>
+        {% if app.user %}
+            <div class="self-center">
+                <p class="text-lg">{{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.</p>
+
+                <button>
+                    <a href="{{ path('booking_step_date') }}">{{ 'actions.booking'|trans }}</a>
+                </button>
+
+                <button>
+                    <a href="{{ path('user_dashboard') }}">{{ 'actions.user_dashboard'|trans }}</a>
+                    </button>
+
+            </div>
+
+
+        {% endif %}
+
+        {{ 'content'|trans|raw }}
+    </section>
 {% endblock %}

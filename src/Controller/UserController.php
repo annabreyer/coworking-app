@@ -20,7 +20,7 @@ class UserController extends AbstractController
 {
     use ClockAwareTrait;
 
-    #[Route('/user', name: 'user_show')]
+    #[Route('/user', name: 'user_dashboard')]
     public function showUser(): Response
     {
         $user  = $this->getUser();
@@ -43,7 +43,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('user_show');
+            return $this->redirectToRoute('user_dashboard');
         }
 
         return $this->render('user/edit_user.html.twig', [
