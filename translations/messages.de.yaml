@@ -160,8 +160,11 @@ voucher:
   invoice:
     description: '%units% Stück %validityMonths% Monate gültig.'
 
-#homepage TODO
-You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
+
+invoice:
+  payment:
+    page:
+      title: 'Zahlung'
 
 user_account:
   title: 'Benutzerkonto'
