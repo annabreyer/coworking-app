@@ -1,0 +1,34 @@
+booking:
+  invoice:
+    subject: 'Coworking Hahnheim: Your Invoice'
+    salutation: 'Hi %firstName%!'
+    instructions: 'Your invoice is attached to the email. Please transfer it to the account at latest 24 hours before the booked date.'
+    explanation: 'You can also pay the invoice with Paypal immediately. Just click on the button above.'
+    signature: 'Thank you!'
+    button_text: 'Paypal'
+
+voucher:
+  invoice:
+    subject: 'Coworking Hahnheim: Your Invoice'
+    salutation: 'Hi %firstName%!'
+    instructions: 'Your invoice is attached to the email. Your vouchers will only be valid after payment.'
+    explanation: 'You can also pay the invoice with Paypal immediately. Just click on the button above.'
+    signature: 'Thank you!'
+    button_text: 'Paypal'
+
+reset_password:
+  subject: 'Coworking Hahnheim: Reset your password'
+  salutation: Hi %firstName%!
+  instructions: Please visit the following link to reset your password
+  explanation: 'This link will expire in %timeLimit%'
+  signature: Cheers!
+  button_text: 'Reset Password'
+
+registration:
+  email_verification:
+    subject: 'Coworking Hahnheim: Please confirm your email address'
+    salutation: Hi %firstName%!
+    instructions: Please confirm you email address by clicking on the following link
+    explanation: 'This link is valid for %timeLimit% '
+    signature: Cheers!
+    button_text: Confirm Email Address

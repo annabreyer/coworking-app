@@ -16,11 +16,32 @@ Date: 'Date'
 Room: 'Room'
 Booking: 'Booking'
 Book: 'Book'
+Street: 'Street'
+City: 'City'
+Post code: 'Post code'
+payment_method:
+  invoice: 'Invoice'
+  paypal: 'Paypal'
+  voucher: 'Voucher'
+price:
+  voucher: 'Voucher'
+  unitary: 'Single Price'
+  subscription: 'Subscription'
+  voucher.units: 'units'
 
-
-#entity
-user.email.unique: 'There is already an account with this email'
-
+menu:
+  main:
+    login: Login
+    register: Register
+    home: Home
+    booking: Booking
+    vouchers: Vouchers
+  user:
+    dashboard: Dashboard
+    bookings: Bookings
+    vouchers: Vouchers
+    edit_user: My data
+    logout: Logout
 #forms
 label:
   repeat.password: 'Repeat Password'
@@ -30,8 +51,8 @@ label:
 registration:
   page:
     title: 'Register'
-    login.link: 'Login'
     already.account: 'You already have an account?'
+    login.link: 'Login'
   form:
     acceptance: 'I hereby accept'
     terms.agreement.necessary: 'You should agree to our terms.'
@@ -41,13 +62,6 @@ registration:
     action: 'Register'
   success: 'Your account has been created. Please check your email for a verification link.'
   email_verification:
-    email:
-      subject: 'Please confirm your email address'
-      salutation: 'Hi %firstName%!'
-      instructions: 'Please confirm your email address by clicking on the following link'
-      explanation: 'This link is valid for %timeLimit%'
-      signature: 'Cheers!'
-      button: 'Confirm Email Address'
     success: 'Your email address has been verified.'
 
 #login page
@@ -56,22 +70,20 @@ login:
     title: 'Log in!'
     no_account_yet: 'No account yet?'
     link.register: 'Registration'
+    password_forgotten: 'Password forgotten'
   form:
     title: 'Please sign in'
     button: 'Sign in'
+    input:
+      email: 'Email'
+      password: Password
 
 #reset passwort
 reset_password:
   page:
     title: 'Reset your password'
     instructions: 'Enter your email address, and we will send you a link to reset your password'
-    button: 'Send password reset email'
-  email:
-    subject: Reset your password
-    salutation: Hi %firstName%!
-    instructions: Please visit the following link to reset your password
-    explanation: 'This link will expire in %timeLimit%'
-    signature: Cheers!
+    form.button: 'Send password reset email'
   email_sent_page:
     title: 'Password Reset Email Sent'
     info: 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.'
@@ -79,11 +91,144 @@ reset_password:
     help: 'If you do not receive an email please check your spam folder or <a href="%url%">try again</a>'
 
 
-user_account: 'User account'
+booking:
+  page:
+    title: 'Booking'
+    form:
+      date.label: 'Date'
+      room.label: 'Room'
+      action: 'Book'
+    prices:
+      title: 'Prices'
+      voucher_card:
+          link: 'Buy vouchers'
+  invoice:
+    description: 'A coworking desk in room %room% on %date%'
+    paid: 'Paid'
+    paid_by_voucher: 'Paid with Voucher %voucherCode%'
+    due: 'Due in 10 days or at least 24 hours before booking date.'
+    already_paid: 'Paid on %date%'
+  recap:
+    card:
+      title: 'Your booking'
+      date: 'Date'
+      room: 'Room'
+      price: 'Amount'
 
-#TODO
-You are logged in as %userIdentifier%: 'Du bist als %userIdentifier% angemeldet'
-save: Speichern
-Edit my data: Meine Daten bearbeiten
-To change your passwort, please request a passwort reset via the password forgotten function.: 'Um Dein Passwort zu ändern, fordere bitte ein Passwort-Reset über die Funktion Passwort vergessen an.'
-To close your account, please send an Email to %email%: 'Um Dein Konto zu schließen, sende bitte eine E-Mail an %email%'
+  payment:
+    recap:
+      card:
+        title: 'Your booking'
+    title: 'Payment'
+    form:
+      action: 'Pay now'
+      title: 'Payment method'
+    voucher:
+      form:
+        label: 'Voucher code'
+        placeholder: 'Enter voucher code'
+        button: 'Use voucher'
+      info_text: 'You can seen your vouchers in your <a href="%url%">account</a>.'
+    info_section:
+      title: 'Payment information'
+      point_1: 'Please be advised that your booking is only valid once the payment is received.'
+      point_2: 'Bookings can be cancelled until 24h before booking date.'
+      point_3: 'For bookings cancelled less then 24h before booking date the total amount is due.'
+      button: 'Vouchers can be bought here!'
+  confirmation:
+    page:
+      title: 'Your booking is confirmed.'
+      text: 'Your invoice has been sent by email. You can also download it here.'
+      button: 'Download invoice'
+
+
+#voucher purchase Page
+voucher:
+  voucher: 'Voucher'
+  validity_months: 'valid for %validityMonths% Months'
+  units: '%units% Units'
+  is_paid: 'paid'
+  is_expired: 'expired'
+  has_been_used: 'used'
+  to_be_paid: 'top be paid'
+  purchase:
+    units: 'Units'
+    title: 'Buy Voucher'
+    form:
+      action: 'Buy'
+      payment_method: 'Payment method'
+  invoice:
+    description: '%units% units valid for %validityMonths% months.'
+
+
+invoice:
+  payment:
+    page:
+      title: 'Payment'
+
+user_account:
+  title: 'User account'
+  close_account.card:
+    title: 'Close account'
+    text: 'To close your account please send an email to %email%'
+  edit_data:
+    link: 'Edit my data'
+    title: 'My data'
+    form.action: 'Save'
+    card:
+      title: 'My data'
+      text: 'You can edit your personal data, including your address.'
+      button: 'Edit my data'
+  password_forgotten:
+    card:
+      title: 'Password forgotten'
+      text: 'To change your password, please request a password reset via the password forgotten function.'
+      button: 'Reset Password'
+  bookings:
+    card:
+      title: 'My bookings'
+      text: 'Here you get an overview of your bookings.'
+      button: 'To my bookings'
+    link: 'See my bookings'
+    title: 'my bookings'
+    no_bookings: 'You do not have any bookings yet.'
+    new_button: 'New Booking'
+    cancel_button: 'Cancel booking'
+    invoice_link: 'Invoice'
+    paypal_link: 'Pay invoice'
+    future_bookings:
+      title: 'Future Bookings'
+    this_year_bookings:
+      title: 'Past Bookings'
+    table:
+      date: Date
+      room: Room
+      actions: Actions
+  vouchers:
+    card:
+      title: 'My Vouchers'
+      text: 'Here you get an overview of your vouchers.'
+      button: 'See my vouchers'
+    link: 'See my vouchers'
+    title: 'My vouchers'
+    no_vouchers: 'You do not have any vouchers yet.'
+    new_button: 'Buy a voucher'
+    expiry_date: 'Valid until'
+    use_date: 'Used on'
+    has_been_paid: 'Paid'
+    is_valid: 'Valid'
+    valid_vouchers:
+      title: 'Valid Vouchers'
+    expired_used_vouchers:
+      title: 'Used or expired vouchers'
+    unpaid_vouchers:
+      info:
+        title: 'You have unpaid vouchers.'
+        text: 'Vouchers can only be used after full payment.'
+        button: 'Pay now'
+
+
+footer:
+  link:
+    imprint: Imprint
+    data_protection: Data protection
