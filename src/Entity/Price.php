@@ -34,7 +34,7 @@ class Price
     #[ORM\Column]
     private bool $isSubscription = false;
 
-    #[ORM\ManyToOne(inversedBy: 'prices')]
+    #[ORM\ManyToOne()]
     private ?VoucherType $voucherType = null;
 
     public function getId(): ?int

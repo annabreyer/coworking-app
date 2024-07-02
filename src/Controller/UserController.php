@@ -81,18 +81,12 @@ class UserController extends AbstractController
         /** @var User $user */
         $user                 = $this->getUser();
         $pendingPaymentVouchers = $user->getPendingPaymentVouchers();
-        $pendingPaymentInvoice = null;
-
-        if (0 < $pendingPaymentVouchers->count()) {
-            $pendingPaymentInvoice = $pendingPaymentVouchers->first()->getInvoice();
-        }
 
         return $this->render('user/vouchers.html.twig', [
             'user'                   => $user,
             'expiredOrUsedVouchers'  => $user->getExpiredOrUsedVouchers(),
             'validVouchers'          => $user->getValidVouchers(),
             'pendingPaymentVouchers' => $pendingPaymentVouchers,
-            'unpaidVoucherInvoice'   => $pendingPaymentInvoice,
         ]);
     }
 }

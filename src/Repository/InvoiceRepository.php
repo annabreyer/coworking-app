@@ -31,7 +31,7 @@ class InvoiceRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('i')
             ->andWhere('YEAR(i.date) = :year')
             ->setParameter('year', $year)
-            ->orderBy('i.date', 'DESC')
+            ->orderBy('i.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()

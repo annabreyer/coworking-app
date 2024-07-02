@@ -36,12 +36,14 @@ menu:
     home: Startseite
     booking: Buchung
     vouchers: Gutscheine
+    sr.open: Öffnen
   user:
     dashboard: Dashboard
-    bookings: Buchungen
-    vouchers: Gutscheine
+    bookings: Meine Buchungen
+    vouchers: Meine Gutscheine
     edit_user: Meine Daten
     logout: Abmelden
+    sr.open: Öffnen
 #forms
 label:
   repeat.password: 'Passwort wiederholen'
@@ -144,7 +146,7 @@ booking:
 
 #voucher purchase Page
 voucher:
-  voucher: 'Gutschein'
+  voucher: 'Mehrfachkarte'
   validity_months: '%validityMonths% Monate gültig'
   units: '%units% Stück'
   is_paid: 'Bezahlt'
@@ -152,7 +154,7 @@ voucher:
   has_been_used: 'Eingelöst'
   to_be_paid: 'Zu bezahlen'
   purchase:
-    units: 'Anzahl'
+    units: '%units% Gutscheine'
     title: 'Gutschein kaufen'
     form:
       action: 'Kaufen'
@@ -165,6 +167,13 @@ invoice:
   payment:
     page:
       title: 'Zahlung'
+    confirmation:
+      title: 'Zahlung erfolgt'
+      error:
+        title: 'Zahlungsfehler'
+      page:
+        text: 'Vielen Dank für Deine Zahlung.'
+        error_text: 'Bei der Zahlung mit PayPal ist ein Fehler aufgetreten. Bitte begleiche die Rechnung per Banküberweisung.'
 
 user_account:
   title: 'Benutzerkonto'
@@ -226,6 +235,8 @@ user_account:
         title: 'Du hast noch nicht bezahlte Gutscheine.'
         text: 'Gutscheine können erst nach vollständiger Zahlung genutzt werden.'
         button: 'Jetzt bezahlen'
+      invoice:
+          info: 'Rechnung Nr. %invoiceId% vom %invoiceDate%'
 
 
 footer:

@@ -102,34 +102,52 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         $invoice->setPaypalOrderId($payload['data']['orderID']);
+        $this->invoiceManager->saveInvoice();
 
-        if ($this->payPalService->handlePayment($invoice)) {
-            $this->paymentManager->finalizePaypalPayment($invoice);
-            $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
+        $targetUrl = $this->generateUrl('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
 
-            if ($invoice->isVoucherInvoice()){
-                $this->invoiceManager->generateVoucherInvoicePdf($invoice);
-                $this->invoiceManager->sendVoucherInvoiceToUser($invoice);
-                $targetUrl = $this->generateUrl('user_vouchers', ['uuid' => $invoice->getUuid()]);
-            }
-
-            if ($invoice->isBookingInvoice()){
-                $this->invoiceManager->generateBookingInvoicePdf($invoice);
-                $this->invoiceManager->sendBookingInvoiceToUser($invoice);
-                $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
-            }
+        if (false === $this->payPalService->handlePayment($invoice)) {
+            $this->addFlash('error', 'Payment has not been processed. Please try again later or contact support.');
 
             return $this->json(
-                ['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl],
-                Response::HTTP_OK
+                ['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl],
+                Response::HTTP_BAD_REQUEST
             );
         }
 
-        $targetUrl = $this->generateUrl('invoice_payment_paypal', ['uuid' => $invoice->getUuid()]);
+        $this->paymentManager->finalizePaypalPayment($invoice);
+
+        if ($invoice->isVoucherInvoice()){
+            $this->invoiceManager->generateVoucherInvoicePdf($invoice);
+            $this->invoiceManager->sendVoucherInvoiceToUser($invoice);
+        }
+
+        if ($invoice->isBookingInvoice()){
+            $this->invoiceManager->generateBookingInvoicePdf($invoice);
+            $this->invoiceManager->sendBookingInvoiceToUser($invoice);
+        }
+
+        $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
 
         return $this->json(
-            ['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl],
-            Response::HTTP_BAD_REQUEST
+            ['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl],
+            Response::HTTP_OK
         );
+    }
+
+    #[Route('/invoice/{uuid}/confirmation', name: 'invoice_payment_confirmation', methods: ['GET'])]
+    public function confirmPayment(string $uuid)
+    {
+        try {
+            $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
+        } catch (\Exception $exception) {
+            $this->logger->error('Invoice not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
+            $this->addFlash('error', 'Invoice not found.');
+        }
+
+        return $this->render('invoice/confirmation.html.twig', [
+            'invoice' => $invoice,
+            'isError' => $invoice->isFullyPaid() === false,
+        ]);
     }
 }

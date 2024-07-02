@@ -80,6 +80,8 @@ class InvoiceGenerator
         $this->writeVoucherDescription($invoice->getVouchers()->first()->getVoucherType());
         $this->writeAmount($invoice->getAmount());
         $this->writeTotalAmount($invoice->getAmount());
+
+        $this->saveInvoice($invoice);
     }
 
     public function getTargetDirectory(Invoice $invoice): string
