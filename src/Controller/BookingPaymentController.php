@@ -16,10 +16,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingPaymentController extends AbstractController
 {
     public function __construct(
+        private readonly TranslatorInterface $translator,
         private readonly LoggerInterface $logger,
         private readonly PriceRepository $priceRepository,
         private readonly BookingRepository $bookingRepository,
@@ -53,7 +55,7 @@ class BookingPaymentController extends AbstractController
 
         $submittedToken = $request->getPayload()->getString('token');
         if (false === $this->isCsrfTokenValid('payment', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token.');
+            $this->addFlash('error', $this->translator->trans('form.general.csrf_token_invalid', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepPayment($response, $booking);
@@ -62,7 +64,7 @@ class BookingPaymentController extends AbstractController
         $priceId = $request->request->get('priceId');
         if (empty($priceId)) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'PriceId is missing.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.no_price', [], 'flash'));
 
             return $this->renderStepPayment($response, $booking);
         }
@@ -70,7 +72,7 @@ class BookingPaymentController extends AbstractController
         $price = $this->priceRepository->find($priceId);
         if (null === $price) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Price not found.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.price_not_found', [], 'flash'));
 
             return $this->renderStepPayment($response, $booking);
         }
@@ -78,7 +80,7 @@ class BookingPaymentController extends AbstractController
         $paymentMethod = $request->request->get('paymentMethod');
         if (empty($paymentMethod)) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Payment method is missing.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.no_payment_method', [], 'flash'));
 
             return $this->renderStepPayment($response, $booking);
         }
@@ -108,7 +110,7 @@ class BookingPaymentController extends AbstractController
         }
 
         $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-        $this->addFlash('error', 'Payment method not found.');
+        $this->addFlash('error', $this->translator->trans('form.booking.payment.payment_method_not_found', [], 'flash'));
 
         return $this->renderStepPayment($response, $booking);
     }
@@ -145,7 +147,7 @@ class BookingPaymentController extends AbstractController
         $response       = new Response();
         $submittedToken = $request->getPayload()->getString('token');
         if (false === $this->isCsrfTokenValid('voucher', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token.');
+            $this->addFlash('error', $this->translator->trans('form.general.csrf_token_invalid', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderVoucherPayment($response, $booking);
@@ -154,7 +156,7 @@ class BookingPaymentController extends AbstractController
         $voucherCode = $request->getPayload()->getString('voucher');
         if (empty($voucherCode)) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Voucher code is missing.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.no_voucher_code', [], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
@@ -162,38 +164,35 @@ class BookingPaymentController extends AbstractController
         $voucher = $voucherRepository->findOneBy(['code' => $voucherCode]);
         if (null === $voucher) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Voucher not found.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.invalid_code', [], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
 
         if ($voucher->getUser() !== $booking->getUser()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Voucher is not valid for this user.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.not_for_user', [], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
 
         if ($voucher->isExpired()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Voucher is expired.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.voucher_expired', [], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
 
         if (null !== $voucher->getUseDate()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash(
-                'error',
-                'Voucher has already been used on ' . $voucher->getUseDate()->format('Y-m-d') . '.'
-            );
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.already_used', ['%%date%' => $voucher->getUseDate()->format('Y-m-d')], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
 
         if (false === $voucher->hasBeenPaid()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', 'Voucher has not been paid and cannot be used.');
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.not_paid', [], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }

@@ -11,15 +11,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InvoicePaypalPaymentController extends AbstractController
 {
     public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
         private readonly PayPalService $payPalService,
         private readonly InvoiceRepository $invoiceRepository,
         private readonly InvoiceManager $invoiceManager,
         private readonly PaymentManager $paymentManager,
-        private readonly LoggerInterface $logger,
     ) {
     }
     #[Route('/invoice/{uuid}/paypal', name: 'invoice_payment_paypal')]
@@ -34,12 +36,12 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         if (null === $invoice) {
-            $this->addFlash('error', 'Invoice not found.');
+            $this->addFlash('error', $this->translator->trans('invoice_payment.invoice_not_found', [], 'flash'));
             return $this->redirectToRoute('user_dashboard');
         }
 
         if ($invoice->isFullyPaid()){
-            $this->addFlash('success', 'Invoice has already been paid.');
+            $this->addFlash('success', $this->translator->trans('invoice_payment.already_paid', [], 'flash'));
 
             if ($invoice->isBookingInvoice()){
                 return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
@@ -107,7 +109,7 @@ class InvoicePaypalPaymentController extends AbstractController
         $targetUrl = $this->generateUrl('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
 
         if (false === $this->payPalService->handlePayment($invoice)) {
-            $this->addFlash('error', 'Payment has not been processed. Please try again later or contact support.');
+            $this->addFlash('error', $this->translator->trans('invoice_payment.payment_failed', [], 'flash'));
 
             return $this->json(
                 ['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl],
@@ -142,7 +144,7 @@ class InvoicePaypalPaymentController extends AbstractController
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
             $this->logger->error('Invoice not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
-            $this->addFlash('error', 'Invoice not found.');
+            $this->addFlash('error', $this->translator->trans('invoice_payment.invoice_not_found', [], 'flash'));
         }
 
         return $this->render('invoice/confirmation.html.twig', [
