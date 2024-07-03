@@ -9,13 +9,13 @@ form:
       date_in_past: 'Datum kann nicht in der Vergangenheit liegen.'
     step_room:
       date_not_possible: 'Dieses Datum ist nicht möglich.'
-      date_no_longer_available: 'Datum ist nicht mehr verfügbar.'
+      date_no_longer_available: 'Dieses Datum ist nicht mehr verfügbar.'
       no_room: 'Bitte ein Zimmer auswählen.'
       unknown_room: 'Unbekanntes Zimmer ausgewählt.'
       room_full: 'Dieses Zimmer ist ausgebucht.'
     cancel:
       impossible: 'Diese Buchung kann nicht storniert werden.'
-      time_limit_exceeded: 'Buchungen können nur %d% Tage vorher storniert werden.'
+      time_limit_exceeded: 'Buchungen können nur %d% Tag(e) vorher storniert werden.'
       success: 'Die Buchung für den %date% wurde erfolgreich storniert.'
     payment:
       no_price: 'Bitte ein Preis auswählen.'

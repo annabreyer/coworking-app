@@ -153,7 +153,7 @@ class PayPalService
 
     private function validatePaypalOrderData(Invoice $invoice, array $paypalOrderData): bool
     {
-        if (self::INTENT_CAPTURE!== $paypalOrderData['intent']) {
+        if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {
             $this->logger->error(sprintf(self::ERROR_MESSAGE, self::INTENT_CAPTURE, $paypalOrderData['intent'],
                 $invoice->getPayPalOrderId()));
 
@@ -169,7 +169,7 @@ class PayPalService
 
         $paypalCurrency = $paypalOrderData['purchase_units'][0]['amount']['currency_code'];
         if ('EUR' !== $paypalCurrency) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, 'EUR', $paypalCurrency, $paypalOrderData['id']));
+            $this->logger->error(sprintf(self::ERROR_MESSAGE, 'EUR', $paypalCurrency, $invoice->getPayPalOrderId()));
 
             return false;
         }
@@ -177,7 +177,7 @@ class PayPalService
         $amount       = $invoice->getAmount() / 100;
         $payPalAmount = (int)$paypalOrderData['purchase_units'][0]['amount']['value'];
         if ($amount !== $payPalAmount) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, (string)$payPalAmount));
+            $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, $payPalAmount, $invoice->getPayPalOrderId()));
 
             return false;
         }

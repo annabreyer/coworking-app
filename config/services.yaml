@@ -6,7 +6,7 @@
 parameters:
   support_email: 'office@coworking-hahnheim.de'
   document_vault_email: 'ensembleitcoa1db@finom.me'
-  time_limit_cancel_booking_days: '1 day'
+  time_limit_cancel_booking_days: '1'
   invoice_directory: '%kernel.project_dir%/private/invoice'
   invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_prefix: 'CO'

@@ -88,7 +88,7 @@ class BookingController extends AbstractController
         $businessDay = $this->businessDayRepository->findOneBy(['date' => $dateTime]);
 
         if (null === $businessDay || false === $businessDay->isOpen()) {
-            $this->addFlash('error', $this->translator->trans('form.booking.step_date.date_not_possible', [], 'flash'));
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_not_possible', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());

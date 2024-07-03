@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class VoucherController extends AbstractController
 {
@@ -31,7 +32,7 @@ class VoucherController extends AbstractController
 
         if (empty($voucherPrices)) {
             $this->addFlash('error', $this->translator->trans('form.voucher.not_available', [], 'flash'));
-            $this->logger->critical('No voucher prices available.');
+            $this->logger->error('No voucher prices available.');
 
             return $this->redirectToRoute('home');
         }

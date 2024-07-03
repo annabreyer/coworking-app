@@ -178,7 +178,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $data = json_decode($client->getResponse()->getContent(), true);
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         self::assertSame('Payment has not been processed.', $data['error']);
-        self::assertSame('/invoice/' . $invoice->getUuid() . '/paypal', $data['targetUrl']);
+        self::assertSame('/invoice/' . $invoice->getUuid() . '/confirmation', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentCreatesPaymentAndReturnsTargetUrlWhenCaptureIsSuccessfull(): void
@@ -217,6 +217,6 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $payment           = $paymentRepository->findOneBy(['invoice' => $invoice, 'type' => Payment::PAYMENT_TYPE_PAYPAL]);
         self::assertNotNull($payment);
         self::assertSame('Payment has been processed.', $data['success']);
-        self::assertSame('/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation', $data['targetUrl']);
+        self::assertSame('/invoice/' . $invoice->getUuid() . '/confirmation', $data['targetUrl']);
     }
 }

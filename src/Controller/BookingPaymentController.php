@@ -185,7 +185,7 @@ class BookingPaymentController extends AbstractController
 
         if (null !== $voucher->getUseDate()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.already_used', ['%%date%' => $voucher->getUseDate()->format('Y-m-d')], 'flash'));
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.already_used', ['%date%' => $voucher->getUseDate()->format('Y-m-d')], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
