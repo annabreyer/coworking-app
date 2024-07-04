@@ -26,6 +26,9 @@ class InvoiceManager
     use ClockAwareTrait;
     use EmailContextTrait;
 
+    /**
+     * @param non-empty-string $invoicePrefix
+     */
     public function __construct(
         private readonly InvoiceGenerator $invoiceGenerator,
         private readonly EntityManagerInterface $entityManager,
@@ -217,8 +220,9 @@ class InvoiceManager
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
         $number                = (int) $invoiceNumberElements[1];
+        $newNumber             = $number + 1;
 
-        return $this->invoicePrefix . $number + 1;
+        return $this->invoicePrefix . $newNumber;
     }
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
@@ -236,6 +240,11 @@ class InvoiceManager
         $this->mailer->send($email);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
+     */
     private function sendEmailToUser(string $userEmail, string $subject, array $context, string $invoicePath): void
     {
         $email = (new TemplatedEmail())

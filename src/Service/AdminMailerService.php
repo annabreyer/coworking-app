@@ -24,7 +24,7 @@ class AdminMailerService
 
     public function notifyAdminAboutBooking(Booking $booking): void
     {
-        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+        if (null === $booking->getBusinessDay()) {
             throw new \LogicException('Booking has no business day');
         }
 

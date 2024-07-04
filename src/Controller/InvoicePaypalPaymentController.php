@@ -31,15 +31,15 @@ class InvoicePaypalPaymentController extends AbstractController
     public function payInvoiceWithPayPal(
         string $uuid,
     ): Response {
+        $invoice = null;
         try {
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
             $this->logger->error('Invoice not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
-            $invoice = null;
         }
 
         if (null === $invoice) {
-            $this->addFlash('error', $this->translator->trans('invoice_payment.invoice_not_found', [], 'flash'));
+            $this->addFlash('error', $this->translator->trans('invoice_payment.not_found', [], 'flash'));
 
             return $this->redirectToRoute('user_dashboard');
         }
@@ -47,11 +47,7 @@ class InvoicePaypalPaymentController extends AbstractController
         if ($invoice->isFullyPaid()) {
             $this->addFlash('success', $this->translator->trans('invoice_payment.already_paid', [], 'flash'));
 
-            if ($invoice->isBookingInvoice()) {
-                return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
-            }
-
-            return $this->redirectToRoute('user_dashboard');
+            return $this->redirectToRoute('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
         }
 
         if (null !== $invoice->getPayPalOrderId()) {
@@ -88,11 +84,8 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         if ($invoice->isFullyPaid()) {
-            $targetUrl = $this->generateUrl('user_dashboard');
-
-            if ($invoice->isBookingInvoice()) {
-                $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
-            }
+            $this->addFlash('success', $this->translator->trans('invoice_payment.already_paid', [], 'flash'));
+            $targetUrl = $this->generateUrl('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
 
             return $this->json(
                 ['error' => 'Invoice has already been paid.', 'targetUrl' => $targetUrl],
@@ -114,7 +107,7 @@ class InvoicePaypalPaymentController extends AbstractController
         $targetUrl = $this->generateUrl('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
 
         if (false === $this->payPalService->handlePayment($invoice)) {
-            $this->addFlash('error', $this->translator->trans('invoice_payment.payment_failed', [], 'flash'));
+            $this->addFlash('error', $this->translator->trans('invoice_payment.payment_error', [], 'flash'));
 
             return $this->json(
                 ['error' => 'Payment has not been processed.', 'targetUrl' => $targetUrl],
@@ -143,18 +136,19 @@ class InvoicePaypalPaymentController extends AbstractController
     }
 
     #[Route('/invoice/{uuid}/confirmation', name: 'invoice_payment_confirmation', methods: ['GET'])]
-    public function confirmPayment(string $uuid)
+    public function confirmPayment(string $uuid): Response
     {
+        $invoice = null;
         try {
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
             $this->logger->error('Invoice not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
-            $this->addFlash('error', $this->translator->trans('invoice_payment.invoice_not_found', [], 'flash'));
+            $this->addFlash('error', $this->translator->trans('invoice_payment.not_found', [], 'flash'));
         }
 
         return $this->render('invoice/confirmation.html.twig', [
             'invoice' => $invoice,
-            'isError' => false === $invoice->isFullyPaid(),
+            'isError' => null === $invoice || false === $invoice->isFullyPaid(),
         ]);
     }
 }

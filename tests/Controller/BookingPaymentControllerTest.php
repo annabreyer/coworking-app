@@ -56,6 +56,7 @@ class BookingPaymentControllerTest extends WebTestCase
         static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -372,6 +373,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
 
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -743,6 +745,7 @@ class BookingPaymentControllerTest extends WebTestCase
         static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {

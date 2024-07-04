@@ -56,7 +56,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -86,12 +86,12 @@ class PayPalServiceTest extends WebTestCase
             $orderResponseBody,
             json_encode([])
         );
-
         $invoice->setPayPalOrderId($payPalOrderId);
         self::assertFalse($payPalService->handlePayment($invoice));
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -126,6 +126,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -161,6 +162,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -200,6 +202,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -242,6 +245,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -273,13 +277,13 @@ class PayPalServiceTest extends WebTestCase
             json_encode([])
         );
 
-        $invoice->setPayPalOrderId($payPalOrderId);
         $invoice->setAmount(1000);
-
+        $invoice->setPayPalOrderId($payPalOrderId);
         self::assertFalse($payPalService->handlePayment($invoice));
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -318,7 +322,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -355,6 +359,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -393,6 +398,7 @@ class PayPalServiceTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -423,7 +429,6 @@ class PayPalServiceTest extends WebTestCase
             $this->getMockOrderClientResponseBody($payPalOrderId),
             $this->getMockPaymentClientResponseBody()
         );
-
         $invoice->setPayPalOrderId($payPalOrderId);
         self::assertTrue($payPalService->handlePayment($invoice));
     }
@@ -464,6 +469,9 @@ class PayPalServiceTest extends WebTestCase
         return $mockHttpClient;
     }
 
+    /**
+     * @param string|iterable<mixed, mixed> $body
+     */
     private function getMockOrderClient(int $expectedStatusCode, string|iterable $body): HttpClientInterface
     {
         $info              = ['http_code' => $expectedStatusCode];
@@ -508,6 +516,9 @@ class PayPalServiceTest extends WebTestCase
         );
     }
 
+    /**
+     * @param string|iterable<mixed, mixed> $body
+     */
     private function getMockPaymentClient(int $expectedStatusCode, string|iterable $body): HttpClientInterface
     {
         $info                = ['http_code' => $expectedStatusCode];

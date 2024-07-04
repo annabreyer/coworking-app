@@ -72,7 +72,10 @@ class BookingController extends AbstractController
         }
 
         if (false === $dateTime) {
-            $this->addFlash('error', $this->translator->trans('form.booking.step_date.invalid_date_format', [], 'flash'));
+            $this->addFlash(
+                'error',
+                $this->translator->trans('form.booking.step_date.invalid_date_format', [], 'flash')
+            );
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
@@ -121,16 +124,7 @@ class BookingController extends AbstractController
 
         $response = new Response();
         /** @var User $user */
-        $user = $this->getUser();
-
-        // This code should never execute. It can not be tested. It has been added to avoid PHPStan error and also because it is good Sf practice.
-        if (false === $user instanceof User) {
-            $this->logger->critical('User is not an instance of User but of class ' . \get_class($user));
-            $response = $this->security->logout();
-
-            return $response;
-        }
-
+        $user           = $this->getUser();
         $submittedToken = $request->getPayload()->getString('token');
 
         if (false === $this->isCsrfTokenValid('room', $submittedToken)) {
@@ -230,7 +224,6 @@ class BookingController extends AbstractController
         }
 
         $activePrices = $this->priceRepository->findActivePrices();
-
         if (empty($activePrices)) {
             $this->logger->critical('No active Price found.');
             $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));

@@ -6,6 +6,8 @@ namespace App\Service;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
+use App\Entity\User;
+use App\Entity\Voucher;
 use App\Entity\VoucherType;
 use App\Manager\InvoiceManager;
 use setasign\Fpdi\Tfpdf\Fpdi;
@@ -40,22 +42,32 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
+        $invoiceBooking = $invoice->getFirstBooking();
+        if (null === $invoiceBooking) {
+            throw new \InvalidArgumentException('Invoice must have a booking.');
+        }
+
+        $user = $invoiceBooking->getUser();
+        if (false === $user instanceof User) {
+            throw new \InvalidArgumentException('Booking must have a user.');
+        }
+
         $this->setupInvoiceTemplate();
         $this->addInvoiceData($invoice);
-        $this->addClientData($invoice);
-        $this->writeBookingLine($invoice->getBookings()->first());
+        $this->addClientData($user);
+        $this->writeBookingLine($invoiceBooking);
 
         if ($invoice->isFullyPaidByVoucher()) {
             $this->addVoucherPayment($invoice);
         }
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount());
+            $this->writeTotalAmount((int) $invoice->getAmount());
             $this->addAlreadyPaidMention($invoice);
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount());
+            $this->writeTotalAmount((int) $invoice->getAmount());
             $this->addDueMention($invoice);
         }
 
@@ -72,13 +84,33 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice has no vouchers.');
         }
 
+        $firstVoucher = $invoice->getVouchers()->first();
+        if (false === $firstVoucher instanceof Voucher) {
+            throw new \InvalidArgumentException('Invoice has no vouchers.');
+        }
+
+        $voucherType = $firstVoucher->getVoucherType();
+        if (null === $voucherType) {
+            throw new \InvalidArgumentException('Voucher has no voucher type.');
+        }
+
+        $invoiceAmount = $invoice->getAmount();
+        if (null === $invoiceAmount) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $user = $firstVoucher->getUser();
+        if (false === $user instanceof User) {
+            throw new \InvalidArgumentException('Voucher must have a user.');
+        }
+
         $this->setupInvoiceTemplate();
         $this->addInvoiceData($invoice);
-        $this->addClientData($invoice);
+        $this->addClientData($user);
         $this->writeFirstPositionNumber();
-        $this->writeVoucherDescription($invoice->getVouchers()->first()->getVoucherType());
-        $this->writeAmount($invoice->getAmount());
-        $this->writeTotalAmount($invoice->getAmount());
+        $this->writeVoucherDescription($voucherType);
+        $this->writeAmount($invoiceAmount);
+        $this->writeTotalAmount($invoiceAmount);
 
         $this->saveInvoice($invoice);
     }
@@ -113,29 +145,41 @@ class InvoiceGenerator
 
     private function addInvoiceData(Invoice $invoice): void
     {
+        if (null === $invoice->getNumber()) {
+            throw new \InvalidArgumentException('Invoice must have a number.');
+        }
+
         $this->writeInvoiceNumber($invoice);
-        $this->writeClientNumber($invoice);
         $this->writeInvoiceDate($invoice);
     }
 
-    private function addClientData(Invoice $invoice): void
+    private function addClientData(User $user): void
     {
-        $this->writeClientFullName($invoice);
+        $this->writeClientNumber($user);
+        $this->writeClientFullName($user);
 
-        if ($invoice->getUser()->hasAddress()) {
-            $this->writeClientStreet($invoice);
-            $this->writeClientCity($invoice);
+        if ($user->hasAddress()) {
+            $this->writeClientStreet($user);
+            $this->writeClientCity($user);
         }
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
     {
+        if (null === $invoice->getNumber()) {
+            throw new \InvalidArgumentException('Invoice must have a number.');
+        }
+
         $this->writeValue(160, 45.5, 30, 8, $invoice->getNumber());
     }
 
-    private function writeClientNumber(Invoice $invoice): void
+    private function writeClientNumber(User $user): void
     {
-        $number       = InvoiceManager::getClientNumber($invoice->getUser()->getId());
+        if (null === $user->getId()) {
+            throw new \InvalidArgumentException('User must be persisted.');
+        }
+
+        $number       = InvoiceManager::getClientNumber($user->getId());
         $clientNumber = $this->invoiceClientNumberPrefix . $number;
 
         $this->writeValue(160, 51, 30, 8, $clientNumber);
@@ -143,30 +187,39 @@ class InvoiceGenerator
 
     private function writeInvoiceDate(Invoice $invoice): void
     {
+        if (null === $invoice->getDate()) {
+            throw new \InvalidArgumentException('Invoice must have a date.');
+        }
+
         $this->writeValue(160, 56.25, 30, 8, $invoice->getDate()->format('d.m.Y'));
     }
 
-    private function writeClientFullName(Invoice $invoice): void
+    private function writeClientFullName(User $user): void
     {
-        $this->writeValue(13, 85, 100, 8, $invoice->getUser()->getFullName());
+        $this->writeValue(13, 85, 100, 8, $user->getFullName());
     }
 
-    private function writeClientStreet(Invoice $invoice): void
+    private function writeClientStreet(User $user): void
     {
-        $this->writeValue(13, 90, 100, 8, $invoice->getUser()->getStreet());
+        $this->writeValue(13, 90, 100, 8, $user->getStreet());
     }
 
-    private function writeClientCity(Invoice $invoice): void
+    private function writeClientCity(User $user): void
     {
-        $postCodeAndCity = $invoice->getUser()->getPostCode() . ' ' . $invoice->getUser()->getCity();
+        $postCodeAndCity = $user->getPostCode() . ' ' . $user->getCity();
         $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
     }
 
     private function writeBookingLine(Booking $booking): void
     {
+        $bookingAmount = $booking->getAmount();
+        if (null === $bookingAmount) {
+            throw new \InvalidArgumentException('Booking must have an amount.');
+        }
+
         $this->writeFirstPositionNumber();
         $this->writeBookingDescription($booking);
-        $this->writeAmount($booking->getAmount());
+        $this->writeAmount($bookingAmount);
     }
 
     private function writeFirstPositionNumber(): void
@@ -176,13 +229,19 @@ class InvoiceGenerator
 
     private function writeBookingDescription(Booking $booking): void
     {
-        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+        $bookingDate = $booking->getBusinessDay()?->getDate();
+        if (null === $bookingDate) {
             throw new \InvalidArgumentException('Booking must have a business day with a date.');
         }
 
+        $bookingRoom = $booking->getRoom();
+        if (null === $bookingRoom) {
+            throw new \InvalidArgumentException('Booking must have a room.');
+        }
+
         $description = $this->translator->trans('booking.invoice.description', [
-            '%date%' => $booking->getBusinessDay()->getDate()->format('d.m.Y'),
-            '%room%' => $booking->getRoom()->getName(),
+            '%date%' => $bookingDate->format('d.m.Y'),
+            '%room%' => $bookingRoom->getName(),
         ]);
         $this->writeValue(30, 145, 140, 8, $description);
     }
@@ -224,8 +283,13 @@ class InvoiceGenerator
         $y        = 155;
         $position = 2;
         foreach ($invoice->getPayments() as $payment) {
+            $paymentVoucher = $payment->getVoucher();
+            if (null === $paymentVoucher || null === $paymentVoucher->getCode()) {
+                throw new \InvalidArgumentException('Payment must have a voucher and a voucher code.');
+            }
+
             $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_voucher', [
-                '%voucherCode%' => $payment->getVoucher()->getCode(),
+                '%voucherCode%' => $paymentVoucher->getCode(),
             ]);
             $amount = $payment->getAmount() / 100;
 

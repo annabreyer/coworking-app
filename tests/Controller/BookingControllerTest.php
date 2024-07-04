@@ -19,6 +19,7 @@ use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class BookingControllerTest extends WebTestCase
 {
@@ -41,7 +42,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -71,7 +72,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -116,7 +117,7 @@ class BookingControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[type="date"]'));
     }
 
-    public function testStepDateTemplateDatepickerIsSetOnCurrentDay()
+    public function testStepDateTemplateDatepickerIsSetOnCurrentDay(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-05-01'));
         $client       = static::createClient();
@@ -135,7 +136,7 @@ class BookingControllerTest extends WebTestCase
         self::assertSame('2024-05-01', $datepicker->attr('min'));
     }
 
-    public function testStepDateTemplateDatepickerMaxMatchesDatabase()
+    public function testStepDateTemplateDatepickerMaxMatchesDatabase(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-05-01'));
         $client       = static::createClient();
@@ -321,7 +322,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -351,6 +352,7 @@ class BookingControllerTest extends WebTestCase
 
         static::assertResponseRedirects('/booking');
 
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
         self::assertContains('Dieses Datum ist nicht mehr verfügbar.', $session->getFlashBag()->get('error'));
     }
@@ -372,6 +374,7 @@ class BookingControllerTest extends WebTestCase
         $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
 
         static::assertResponseRedirects('/booking');
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
         self::assertContains('Dieses Datum ist nicht möglich.', $session->getFlashBag()->get('error'));
     }
@@ -680,7 +683,7 @@ class BookingControllerTest extends WebTestCase
         static::assertEmailSubjectContains($email, $businessDay->getDate()->format('d/m/Y'));
     }
 
-    public function testCancelBookingLogsErrorWhenBookingIsNotFoundAndRedirects()
+    public function testCancelBookingLogsErrorWhenBookingIsNotFoundAndRedirects(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -698,6 +701,7 @@ class BookingControllerTest extends WebTestCase
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
 
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -714,7 +718,7 @@ class BookingControllerTest extends WebTestCase
         ));
     }
 
-    public function testCancelBookingChecksUser()
+    public function testCancelBookingChecksUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -734,7 +738,7 @@ class BookingControllerTest extends WebTestCase
         static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testCancelBookingChecksBookingIdInUrlAndPostMatch()
+    public function testCancelBookingChecksBookingIdInUrlAndPostMatch(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -755,11 +759,12 @@ class BookingControllerTest extends WebTestCase
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
         self::assertNotNull($notCancelledBooking);
 
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
         self::assertContains('Diese Buchung kann nicht storniert werden.', $session->getFlashBag()->get('error'));
     }
 
-    public function testCancelBookingChecksBookingIsInTheFuture()
+    public function testCancelBookingChecksBookingIsInTheFuture(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-04-01'));
         $client       = static::createClient();
@@ -780,7 +785,8 @@ class BookingControllerTest extends WebTestCase
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
         self::assertNotNull($notCancelledBooking);
 
-        $limit           = static::getContainer()->getParameter('time_limit_cancel_booking_days');
+        $limit = static::getContainer()->getParameter('time_limit_cancel_booking_days');
+        /** @var Session $session */
         $session         = $client->getRequest()->getSession();
         $expectedMessage = sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
         $errors          = $session->getFlashBag()->get('error');

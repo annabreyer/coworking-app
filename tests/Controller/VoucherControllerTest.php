@@ -15,13 +15,12 @@ use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class VoucherControllerTest extends WebTestCase
 {
-
     public function testIndexLogsErrorAndRedirectsWhenNoVouchersFoundInDatabase(): void
     {
         $client       = static::createClient();
@@ -37,11 +36,13 @@ class VoucherControllerTest extends WebTestCase
         $client->request('GET', '/voucher');
         static::assertResponseRedirects('/');
 
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
         self::assertContains('Gutscheine oder Mehrfachkarten sind derzeit nicht verfügbar.', $session->getFlashBag()->get('error'));
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -54,6 +55,7 @@ class VoucherControllerTest extends WebTestCase
             Level::fromName('error')
         ));
     }
+
     public function testIndexTemplateContainsFormWithVoucherTypeAndPaymentMethod(): void
     {
         $client       = static::createClient();
@@ -275,11 +277,12 @@ class VoucherControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        //Mock seems not to be taken into account ... don't know why. Code is correct.
-        //all the following assertions fail
+        // Mock seems not to be taken into account ... don't know why. Code is correct.
+        // all the following assertions fail
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -297,7 +300,7 @@ class VoucherControllerTest extends WebTestCase
         }
 
         self::assertTrue($testHandler->hasRecordThatContains(
-            'Vouchers and Invoice were not created for User '. $user->getId(),
+            'Vouchers and Invoice were not created for User ' . $user->getId(),
             Level::fromName('error')
         ));
 
@@ -378,6 +381,6 @@ class VoucherControllerTest extends WebTestCase
                           ->get(VoucherRepository::class)
                           ->findBy(['user' => $user])
         ;
-        static::assertResponseRedirects('/invoice/' . $vouchers[0]->getInvoice()->getUuid().'/paypal' );
+        static::assertResponseRedirects('/invoice/' . $vouchers[0]->getInvoice()->getUuid() . '/paypal');
     }
 }

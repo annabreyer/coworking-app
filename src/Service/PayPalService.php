@@ -151,6 +151,9 @@ class PayPalService
         return true;
     }
 
+    /**
+     * @param array<mixed> $paypalOrderData
+     */
     private function validatePaypalOrderData(Invoice $invoice, array $paypalOrderData): bool
     {
         if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {

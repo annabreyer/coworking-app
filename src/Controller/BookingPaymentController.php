@@ -69,8 +69,9 @@ class BookingPaymentController extends AbstractController
             return $this->renderStepPayment($response, $booking);
         }
 
-        $price = $this->priceRepository->find($priceId);
-        if (null === $price) {
+        $price       = $this->priceRepository->find($priceId);
+        $priceAmount = $price?->getAmount();
+        if (null === $price || null === $priceAmount) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $this->addFlash('error', $this->translator->trans('form.booking.payment.price_not_found', [], 'flash'));
 
@@ -85,24 +86,27 @@ class BookingPaymentController extends AbstractController
             return $this->renderStepPayment($response, $booking);
         }
 
-        if (null === $booking->getAmount()) {
-            $this->bookingManager->addAmountToBooking($booking, $price);
+        $bookingAmount = $booking->getAmount();
+        if (null === $bookingAmount) {
+            $this->bookingManager->addAmountToBooking($booking, $priceAmount);
+            $bookingAmount = $priceAmount;
         }
 
-        if (null === $booking->getInvoice()) {
-            $this->invoiceManager->createInvoiceFromBooking($booking, $booking->getAmount());
+        $bookingInvoice = $booking->getInvoice();
+        if (null === $bookingInvoice) {
+            $bookingInvoice = $this->invoiceManager->createInvoiceFromBooking($booking, $bookingAmount);
         }
 
         if ('invoice' === $paymentMethod) {
-            $this->invoiceManager->generateBookingInvoicePdf($booking->getInvoice());
-            $this->invoiceManager->sendBookingInvoiceToUser($booking->getInvoice());
-            $this->invoiceManager->sendInvoiceToDocumentVault($booking->getInvoice());
+            $this->invoiceManager->generateBookingInvoicePdf($bookingInvoice);
+            $this->invoiceManager->sendBookingInvoiceToUser($bookingInvoice);
+            $this->invoiceManager->sendInvoiceToDocumentVault($bookingInvoice);
 
             return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
 
         if ('paypal' === $paymentMethod) {
-            return $this->redirectToRoute('invoice_payment_paypal', ['uuid' => $booking->getInvoice()->getUuid()]);
+            return $this->redirectToRoute('invoice_payment_paypal', ['uuid' => $bookingInvoice->getUuid()]);
         }
 
         if ('voucher' === $paymentMethod) {

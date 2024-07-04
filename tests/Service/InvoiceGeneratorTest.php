@@ -5,17 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\DataFixtures\BasicFixtures;
-use App\DataFixtures\BookingFixtures;
 use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\DataFixtures\BookingWithOutInvoiceFixture;
 use App\DataFixtures\InvoiceFixtures;
-use App\DataFixtures\VoucherFixtures;
 use App\Entity\Invoice;
-use App\Entity\Price;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
-use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use App\Service\InvoiceGenerator;

@@ -89,7 +89,7 @@ class VoucherManagerTest extends KernelTestCase
 
         $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
 
-        $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
+        $vouchers       = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         $expirationDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');
         self::assertSame($expirationDate->format('Y-m-d'), $vouchers[0]->getExpiryDate()->format('Y-m-d'));
     }

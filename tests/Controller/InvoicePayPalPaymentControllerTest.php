@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -35,10 +35,11 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
 
         $uri = '/invoice/' . BookingPaymentControllerTest::FAKE_UUID . '/paypal';
         $client->request('GET', $uri);
-
         static::assertResponseRedirects('/user');
+
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -69,7 +70,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithPaymentFixture::INVOICE_NUMBER]);
         $client->request('GET', '/invoice/' . $invoice->getUuid() . '/paypal');
 
-        static::assertResponseRedirects('/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation');
+        static::assertResponseRedirects('/invoice/' . $invoice->getUuid() . '/confirmation');
     }
 
     public function testPayInvoiceWithPayPalRedirectsWhenOtherInvoiceIsAlreadyPaid(): void
@@ -85,7 +86,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => 'CO202400321']);
         $client->request('GET', '/invoice/' . $invoice->getUuid() . '/paypal');
 
-        static::assertResponseRedirects('/user');
+        static::assertResponseRedirects('/invoice/' . $invoice->getUuid() . '/confirmation');
     }
 
     public function testCapturePayPalPaymentAndReturnsTargetUrlWhenNoInvoiceExists(): void
@@ -121,7 +122,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $client->request('POST', '/invoice/' . $invoice->getUuid() . '/paypal/capture');
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        self::assertSame('/booking/' . $invoice->getBookings()->first()->getUuid() . '/payment/confirmation', $data['targetUrl']);
+        self::assertSame('/invoice/' . $invoice->getUuid() . '/confirmation', $data['targetUrl']);
     }
 
     public function testCapturePayPalPaymentChecksPayload(): void
@@ -136,7 +137,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
 
-        $uri     = '/invoice/' . $invoice->getUuid() . '/paypal/capture';
+        $uri = '/invoice/' . $invoice->getUuid() . '/paypal/capture';
         $client->request('POST', $uri);
 
         $data = json_decode($client->getResponse()->getContent(), true);
@@ -197,7 +198,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $user    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user           = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($user);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Booking;
+use App\Entity\Room;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -26,7 +28,7 @@ class BookingRepository extends ServiceEntityRepository
         parent::__construct($registry, Booking::class);
     }
 
-    public function countBookingsForRoomOnDay(int $roomId, \DateTimeInterface $date): int
+    public function countBookingsForRoomOnDay(int|Room $roomId, \DateTimeInterface $date): int
     {
         $count = $this->createQueryBuilder('b')
             ->select('COUNT(b.id)')
@@ -46,7 +48,7 @@ class BookingRepository extends ServiceEntityRepository
     /**
      * @return Booking[]
      */
-    public function findBookingsForUserAfterDate(int $userId, \DateTimeInterface $date): array
+    public function findBookingsForUserAfterDate(int|User $userId, \DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('b')
             ->join('b.user', 'u')
@@ -63,7 +65,7 @@ class BookingRepository extends ServiceEntityRepository
     /**
      * @return Booking[]
      */
-    public function findBookingsForUserBeforeDate(int $userId, \DateTimeInterface $date): array
+    public function findBookingsForUserBeforeDate(int|User $userId, \DateTimeInterface $date): array
     {
         return $this->createQueryBuilder('b')
             ->join('b.user', 'u')
@@ -81,7 +83,7 @@ class BookingRepository extends ServiceEntityRepository
     /**
      * @return Booking[]
      */
-    public function findBookingsForUserAndYear(int $userId, string $year): array
+    public function findBookingsForUserAndYear(int|User $userId, string $year): array
     {
         $start = new \DateTimeImmutable($year . '-01-01');
         $end   = new \DateTimeImmutable($year . '-12-31');
@@ -96,7 +98,7 @@ class BookingRepository extends ServiceEntityRepository
     /**
      * @return Booking[]
      */
-    public function findBookingsForUserBetween(int $userId, \DateTimeInterface $start, \DateTimeInterface $end): array
+    public function findBookingsForUserBetween(int|User $userId, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         return $this->createQueryBuilder('b')
             ->join('b.user', 'u')

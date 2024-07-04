@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Price;
 use App\Entity\User;
 use App\Manager\InvoiceManager;
 use App\Manager\VoucherManager;
@@ -26,8 +27,12 @@ class VoucherController extends AbstractController
     }
 
     #[Route('/voucher', name: 'voucher_index')]
-    public function index(Request $request, PriceRepository $priceRepository, VoucherManager $voucherManager, InvoiceManager $invoiceManager): Response
-    {
+    public function index(
+        Request $request,
+        PriceRepository $priceRepository,
+        VoucherManager $voucherManager,
+        InvoiceManager $invoiceManager
+    ): Response {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
 
         if (empty($voucherPrices)) {
@@ -83,12 +88,19 @@ class VoucherController extends AbstractController
         }
 
         /** @var User $user */
-        $user = $this->getUser();
+        $user        = $this->getUser();
+        $voucherType = $voucherPrice->getVoucherType();
+        if (null === $voucherType) {
+            $this->addFlash('error', $this->translator->trans('form.voucher.invalid_selection', [], 'flash'));
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+            return $this->renderVoucherTemplate($response, $voucherPrices);
+        }
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
             $invoice = $invoiceManager->createVoucherInvoice($user, $voucherPrice);
-            $voucherManager->createVouchers($user, $voucherPrice->getVoucherType(), 0, $invoice);
+            $voucherManager->createVouchers($user, $voucherType, 0, $invoice);
 
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $exception) {
@@ -114,6 +126,9 @@ class VoucherController extends AbstractController
         return $this->redirectToRoute('invoice_payment_paypal', ['uuid' => $invoice->getUuid()]);
     }
 
+    /**
+     * @param array<int, Price> $voucherPrices
+     */
     private function renderVoucherTemplate(Response $response, array $voucherPrices): Response
     {
         return $this->render('voucher/index.html.twig', [

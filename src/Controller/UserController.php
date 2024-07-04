@@ -62,8 +62,8 @@ class UserController extends AbstractController
         }
 
         $limit            = $this->now()->modify('-' . $timeLimitCancelBooking);
-        $bookings         = $bookingRepository->findBookingsForUserAfterDate($user->getId(), $this->now());
-        $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user->getId(), $this->now()->format('Y'));
+        $bookings         = $bookingRepository->findBookingsForUserAfterDate($user, $this->now());
+        $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user, $this->now()->format('Y'));
 
         return $this->render('user/bookings.html.twig', [
             'user'             => $user,

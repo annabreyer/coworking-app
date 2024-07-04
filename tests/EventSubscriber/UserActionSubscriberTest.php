@@ -149,7 +149,7 @@ class UserActionSubscriberTest extends WebTestCase
         self::assertSame('DELETE', $userAction->getMethod());
     }
 
-    public function testExcludedUriIsExcluded()
+    public function testExcludedUriIsExcluded(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();

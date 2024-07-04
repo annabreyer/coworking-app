@@ -145,6 +145,13 @@ class Booking
 
     public function __toString(): string
     {
-        return $this->room->getName() . ' - ' . $this->businessDay->getDate()->format('d.m.Y');
+        $roomName        = $this->room?->getName();
+        $businessDayDate = $this->businessDay?->getDate();
+
+        if (null === $businessDayDate || null === $roomName) {
+            return '';
+        }
+
+        return $roomName . ' - ' . $businessDayDate->format('d.m.Y');
     }
 }
