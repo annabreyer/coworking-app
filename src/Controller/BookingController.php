@@ -15,7 +15,6 @@ use App\Service\AdminMailerService;
 use App\Service\BookingService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +27,6 @@ class BookingController extends AbstractController
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly Security $security,
         private readonly LoggerInterface $logger,
         private readonly BookingService $bookingService,
         private readonly BookingManager $bookingManager,
