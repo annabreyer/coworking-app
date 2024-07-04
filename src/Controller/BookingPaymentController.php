@@ -20,6 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingPaymentController extends AbstractController
 {
+    public const BOOKING_STEP_PAYMENT = 'booking_step_payment';
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly LoggerInterface $logger,
@@ -106,6 +107,7 @@ class BookingPaymentController extends AbstractController
         }
 
         if ('paypal' === $paymentMethod) {
+            $request->getSession()->set(self::BOOKING_STEP_PAYMENT, true);
             return $this->redirectToRoute('invoice_payment_paypal', ['uuid' => $bookingInvoice->getUuid()]);
         }
 
