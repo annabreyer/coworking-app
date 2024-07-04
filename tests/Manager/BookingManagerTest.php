@@ -7,8 +7,6 @@ namespace App\Tests\Manager;
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Manager\BookingManager;
-use App\Manager\InvoiceManager;
-use App\Manager\PaymentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
@@ -19,12 +17,9 @@ class BookingManagerTest extends TestCase
 
     public function testCanBookingBeCancelledThrowsExceptionForMissingBusinessDayOrDate(): void
     {
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
-        $booking        = new Booking();
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '1');
+        $booking           = new Booking();
 
         static::expectException(\LogicException::class);
         static::expectExceptionMessage('Booking must have a business day and a date.');
@@ -33,13 +28,10 @@ class BookingManagerTest extends TestCase
 
     public function testCanBookingBeCancelledThrowsExceptionIfNoTimeLimit(): void
     {
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0 day');
-        $booking        = new Booking();
-        $businessDay    = new BusinessDay(new \DateTime());
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '0');
+        $booking           = new Booking();
+        $businessDay       = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         static::expectException(\LogicException::class);
@@ -49,13 +41,10 @@ class BookingManagerTest extends TestCase
 
     public function testCanBookingBeCancelledThrowsExceptionIfTimeLimitIsHalfDay(): void
     {
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '0.5 day');
-        $booking        = new Booking();
-        $businessDay    = new BusinessDay(new \DateTime());
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '0.5');
+        $booking           = new Booking();
+        $businessDay       = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         static::expectException(\LogicException::class);
@@ -65,13 +54,10 @@ class BookingManagerTest extends TestCase
 
     public function testCanBookingBeCancelledThrowsExceptionIfTimeLimitIsOneAndHalfDay(): void
     {
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1.5 day');
-        $booking        = new Booking();
-        $businessDay    = new BusinessDay(new \DateTime());
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '1.5');
+        $booking           = new Booking();
+        $businessDay       = new BusinessDay(new \DateTime());
         $booking->setBusinessDay($businessDay);
 
         static::expectException(\LogicException::class);
@@ -82,13 +68,10 @@ class BookingManagerTest extends TestCase
     public function testCanBookingReturnsTrueIfBookingIsInTheFuture(): void
     {
         self::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
-        $booking        = new Booking();
-        $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '1');
+        $booking           = new Booking();
+        $businessDay       = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
         $booking->setBusinessDay($businessDay);
 
         self::assertTrue($bookingManager->canBookingBeCancelled($booking));
@@ -97,13 +80,10 @@ class BookingManagerTest extends TestCase
     public function testCanBookingReturnsFalseIfBookingIsInThePast(): void
     {
         self::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $mockEntityManager  = $this->createMock(EntityManagerInterface::class);
-        $mockInvoiceManager = $this->createMock(InvoiceManager::class);
-        $mockPaymentManager = $this->createMock(PaymentManager::class);
-
-        $bookingManager = new BookingManager($mockEntityManager, $mockInvoiceManager, $mockPaymentManager, '1 day');
-        $booking        = new Booking();
-        $businessDay    = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
+        $mockEntityManager = $this->createMock(EntityManagerInterface::class);
+        $bookingManager    = new BookingManager($mockEntityManager, '1');
+        $booking           = new Booking();
+        $businessDay       = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
         $booking->setBusinessDay($businessDay);
 
         self::assertFalse($bookingManager->canBookingBeCancelled($booking));

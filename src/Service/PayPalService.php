@@ -61,9 +61,11 @@ class PayPalService
 
         $responseBody = $this->orderClient->request(
             'GET',
-            $this->getGetEndpointUrl($invoice->getPayPalOrderId()),
+            sprintf('%s/v2/checkout/orders/%s', $this->endpoint, $invoice->getPayPalOrderId()),
             [
-                'headers' => ['Authorization' => 'Bearer ' . $this->getAccessToken()],
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                ],
             ]
         );
 
@@ -81,27 +83,7 @@ class PayPalService
             return false;
         }
 
-        if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, self::INTENT_CAPTURE, $paypalOrderData['intent'], $invoice->getPayPalOrderId()));
-
-            return false;
-        }
-
-        if (self::STATUS_APPROVED !== $paypalOrderData['status']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, self::STATUS_APPROVED, $paypalOrderData['status'], $invoice->getPayPalOrderId()));
-
-            return false;
-        }
-
-        if ('EUR' !== $paypalOrderData['purchase_units'][0]['amount']['currency_code']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, 'EUR', $paypalOrderData['purchase_units'][0]['amount']['currency_code'], $paypalOrderData['id']));
-
-            return false;
-        }
-        $amount = $invoice->getAmount() / 100;
-        if ($amount !== (int) $paypalOrderData['purchase_units'][0]['amount']['value']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, $paypalOrderData['purchase_units'][0]['amount']['value'], $paypalOrderData['id']));
-
+        if (false === $this->validatePaypalOrderData($invoice, $paypalOrderData)) {
             return false;
         }
 
@@ -124,7 +106,7 @@ class PayPalService
 
         $responseBody = $this->authClient->request(
             'POST',
-            $this->getAuthEndpointUrl(),
+            sprintf('%s/v1/oauth2/token', $this->endpoint),
             ['body' => 'grant_type=client_credentials']
         );
 
@@ -137,11 +119,12 @@ class PayPalService
     {
         $responseBody = $this->paymentClient->request(
             'POST',
-            $this->getCaptureEndpointUrl($invoice->getPayPalOrderId()),
-            ['headers' => [
-                'Authorization'     => 'Bearer ' . $this->getAccessToken(),
-                'Paypal-Request-Id' => $invoice->getUuid(),
-            ],
+            sprintf('%s/v2/checkout/orders/%s/capture', $this->endpoint, $invoice->getPayPalOrderId()),
+            [
+                'headers' => [
+                    'Authorization'     => 'Bearer ' . $this->getAccessToken(),
+                    'Paypal-Request-Id' => $invoice->getUuid(),
+                ],
             ]
         );
 
@@ -168,18 +151,48 @@ class PayPalService
         return true;
     }
 
-    private function getAuthEndpointUrl(): string
+    /**
+     * @param array<mixed> $paypalOrderData
+     */
+    private function validatePaypalOrderData(Invoice $invoice, array $paypalOrderData): bool
     {
-        return sprintf('%s/v1/oauth2/token', $this->endpoint);
-    }
+        if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {
+            $this->logger->error(sprintf(
+                self::ERROR_MESSAGE,
+                self::INTENT_CAPTURE,
+                $paypalOrderData['intent'],
+                $invoice->getPayPalOrderId()
+            ));
 
-    private function getGetEndpointUrl($id): string
-    {
-        return sprintf('%s/v2/checkout/orders/%s', $this->endpoint, $id);
-    }
+            return false;
+        }
 
-    private function getCaptureEndpointUrl($id): string
-    {
-        return sprintf('%s/v2/checkout/orders/%s/capture', $this->endpoint, $id);
+        if (self::STATUS_APPROVED !== $paypalOrderData['status']) {
+            $this->logger->error(sprintf(
+                self::ERROR_MESSAGE,
+                self::STATUS_APPROVED,
+                $paypalOrderData['status'],
+                $invoice->getPayPalOrderId()
+            ));
+
+            return false;
+        }
+
+        $paypalCurrency = $paypalOrderData['purchase_units'][0]['amount']['currency_code'];
+        if ('EUR' !== $paypalCurrency) {
+            $this->logger->error(sprintf(self::ERROR_MESSAGE, 'EUR', $paypalCurrency, $invoice->getPayPalOrderId()));
+
+            return false;
+        }
+
+        $amount       = $invoice->getAmount() / 100;
+        $payPalAmount = (int) $paypalOrderData['purchase_units'][0]['amount']['value'];
+        if ($amount !== $payPalAmount) {
+            $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, $payPalAmount, $invoice->getPayPalOrderId()));
+
+            return false;
+        }
+
+        return true;
     }
 }

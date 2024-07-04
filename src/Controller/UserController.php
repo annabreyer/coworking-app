@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserDataFormType;
 use App\Repository\BookingRepository;
+use App\Repository\InvoiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -18,7 +19,7 @@ class UserController extends AbstractController
 {
     use ClockAwareTrait;
 
-    #[Route('/user', name: 'user_show')]
+    #[Route('/user', name: 'user_dashboard')]
     public function showUser(): Response
     {
         $user  = $this->getUser();
@@ -61,8 +62,8 @@ class UserController extends AbstractController
         }
 
         $limit            = $this->now()->modify('-' . $timeLimitCancelBooking);
-        $bookings         = $bookingRepository->findBookingsForUserAfterDate($user->getId(), $this->now());
-        $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user->getId(), $this->now()->format('Y'));
+        $bookings         = $bookingRepository->findBookingsForUserAfterDate($user, $this->now());
+        $thisYearBookings = $bookingRepository->findBookingsForUserAndYear($user, $this->now()->format('Y'));
 
         return $this->render('user/bookings.html.twig', [
             'user'             => $user,
@@ -74,12 +75,17 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/vouchers', name: 'user_vouchers')]
-    public function showUserVouchers(): Response
+    public function showUserVouchers(InvoiceRepository $invoiceRepository): Response
     {
-        // @todo
+        /** @var User $user */
+        $user                   = $this->getUser();
+        $pendingPaymentVouchers = $user->getPendingPaymentVouchers();
 
         return $this->render('user/vouchers.html.twig', [
-            'user' => $this->getUser(),
+            'user'                   => $user,
+            'expiredOrUsedVouchers'  => $user->getExpiredOrUsedVouchers(),
+            'validVouchers'          => $user->getValidVouchers(),
+            'pendingPaymentVouchers' => $pendingPaymentVouchers,
         ]);
     }
 }

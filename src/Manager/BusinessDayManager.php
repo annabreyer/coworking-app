@@ -66,10 +66,6 @@ class BusinessDayManager
             return new \DatePeriod($this->now(), $interval, $endDate);
         }
 
-        if (null === $lastBusinessDay->getDate()) {
-            return new \DatePeriod($this->now(), $interval, $endDate);
-        }
-
         return new \DatePeriod($lastBusinessDay->getDate(), $interval, $endDate);
     }
 }

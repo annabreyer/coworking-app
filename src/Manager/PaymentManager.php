@@ -52,9 +52,14 @@ class PaymentManager
 
     public function finalizePaypalPayment(Invoice $invoice): void
     {
+        $invoiceAmount = $invoice->getAmount();
+        if (null === $invoiceAmount) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
         $payment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
         $payment
-            ->setAmount($invoice->getAmount())
+            ->setAmount($invoiceAmount)
             ->setDate($this->now());
 
         $this->entityManager->persist($payment);

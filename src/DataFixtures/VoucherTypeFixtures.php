@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\BusinessDay;
-use App\Entity\Room;
-use App\Entity\TermsOfUse;
-use App\Entity\User;
-use App\Entity\UserTermsOfUse;
 use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
-use Faker\Generator;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class VoucherTypeFixtures extends Fixture
 {

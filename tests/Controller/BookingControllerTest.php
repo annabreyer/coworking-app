@@ -19,6 +19,7 @@ use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class BookingControllerTest extends WebTestCase
 {
@@ -41,7 +42,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -71,7 +72,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -116,7 +117,7 @@ class BookingControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[type="date"]'));
     }
 
-    public function testStepDateTemplateDatepickerIsSetOnCurrentDay()
+    public function testStepDateTemplateDatepickerIsSetOnCurrentDay(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-05-01'));
         $client       = static::createClient();
@@ -135,8 +136,9 @@ class BookingControllerTest extends WebTestCase
         self::assertSame('2024-05-01', $datepicker->attr('min'));
     }
 
-    public function testStepDateTemplateDatepickerMaxMatchesDatabase()
+    public function testStepDateTemplateDatepickerMaxMatchesDatabase(): void
     {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
@@ -154,6 +156,7 @@ class BookingControllerTest extends WebTestCase
 
     public function testStepDateFormSubmitErrorWithInvalidCsrfToken(): void
     {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
@@ -170,11 +173,12 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiges CSRF-Token.');
     }
 
     public function testStepDateFormSubmitErrorWithNoDateSelected(): void
     {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
@@ -191,17 +195,18 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'No date selected.');
+        static::assertSelectorTextContains('div.alert', 'Bitte ein Datum auswählen.');
     }
 
     public function testStepDateFormSubmitErrorWithWrongDateFormat(): void
     {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
@@ -211,7 +216,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Invalid date format.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiges Datumsformat.');
     }
 
     public function testStepDateFormSubmitErrorWithDateInThePast(): void
@@ -232,7 +237,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Date must be in the future.');
+        static::assertSelectorTextContains('div.alert', 'Datum kann nicht in der Vergangenheit liegen.');
     }
 
     public function testStepDateFormSubmitErrorWithNoBusinessDay(): void
@@ -253,7 +258,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Booking for this day is not possible.');
+        static::assertSelectorTextContains('div.alert', 'Dieses Datum ist nicht möglich.');
     }
 
     public function testStepDateFormSubmitErrorWithClosedBusinessDay(): void
@@ -275,7 +280,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Booking for this day is not possible.');
+        static::assertSelectorTextContains('div.alert', 'Dieses Datum ist nicht möglich.');
     }
 
     public function testStepDateFormSubmitSuccessfullAndRedirect(): void
@@ -317,7 +322,7 @@ class BookingControllerTest extends WebTestCase
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
-
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -347,8 +352,9 @@ class BookingControllerTest extends WebTestCase
 
         static::assertResponseRedirects('/booking');
 
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
-        self::assertContains('Booking for this day is not possible anymore.', $session->getFlashBag()->get('error'));
+        self::assertContains('Dieses Datum ist nicht mehr verfügbar.', $session->getFlashBag()->get('error'));
     }
 
     public function testStepRoomRedirectsWithClosedBusinessDay(): void
@@ -368,8 +374,9 @@ class BookingControllerTest extends WebTestCase
         $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
 
         static::assertResponseRedirects('/booking');
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
-        self::assertContains('Booking for this day is not possible.', $session->getFlashBag()->get('error'));
+        self::assertContains('Dieses Datum ist nicht möglich.', $session->getFlashBag()->get('error'));
     }
 
     public function testStepRoomRendersTemplateOnGetRequest(): void
@@ -451,7 +458,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiges CSRF-Token.');
     }
 
     public function testStepRoomFormSubmitErrorWithEmptyRoom(): void
@@ -475,7 +482,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'No room selected.');
+        static::assertSelectorTextContains('div.alert', 'Bitte ein Zimmer auswählen.');
     }
 
     public function testStepRoomFormSubmitErrorWithWrongValueForRoom(): void
@@ -500,7 +507,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Unknown room selected.');
+        static::assertSelectorTextContains('div.alert', 'Unbekanntes Zimmer ausgewählt.');
     }
 
     public function testStepRoomFormSubmitErrorWithNotExistingRoom(): void
@@ -525,7 +532,7 @@ class BookingControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Unknown room selected.');
+        static::assertSelectorTextContains('div.alert', 'Unbekanntes Zimmer ausgewählt.');
     }
 
     public function testStepRoomFormSubmitErrorWithNoCapacity(): void
@@ -565,7 +572,7 @@ class BookingControllerTest extends WebTestCase
         ]);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Room is already fully booked.');
+        static::assertSelectorTextContains('div.alert', 'Dieses Zimmer ist ausgebucht.');
     }
 
     public function testStepRoomFormSubmitErrorFullyBooked(): void
@@ -605,7 +612,7 @@ class BookingControllerTest extends WebTestCase
         ]);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Room is already fully booked.');
+        static::assertSelectorTextContains('div.alert', 'Dieses Zimmer ist ausgebucht.');
     }
 
     public function testStepRoomFormSubmitSuccessfullAndRedirect(): void
@@ -676,7 +683,7 @@ class BookingControllerTest extends WebTestCase
         static::assertEmailSubjectContains($email, $businessDay->getDate()->format('d/m/Y'));
     }
 
-    public function testCancelBookingLogsErrorWhenBookingIsNotFoundAndRedirects()
+    public function testCancelBookingLogsErrorWhenBookingIsNotFoundAndRedirects(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -694,6 +701,7 @@ class BookingControllerTest extends WebTestCase
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
 
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -710,7 +718,7 @@ class BookingControllerTest extends WebTestCase
         ));
     }
 
-    public function testCancelBookingChecksUser()
+    public function testCancelBookingChecksUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -730,7 +738,7 @@ class BookingControllerTest extends WebTestCase
         static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testCancelBookingChecksBookingIdInUrlAndPostMatch()
+    public function testCancelBookingChecksBookingIdInUrlAndPostMatch(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -751,11 +759,12 @@ class BookingControllerTest extends WebTestCase
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
         self::assertNotNull($notCancelledBooking);
 
+        /** @var Session $session */
         $session = $client->getRequest()->getSession();
-        self::assertContains('Booking can not be cancelled.', $session->getFlashBag()->get('error'));
+        self::assertContains('Diese Buchung kann nicht storniert werden.', $session->getFlashBag()->get('error'));
     }
 
-    public function testCancelBookingChecksBookingIsInTheFuture()
+    public function testCancelBookingChecksBookingIsInTheFuture(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-04-01'));
         $client       = static::createClient();
@@ -776,9 +785,10 @@ class BookingControllerTest extends WebTestCase
         $notCancelledBooking = static::getContainer()->get(BookingRepository::class)->find($booking->getId());
         self::assertNotNull($notCancelledBooking);
 
-        $limit           = static::getContainer()->getParameter('time_limit_cancel_booking_days');
+        $limit = static::getContainer()->getParameter('time_limit_cancel_booking_days');
+        /** @var Session $session */
         $session         = $client->getRequest()->getSession();
-        $expectedMessage = sprintf('Bookings can only be cancelled %s before their date.', $limit);
+        $expectedMessage = sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
         $errors          = $session->getFlashBag()->get('error');
         self::assertContains($expectedMessage, $errors);
     }
@@ -802,7 +812,7 @@ class BookingControllerTest extends WebTestCase
         $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
         $deletedBooking = $bookingRepository->find($bookingId);
-        self::assertNotNull($deletedBooking);
+        self::assertNull($deletedBooking);
     }
 
     public function testCancelBookingSuccessfullRedirectsToUserBookings(): void

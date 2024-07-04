@@ -9,7 +9,6 @@ use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserTermsOfUse;
-use App\Entity\VoucherType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;

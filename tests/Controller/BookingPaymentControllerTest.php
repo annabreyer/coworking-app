@@ -56,6 +56,7 @@ class BookingPaymentControllerTest extends WebTestCase
         static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -154,7 +155,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiges CSRF-Token.');
     }
 
     public function testStepPaymentFormSubmitWithoutPriceId(): void
@@ -178,7 +179,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'PriceId is missing.');
+        static::assertSelectorTextContains('div.alert', 'Bitte ein Preis auswählen.');
     }
 
     public function testStepPaymentFormSubmitWithInvalidPriceId(): void
@@ -202,7 +203,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Price not found.');
+        static::assertSelectorTextContains('div.alert', 'Der ausgewählte Preis konnte nicht gefunden werden.');
     }
 
     public function testStepPaymentFormSubmitWithMissingPaymentMethod(): void
@@ -226,7 +227,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Payment method is missing.');
+        static::assertSelectorTextContains('div.alert', 'Bitte eine Zahlungsmethode auswählen.');
     }
 
     public function testStepPaymentFormSubmitWithInvalidPaymentMethod(): void
@@ -250,7 +251,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Payment method not found.');
+        static::assertSelectorTextContains('div.alert', 'Die ausgewählte Zahlungsmethode konnte nicht gefunden werden.');
     }
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceAddsAmountToBookingAndGeneratesInvoiceAndRedirects(): void
@@ -373,6 +374,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
 
+        $testHandler = null;
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
                 $testHandler = $handler;
@@ -485,7 +487,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Invalid CSRF Token.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiges CSRF-Token.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWithoutVoucherCode(): void
@@ -510,7 +512,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher code is missing.');
+        static::assertSelectorTextContains('div.alert', 'Bitte einen Gutscheincode eingeben.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWithInvalidVoucherCode(): void
@@ -534,7 +536,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher not found.');
+        static::assertSelectorTextContains('div.alert', 'Ungültiger Gutscheincode.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherIsNotValidForUser(): void
@@ -557,7 +559,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher is not valid for this user.');
+        static::assertSelectorTextContains('div.alert', 'Gutscheincode kann nicht für diesen Benutzer verwendet werden.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherIsExpired(): void
@@ -579,7 +581,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher is expired.');
+        static::assertSelectorTextContains('div.alert', 'Gutscheincode ist abgelaufen.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherHasAlreadyBeenUsed(): void
@@ -603,7 +605,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher has already been used on 2024-03-14.');
+        static::assertSelectorTextContains('div.alert', 'Gutscheincode wurde bereits am 2024-03-14 verwendet.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherHasNotBeenPaidFor(): void
@@ -625,7 +627,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Voucher has not been paid and cannot be used.');
+        static::assertSelectorTextContains('div.alert', 'Gutscheincode wurde noch nicht bezahlt und kann somit noch nicht genutzt werden.');
     }
 
     public function testPayWithVoucherFormSubmitWithValidVoucherRedirects(): void
@@ -744,6 +746,7 @@ class BookingPaymentControllerTest extends WebTestCase
         static::assertResponseRedirects('/booking');
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {

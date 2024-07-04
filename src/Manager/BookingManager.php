@@ -6,10 +6,8 @@ namespace App\Manager;
 
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
-use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\User;
-use App\Entity\Voucher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -19,8 +17,6 @@ class BookingManager
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly InvoiceManager $invoiceManager,
-        private readonly PaymentManager $paymentManager,
         private readonly string $timeLimitCancelBooking
     ) {
     }
@@ -40,9 +36,9 @@ class BookingManager
         return $booking;
     }
 
-    public function addAmountToBooking(Booking $booking, Price $price): void
+    public function addAmountToBooking(Booking $booking, int $priceAmount): void
     {
-        $booking->setAmount($price->getAmount());
+        $booking->setAmount($priceAmount);
         $this->entityManager->flush();
     }
 
@@ -54,12 +50,12 @@ class BookingManager
 
     public function canBookingBeCancelled(Booking $booking): bool
     {
-        if (null === $booking->getBusinessDay() || null === $booking->getBusinessDay()->getDate()) {
+        if (null === $booking->getBusinessDay()) {
             throw new \LogicException('Booking must have a business day and a date.');
         }
 
         $now   = $this->now();
-        $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking);
+        $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking . 'days');
 
         if ($now < $limit) {
             throw new \LogicException('Time limit cancel booking is wrongly configured.');

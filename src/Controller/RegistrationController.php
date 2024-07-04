@@ -19,11 +19,10 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    private EmailVerifier $emailVerifier;
-
-    public function __construct(EmailVerifier $emailVerifier)
-    {
-        $this->emailVerifier = $emailVerifier;
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly EmailVerifier $emailVerifier
+    ) {
     }
 
     #[Route('/register', name: 'app_register')]
@@ -39,7 +38,7 @@ class RegistrationController extends AbstractController
             $registrationService->registerUser($user, $plainPassword);
             $registrationService->sendRegistrationEmail($user);
 
-            $this->addFlash('success', 'registration.success');
+            $this->addFlash('success', $this->translator->trans('form.registration.success', [], 'flash'));
 
             return $security->login($user, 'form_login', 'main');
         }
@@ -50,7 +49,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
+    public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
     {
         $id = $request->query->get('id');
 
@@ -68,12 +67,12 @@ class RegistrationController extends AbstractController
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
+            $this->addFlash('verify_email_error', $this->translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'registration.email_verification.success');
+        $this->addFlash('success', $this->translator->trans('form.registration.email_verification.success', [], 'flash'));
 
         return $this->redirectToRoute('app_login');
     }

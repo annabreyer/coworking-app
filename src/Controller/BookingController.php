@@ -15,18 +15,18 @@ use App\Service\AdminMailerService;
 use App\Service\BookingService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingController extends AbstractController
 {
     use ClockAwareTrait;
 
     public function __construct(
-        private readonly Security $security,
+        private readonly TranslatorInterface $translator,
         private readonly LoggerInterface $logger,
         private readonly BookingService $bookingService,
         private readonly BookingManager $bookingManager,
@@ -49,7 +49,7 @@ class BookingController extends AbstractController
         $submittedToken = $request->getPayload()->getString('token_date');
 
         if (false === $this->isCsrfTokenValid('date', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token.');
+            $this->addFlash('error', $this->translator->trans('form.general.csrf_token_invalid', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
@@ -57,7 +57,7 @@ class BookingController extends AbstractController
 
         $date = $request->request->getString('date');
         if (empty($date)) {
-            $this->addFlash('error', 'No date selected.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_date.no_date', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
@@ -70,14 +70,17 @@ class BookingController extends AbstractController
         }
 
         if (false === $dateTime) {
-            $this->addFlash('error', 'Invalid date format.');
+            $this->addFlash(
+                'error',
+                $this->translator->trans('form.booking.step_date.invalid_date_format', [], 'flash')
+            );
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
         }
 
         if ($dateTime < $this->now()) {
-            $this->addFlash('error', 'Date must be in the future.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_date.date_in_past', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
@@ -86,7 +89,7 @@ class BookingController extends AbstractController
         $businessDay = $this->businessDayRepository->findOneBy(['date' => $dateTime]);
 
         if (null === $businessDay || false === $businessDay->isOpen()) {
-            $this->addFlash('error', 'Booking for this day is not possible.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_not_possible', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepDate($response, $this->now());
@@ -102,13 +105,13 @@ class BookingController extends AbstractController
         AdminMailerService $adminMailerService
     ): Response {
         if ($businessDay->getDate() < $this->now()) {
-            $this->addFlash('error', 'Booking for this day is not possible anymore.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_no_longer_available', [], 'flash'));
 
             return $this->redirectToRoute('booking_step_date');
         }
 
         if (false === $businessDay->isOpen()) {
-            $this->addFlash('error', 'Booking for this day is not possible.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_not_possible', [], 'flash'));
 
             return $this->redirectToRoute('booking_step_date');
         }
@@ -119,20 +122,11 @@ class BookingController extends AbstractController
 
         $response = new Response();
         /** @var User $user */
-        $user = $this->getUser();
-
-        // This code should never execute. It can not be tested. It has been added to avoid PHPStan error and also because it is good Sf practice.
-        if (false === $user instanceof User) {
-            $this->logger->critical('User is not an instance of User but of class ' . \get_class($user));
-            $response = $this->security->logout();
-
-            return $response;
-        }
-
+        $user           = $this->getUser();
         $submittedToken = $request->getPayload()->getString('token');
 
         if (false === $this->isCsrfTokenValid('room', $submittedToken)) {
-            $this->addFlash('error', 'Invalid CSRF Token.');
+            $this->addFlash('error', $this->translator->trans('form.general.csrf_token_invalid', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -140,7 +134,7 @@ class BookingController extends AbstractController
 
         $roomId = $request->request->get('room');
         if (empty($roomId)) {
-            $this->addFlash('error', 'No room selected.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.no_room', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -148,21 +142,21 @@ class BookingController extends AbstractController
 
         $room = $this->roomRepository->find($roomId);
         if (null === $room) {
-            $this->addFlash('error', 'Unknown room selected.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.unknown_room', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
         }
 
         if ($room->getCapacity() < 1) {
-            $this->addFlash('error', 'Room is already fully booked.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.room_full', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
         }
 
         if ($room->getCapacity() <= $businessDay->getBookingsForRoom($room)->count()) {
-            $this->addFlash('error', 'Room is already fully booked.');
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.room_full', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
             return $this->renderStepRoom($response, $businessDay);
@@ -194,16 +188,13 @@ class BookingController extends AbstractController
 
         $bookingId = $request->request->getInt('bookingId');
         if ($bookingId !== $booking->getId()) {
-            $this->addFlash('error', 'Booking can not be cancelled.');
+            $this->addFlash('error', $this->translator->trans('form.booking.cancel.impossible', [], 'flash'));
 
             return $this->redirectToRoute('user_bookings');
         }
 
         if (false === $this->bookingManager->canBookingBeCancelled($booking)) {
-            $this->addFlash(
-                'error',
-                sprintf('Bookings can only be cancelled %s before their date.', $this->timeLimitCancelBooking)
-            );
+            $this->addFlash('error', $this->translator->trans('form.booking.cancel.time_limit_exceeded', ['%d%' => $this->timeLimitCancelBooking], 'flash'));
 
             return $this->redirectToRoute('user_bookings');
         }
@@ -213,7 +204,7 @@ class BookingController extends AbstractController
 
         $adminMailerService->notifyAdminAboutBookingCancellation($bookingDate);
 
-        $this->addFlash('success', sprintf('Booking for date %s has been cancelled', $bookingDate->format('Y-m-d')));
+        $this->addFlash('success', $this->translator->trans('form.booking.cancel.success', ['%date%' => $bookingDate->format('Y-m-d')], 'flash'));
 
         return $this->redirectToRoute('user_bookings');
     }
@@ -225,16 +216,15 @@ class BookingController extends AbstractController
 
         if (0 === $businessDayCount) {
             $this->logger->critical('No BusinessDays found.');
-            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
 
             return $this->redirectToRoute('home');
         }
 
         $activePrices = $this->priceRepository->findActivePrices();
-
         if (empty($activePrices)) {
             $this->logger->critical('No active Price found.');
-            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
 
             return $this->redirectToRoute('home');
         }
@@ -257,7 +247,7 @@ class BookingController extends AbstractController
 
         if (empty($activePrices)) {
             $this->logger->critical('No active Price found.');
-            $this->addFlash('error', 'We are sorry for the inconvenience. Please try again later.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
 
             return $this->redirectToRoute('home');
         }

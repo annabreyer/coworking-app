@@ -52,8 +52,8 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        static::assertNotNull($invoice->getPayments()->first());
-        static::assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
+        self::assertNotNull($invoice->getPayments()->first());
+        self::assertSame(Payment::PAYMENT_TYPE_VOUCHER, $invoice->getPayments()->first()->getType());
     }
 
     public function testHandleVoucherPaymentSetsVoucherUseDate(): void
@@ -76,7 +76,7 @@ class PaymentManagerTest extends KernelTestCase
         );
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        static::assertNotNull($voucher->getUseDate());
+        self::assertNotNull($voucher->getUseDate());
     }
 
     public function testHandleVoucherPaymentUpdatesInvoiceAmount(): void
@@ -100,7 +100,7 @@ class PaymentManagerTest extends KernelTestCase
 
         $paymentManager->handleVoucherPayment($invoice, $voucher);
 
-        static::assertSame(500, $invoice->getAmount());
+        self::assertSame(500, $invoice->getAmount());
     }
 
     public function testHandleVoucherSendsAdminEmailWhenInvoiceIsNegative(): void

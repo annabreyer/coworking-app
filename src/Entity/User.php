@@ -518,4 +518,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->vouchers->filter(static fn (Voucher $voucher) => $voucher->isValid());
     }
+
+    public function getInvalidVouchers(): Collection
+    {
+        return $this->vouchers->filter(static fn (Voucher $voucher) => !$voucher->isValid());
+    }
+
+    public function getPendingPaymentVouchers(): Collection
+    {
+        return $this->vouchers->filter(static function (Voucher $voucher) {
+            return false === $voucher->isExpired() && false === $voucher->hasBeenPaid();
+        });
+    }
+
+    public function getExpiredOrUsedVouchers(): Collection
+    {
+        return $this->vouchers->filter(static function (Voucher $voucher) {
+            return $voucher->isExpired() && null !== $voucher->getUseDate();
+        });
+    }
 }

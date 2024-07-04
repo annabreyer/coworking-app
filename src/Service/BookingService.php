@@ -54,10 +54,6 @@ class BookingService
             throw new \Exception('Can not get available Room Capacity on Business Day. Room ID is null');
         }
 
-        if (null === $businessDay->getDate()) {
-            throw new \Exception('Can not get available Room Capacity on Business Day. BusinessDay date is null');
-        }
-
         $bookingCount = $this->bookingRepository->countBookingsForRoomOnDay($room->getId(), $businessDay->getDate());
 
         return $room->getCapacity() - $bookingCount;

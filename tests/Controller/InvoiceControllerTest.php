@@ -35,6 +35,7 @@ class InvoiceControllerTest extends WebTestCase
         static::assertResponseRedirects('/');
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
+        $testHandler = null;
 
         foreach ($logger->getHandlers() as $handler) {
             if ($handler instanceof TestHandler) {
@@ -52,7 +53,7 @@ class InvoiceControllerTest extends WebTestCase
         ));
     }
 
-    public function testDownloadInvoiceChecksUser()
+    public function testDownloadInvoiceChecksUser(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -71,7 +72,7 @@ class InvoiceControllerTest extends WebTestCase
         static::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testDownloadInvoiceGeneratesInvoiceIfNotExists()
+    public function testDownloadInvoiceGeneratesInvoiceIfNotExists(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -93,7 +94,7 @@ class InvoiceControllerTest extends WebTestCase
         self::assertFileExists($filePath);
     }
 
-    public function testDownloadInvoiceReturnsPdfResponse()
+    public function testDownloadInvoiceReturnsPdfResponse(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();

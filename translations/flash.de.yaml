@@ -1,0 +1,48 @@
+form:
+  general:
+    csrf_token_invalid: 'Ungültiges CSRF-Token.'
+    sorry_inconvenience: 'Ups, irgendwas ist falsch gelaufen. Das tut uns leid. Bitte versuche es noch einmal später.'
+  booking:
+    step_date:
+      no_date: 'Bitte ein Datum auswählen.'
+      invalid_date_format: 'Ungültiges Datumsformat.'
+      date_in_past: 'Datum kann nicht in der Vergangenheit liegen.'
+    step_room:
+      date_not_possible: 'Dieses Datum ist nicht möglich.'
+      date_no_longer_available: 'Dieses Datum ist nicht mehr verfügbar.'
+      no_room: 'Bitte ein Zimmer auswählen.'
+      unknown_room: 'Unbekanntes Zimmer ausgewählt.'
+      room_full: 'Dieses Zimmer ist ausgebucht.'
+    cancel:
+      impossible: 'Diese Buchung kann nicht storniert werden.'
+      time_limit_exceeded: 'Buchungen können nur %d% Tag(e) vorher storniert werden.'
+      success: 'Die Buchung für den %date% wurde erfolgreich storniert.'
+    payment:
+      no_price: 'Bitte ein Preis auswählen.'
+      price_not_found: 'Der ausgewählte Preis konnte nicht gefunden werden.'
+      no_payment_method: 'Bitte eine Zahlungsmethode auswählen.'
+      payment_method_not_found: 'Die ausgewählte Zahlungsmethode konnte nicht gefunden werden.'
+      voucher:
+        no_voucher_code: 'Bitte einen Gutscheincode eingeben.'
+        invalid_code: 'Ungültiger Gutscheincode.'
+        not_for_user: 'Gutscheincode kann nicht für diesen Benutzer verwendet werden.'
+        voucher_expired: 'Gutscheincode ist abgelaufen.'
+        already_used: 'Gutscheincode wurde bereits am %date% verwendet.'
+        not_paid: 'Gutscheincode wurde noch nicht bezahlt und kann somit noch nicht genutzt werden.'
+  registration:
+    success: 'Registrierung erfolgreich. Bitte prüfe Deine E-Mails, um die Registrierung abzuschließen.'
+    email_verification:
+      success: 'Deine E-Mail Adresse wurde erfolgreich verifiziert.'
+  voucher:
+    not_available: 'Gutscheine oder Mehrfachkarten sind derzeit nicht verfügbar.'
+    no_voucher: 'Bitte einen Gutschein/eine Mehrfachkarte auswählen.'
+    invalid_selection: 'Ausgewählter Gutschein oder Mehrfachkarte ungültig. Bitte versuche es erneut.'
+    no_payment_method: 'Bitte eine Zahlungsmethode auswählen.'
+    payment_method_not_valid: 'Die ausgewählte Zahlungsmethode ist nicht verfügbar.'
+    success: 'Gutschein/Mehrfachkarte erfolgreich gekauft. Die Rechnung ist per E-Mail zugesendet. Bei Zahlungen auf Rechnung sind die Gutscheine erste nach eingegangener Zahlung gültig.'
+invoice_download:
+  not_found: 'Rechnung konnte nicht gefunden werden.'
+invoice_payment:
+  not_found: 'Rechnung konnte nicht gefunden werden.'
+  already_paid: 'Rechnung wurde bereits bezahlt.'
+  payment_error: 'Bezahlung fehlgeschlagen. Bitte versuche es erneut.'

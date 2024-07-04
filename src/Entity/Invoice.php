@@ -128,6 +128,15 @@ class Invoice
         return $this;
     }
 
+    public function getFirstBooking(): ?Booking
+    {
+        if (0 === $this->bookings->count()) {
+            return null;
+        }
+
+        return $this->bookings->first();
+    }
+
     /**
      * @return Collection<int, Payment>
      */
@@ -291,5 +300,4 @@ class Invoice
     {
         return 0 < $this->bookings->count();
     }
-
 }

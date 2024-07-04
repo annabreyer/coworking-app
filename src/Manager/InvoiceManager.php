@@ -8,11 +8,11 @@ use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Entity\User;
-use App\Entity\VoucherType;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -26,6 +26,9 @@ class InvoiceManager
     use ClockAwareTrait;
     use EmailContextTrait;
 
+    /**
+     * @param non-empty-string $invoicePrefix
+     */
     public function __construct(
         private readonly InvoiceGenerator $invoiceGenerator,
         private readonly EntityManagerInterface $entityManager,
@@ -33,6 +36,7 @@ class InvoiceManager
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly InvoiceRepository $invoiceRepository,
+        private readonly Filesystem $filesystem,
         private readonly string $invoicePrefix,
         private readonly string $documentVaultEmail
     ) {
@@ -44,6 +48,11 @@ class InvoiceManager
         $number = str_pad($number, 5, '0', STR_PAD_LEFT);
 
         return $number;
+    }
+
+    public function saveInvoice(): void
+    {
+        $this->entityManager->flush();
     }
 
     public function createInvoiceFromBooking(Booking $booking, int $amount): Invoice
@@ -80,15 +89,22 @@ class InvoiceManager
     public function sendBookingInvoiceToUser(Invoice $invoice): void
     {
         if (null === $invoice->getUser()) {
-            throw new \InvalidArgumentException('Invoice must have a user');
+            throw new \InvalidArgumentException('Invoice must have a user.');
         }
 
         if (null === $invoice->getUser()->getEmail()) {
-            throw new \InvalidArgumentException('User must have an email');
+            throw new \InvalidArgumentException('User must have an email.');
         }
 
         if (false === $invoice->getBookings()->first()) {
-            throw new \InvalidArgumentException('Invoice must have a booking');
+            throw new \InvalidArgumentException('Invoice must have a booking.');
+        }
+
+        $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
+        $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
+
+        if (false === $this->filesystem->exists($invoicePath)) {
+            throw new \InvalidArgumentException('Invoice PDF does not exist.');
         }
 
         $link = $this->urlGenerator->generate(
@@ -97,13 +113,22 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('booking.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('booking.invoice.subject', [], 'email');
+        $salutation = $this->translator->trans('booking.invoice.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
-        ]);
-        $context                        = $this->getStandardEmailContext($this->translator, 'booking.invoice.email');
-        $context['texts']['salutation'] = $salutation;
-        $context['link']                = $link;
+        ], 'email');
+
+        $context = [
+            'link'  => $link,
+            'texts' => [
+                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.invoice.instructions', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('booking.invoice.explanation', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('booking.invoice.signature', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('booking.invoice.button_text', [], 'email'),
+            ],
+        ];
 
         if ($invoice->isFullyPaid()) {
             $context['link']                 = '';
@@ -152,22 +177,34 @@ class InvoiceManager
             throw new \InvalidArgumentException('User must have an email');
         }
 
+        $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
+        $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
+
+        if (false === $this->filesystem->exists($invoicePath)) {
+            throw new \InvalidArgumentException('Invoice PDF does not exist.');
+        }
+
         $link = $this->urlGenerator->generate(
             'invoice_payment_paypal',
-            ['uuid' => $invoice->getId()],
+            ['uuid' => $invoice->getUuid()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('voucher.invoice.email.subject');
-        $salutation = $this->translator->trans('booking.invoice.email.salutation', [
+        $subject    = $this->translator->trans('voucher.invoice.subject', [], 'email');
+        $salutation = $this->translator->trans('voucher.invoice.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
-        ]);
-        $context                        = $this->getStandardEmailContext($this->translator, 'voucher.invoice.email');
-        $context['texts']['salutation'] = $salutation;
-        $context['link']                = $link;
-
-        $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
-        $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
+        ], 'email');
+        $context = [
+            'link'  => $link,
+            'texts' => [
+                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('voucher.invoice.instructions', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('voucher.invoice.explanation', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('voucher.invoice.signature', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('voucher.invoice.button_text', [], 'email'),
+            ],
+        ];
 
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
@@ -183,8 +220,9 @@ class InvoiceManager
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
         $number                = (int) $invoiceNumberElements[1];
+        $newNumber             = $number + 1;
 
-        return $this->invoicePrefix . $number + 1;
+        return $this->invoicePrefix . $newNumber;
     }
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
@@ -202,6 +240,11 @@ class InvoiceManager
         $this->mailer->send($email);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
+     */
     private function sendEmailToUser(string $userEmail, string $subject, array $context, string $invoicePath): void
     {
         $email = (new TemplatedEmail())
