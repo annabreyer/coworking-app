@@ -1,0 +1,21 @@
+{% use '@TalesFromADevFlowbite/form/default.html.twig' %}
+
+{% block class_label %}
+    text-xl
+{%- endblock class_label %}
+
+{% block class_input_text %}
+    text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica
+{% endblock class_input_text %}
+
+{% block class_help_text %}
+    mt-2 text-gray-500 text-lg font-Helvetica
+{% endblock class_help_text %}
+
+{% block class_input_checkbox -%}
+    rounded w-4 h-4 text-yellow text-xl bg-gray-100 border-gray-300 focus:ring-yellow dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600
+{% endblock class_input_checkbox %}
+
+{% block class_input_radio_label -%}
+    ml-2 text-xl font-medium text-gray-900 dark:text-gray-300
+{% endblock class_input_radio_label %}

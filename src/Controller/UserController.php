@@ -42,7 +42,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('user_show');
+            return $this->redirectToRoute('user_dashboard');
         }
 
         return $this->render('user/edit_user.html.twig', [

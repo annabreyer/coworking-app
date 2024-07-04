@@ -28,9 +28,8 @@ class InvoicePaypalPaymentController extends AbstractController
     }
 
     #[Route('/invoice/{uuid}/paypal', name: 'invoice_payment_paypal')]
-    public function payInvoiceWithPayPal(
-        string $uuid,
-    ): Response {
+    public function payInvoiceWithPayPal(string $uuid,): Response
+    {
         $invoice = null;
         try {
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
@@ -67,11 +66,11 @@ class InvoicePaypalPaymentController extends AbstractController
     #[Route('/invoice/{uuid}/paypal/capture', name: 'invoice_payment_paypal_capture', methods: ['POST'])]
     public function capturePayPalPayment(string $uuid, Request $request): Response
     {
+        $invoice = null;
         try {
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
         } catch (\Exception $exception) {
             $this->logger->error('Invoice not found. ' . $exception->getMessage(), ['uuid' => $uuid]);
-            $invoice = null;
         }
 
         if (null === $invoice) {
@@ -125,6 +124,11 @@ class InvoicePaypalPaymentController extends AbstractController
         if ($invoice->isBookingInvoice()) {
             $this->invoiceManager->generateBookingInvoicePdf($invoice);
             $this->invoiceManager->sendBookingInvoiceToUser($invoice);
+
+            if ($request->getSession()->has(BookingPaymentController::BOOKING_STEP_PAYMENT)) {
+                $request->getSession()->remove(BookingPaymentController::BOOKING_STEP_PAYMENT);
+                $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getFirstBooking()->getUuid()]);
+            }
         }
 
         $this->invoiceManager->sendInvoiceToDocumentVault($invoice);

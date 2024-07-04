@@ -73,7 +73,7 @@ class VoucherControllerTest extends WebTestCase
         $client->request('GET', '/voucher');
         static::assertResponseIsSuccessful();
         static::assertSelectorExists('form');
-        static::assertSelectorExists('select[name="voucherPrice"]');
+        static::assertSelectorExists('input[name="voucherPrice"]');
         static::assertSelectorExists('input[name="paymentMethod"]');
     }
 
@@ -98,7 +98,7 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Ungültiges CSRF-Token.');
+        static::assertSelectorTextContains('section#flash-messages', 'Ungültiges CSRF-Token.');
     }
 
     public function testIndexFormSubmitWithMissingVoucherPriceId(): void
@@ -122,7 +122,7 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Bitte einen Gutschein/eine Mehrfachkarte auswählen.');
+        static::assertSelectorTextContains('section#flash-messages', 'Bitte einen Gutschein/eine Mehrfachkarte auswählen.');
     }
 
     public function testIndexFormSubmitWithInvalidVoucherPriceId(): void
@@ -146,7 +146,7 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Ausgewählter Gutschein oder Mehrfachkarte ungültig. Bitte versuche es erneut.');
+        static::assertSelectorTextContains('section#flash-messages', 'Ausgewählter Gutschein oder Mehrfachkarte ungültig. Bitte versuche es erneut.');
     }
 
     public function testIndexFormSubmitWithMissingPaymentMethod(): void
@@ -176,7 +176,7 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Bitte eine Zahlungsmethode auswählen.');
+        static::assertSelectorTextContains('section#flash-messages', ' Bitte eine Zahlungsmethode auswählen.');
     }
 
     public function testIndexFormSubmitWithInvalidPaymentMethod(): void
@@ -205,7 +205,7 @@ class VoucherControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'Die ausgewählte Zahlungsmethode ist nicht verfügbar.');
+        static::assertSelectorTextContains('section#flash-messages', 'Die ausgewählte Zahlungsmethode ist nicht verfügbar.');
     }
 
     public function testIndexFormSubmitWithValidPaymentMethodCreatesVouchersAndInvoice(): void
@@ -250,7 +250,7 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitRollsBackVouchersAndInvoiceWhenExceptionIsThrown(): void
     {
-        self::markTestIncomplete('There is an issue with the test. The mock is not taken into account. The test fails.');
+        $this->markTestIncomplete('There is an issue with the test. The mock is not taken into account. The test fails.');
 
         $client             = static::createClient();
         $mockVoucherManager = $this->getMockBuilder(VoucherManager::class)
@@ -293,8 +293,9 @@ class VoucherControllerTest extends WebTestCase
         self::assertNotNull($testHandler);
 
         foreach ($testHandler->getRecords() as $record) {
-            if (400 === $record['level']) {
+            if ($record['level'] === 400){
                 dump($record['message']);
+
             }
         }
 
@@ -315,7 +316,7 @@ class VoucherControllerTest extends WebTestCase
         self::assertNull($invoice);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('div.alert', 'An error occurred. Please try again later.');
+        static::assertSelectorTextContains('section#flash-messages', 'An error occurred. Please try again later.');
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMailAndRedirects(): void

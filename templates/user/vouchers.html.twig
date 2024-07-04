@@ -1,24 +1,134 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ 'user_account.vouchers.title'|trans }}{% endblock %}
 
-{% block body %}
-<h1>{{ 'user_account.vouchers.title'|trans }}</h1>
+{% block header %}{{ 'user_account.vouchers.title'|trans }}{% endblock %}
+{% block content %}
+    <section class="self-center">
+        {% if pendingPaymentVouchers.count > 0 %}
+            <div id="alert-additional-content-1" class="p-4 mb-4 text-red border border-red rounded-lg bg-yellow-light"
+                 role="alert">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
+                        <path d="M12 9h.01"/>
+                        <path d="M11 12h1v4h1"/>
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <h4 class="font-bold"> {{ 'user_account.vouchers.unpaid_vouchers.info.title'|trans }}</h4>
+                </div>
+                <div class="text-lg">
+                    {{ 'user_account.vouchers.unpaid_vouchers.info.text'|trans }}
+                </div>
+                {% set invoiceId = null %}
+                {% for unpaidVoucher in pendingPaymentVouchers %}
+                    {% if invoiceId != unpaidVoucher.invoice.id %}
+                        {% set invoiceId = unpaidVoucher.invoice.id %}
+                    <div class="flex">
+                        {{ 'user_account.vouchers.unpaid_vouchers.invoice.info'|trans({'%invoiceId%': invoiceId, '%invoiceDate%': unpaidVoucher.invoice.date|date('d.m.Y') }) }}
+                        {% if unpaidVoucher.invoice.payPalOrderId is null %}
+                            <button class="my-0.5 bg-yellow text-red-darkest hover:bg-yellow-dark">
+                                <a href="{{ path('invoice_payment_paypal', {'uuid': unpaidVoucher.invoice.uuid }) }}"
+                                   target="_blank" class="flex items-start">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round"
+                                         class="icon icon-tabler icons-tabler-outline icon-tabler-brand-paypal">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M10 13l2.5 0c2.5 0 5 -2.5 5 -5c0 -3 -1.9 -5 -5 -5h-5.5c-.5 0 -1 .5 -1 1l-2 14c0 .5 .5 1 1 1h2.8l1.2 -5c.1 -.6 .4 -1 1 -1zm7.5 -5.8c1.7 1 2.5 2.8 2.5 4.8c0 2.5 -2.5 4.5 -5 4.5h-2.6l-.6 3.6a1 1 0 0 1 -1 .8l-2.7 0a.5 .5 0 0 1 -.5 -.6l.2 -1.4"/>
+                                    </svg>
+                                    <span class="ml-1">{{ 'user_account.vouchers.unpaid_vouchers.info.button'|trans }}</span>
+                                </a>
+                            </button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="my-4 mx-1">
+                <button>
+                    <a href="{{ path('voucher_index') }}">{{ 'user_account.vouchers.new_button'|trans }}</a>
+                </button>
+            </div>
+        {% endif %}
 
-    {% if user.vouchers.isEmpty %}
-        {{ 'user_account.vouchers.no_vouchers'|trans }}
-    {% endif %}
 
-    <div>
-        <a href="{{ path('voucher_index') }}" class="btn btn-primary">{{ 'user_account.vouchers.new_button'|trans }}</a>
-    </div>
+        {% if user.vouchers.isEmpty %}
+            {{ 'user_account.vouchers.no_vouchers'|trans }}
+        {% else %}
+            <div class="font-medium text-center border-b border-gray-200" id="tab-nav">
+                <ul class="flex flex-wrap -mb-px">
+                    <li class="me-2">
+                        <a href="#"
+                           class="inline-block p-4 text-red border-b-2 border-red rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark active flex"
+                           aria-current="page">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-dashed-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95" /><path d="M3.69 8.56a9 9 0 0 0 -.69 3.44" /><path d="M3.69 15.44a9 9 0 0 0 1.95 2.92" /><path d="M8.56 20.31a9 9 0 0 0 3.44 .69" /><path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95" /><path d="M20.31 15.44a9 9 0 0 0 .69 -3.44" /><path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92" /><path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69" /><path d="M9 12l2 2l4 -4" /></svg>
+                            <span class="text-lg">{{ 'user_account.vouchers.valid_vouchers.title'|trans }}</span>
+                        </a>
+                    </li>
+                    <li class="me-2">
+                        <a href="#"
+                           class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:bg-yellow-light hover:border-yellow-dark flex">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20.042 16.045a9 9 0 0 0 -12.087 -12.087m-2.318 1.677a9 9 0 1 0 12.725 12.73" /><path d="M3 3l18 18" /></svg>
+                            <span class="text-lg">{{ 'user_account.vouchers.expired_used_vouchers.title'|trans }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
 
-    {% for voucher in user.vouchers %}
-        <span>{{ voucher.code }}</span><br>
-        <ul>
-            <li>{{ 'user_account.vouchers.expiry_date'|trans }}: {{ voucher.expiryDate|date('Y-m-d') }}</li>
-            <li>{{ 'user_account.vouchers.use_date'|trans }}{{ voucher.useDate? voucher.useDate|date('Y-m-d') : '' }}</li>
-            <li>{{ 'user_account.vouchers.has_been_paid'|trans }} {{ voucher.hasBeenPaid ? 'Yes' : 'No'}}</li>
-            <li>{{ 'user_account.vouchers.is_valid'|trans }}: {{ voucher.isValid? 'Yes' : 'No' }}</li>
-        </ul>
-    {% endfor %}
+        <div class="self-center grid grid-cols-2 md:grid-cols-4 mt-4" id="valid_vouchers">
+            {% for voucher in validVouchers %}
+                {% include 'voucher/partials/voucher_card.html.twig' with {'voucher': voucher} %}
+            {% endfor %}
+        </div>
+
+        <div class="self-center grid grid-cols-2 md:grid-cols-4 mt-4 hidden" id="expired_used_vouchers">
+            {% for voucher in expiredOrUsedVouchers %}
+                {% include 'voucher/partials/voucher_card.html.twig' with {'voucher': voucher} %}
+            {% endfor %}
+        </div>
+    </section>
+    <script>
+        const validVouchers = document.getElementById('valid_vouchers');
+        const expiredUsedVouchers = document.getElementById('expired_used_vouchers');
+
+        const validVouchersTab = document.querySelector('#tab-nav ul li:nth-child(1) a');
+        const expiredUsedVouchersTab = document.querySelector('#tab-nav ul li:nth-child(2) a');
+
+        validVouchersTab.addEventListener('click', () => {
+            validVouchers.classList.remove('hidden');
+            expiredUsedVouchers.classList.add('hidden');
+            renderTabActive(validVouchersTab);
+            renderTabInactive(expiredUsedVouchersTab);
+        });
+
+        expiredUsedVouchersTab.addEventListener('click', () => {
+            validVouchers.classList.add('hidden');
+            expiredUsedVouchers.classList.remove('hidden');
+            renderTabActive(expiredUsedVouchersTab);
+            renderTabInactive(validVouchersTab);
+        });
+
+        function renderTabActive(tab) {
+            tab.classList.remove('hover:bg-yellow-light');
+            tab.classList.remove('hover:border-yellow-dark');
+            tab.classList.remove('border-transparent');
+            tab.classList.add('active');
+            tab.classList.add('text-red');
+            tab.classList.add('border-red');
+        }
+
+        function renderTabInactive(tab){
+            tab.classList.remove('active');
+            tab.classList.remove('text-red');
+            tab.classList.remove('border-red');
+            tab.classList.add('hover:bg-yellow-light');
+            tab.classList.add('hover:border-yellow-dark');
+            tab.classList.add('border-transparent');
+        }
+    </script>
 {% endblock %}

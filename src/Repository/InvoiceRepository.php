@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Invoice;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,7 +29,7 @@ class InvoiceRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('i')
             ->andWhere('YEAR(i.date) = :year')
             ->setParameter('year', $year)
-            ->orderBy('i.date', 'DESC')
+            ->orderBy('i.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
@@ -49,6 +50,20 @@ class InvoiceRepository extends ServiceEntityRepository
             ->setParameter('paymentType', $paymentType)
             ->getQuery()
             ->getOneOrNullResult()
+        ;
+    }
+
+    public function getUnpaidVoucherInvoicesForUser(int $userId): Collection
+    {
+        return $this->createQueryBuilder('i')
+            ->join('i.user', 'u')
+            ->join('i.payments', 'p')
+            ->join('i.vouchers', 'v')
+            ->andWhere('u.id = :userId')
+            ->andWhere('SUM(p.amount) < SUM(i.amount)')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult()
         ;
     }
 }

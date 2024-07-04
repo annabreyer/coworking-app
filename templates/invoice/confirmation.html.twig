@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if isError %}
+        {{ 'invoice.payment.confirmation.error.title'|trans }}
+    {% else %}
+        {{ 'invoice.payment.confirmation.title'|trans }}
+    {% endif %}
+{% endblock %}
+
+{% block header %}
+    {% if isError %}
+        {{ 'invoice.payment.confirmation.error.title'|trans }}
+    {% else %}
+        {{ 'invoice.payment.confirmation.title'|trans }}
+    {% endif %}
+{% endblock %}
+{% block content %}
+<section class="self-center">
+    {% if invoice is null %}
+        <div></div>
+    {% else %}
+        {% if isError %}
+            <p>{{ 'invoice.payment.confirmation.page.error_text'|trans }}</p>
+        {% else %}
+            <p>{{ 'invoice.payment.confirmation.page.text'|trans }}</p>
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,24 +1,28 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'index' %}
 
-{% block body %}
-    <h1>{% trans %}Welcome!{% endtrans %}</h1>
+{% block title %}{{ 'page.title'|trans }}{% endblock %}
+{% block header %}{{ 'page.title'|trans }}{% endblock %}
 
-    {% for message in app.flashes('success') %}
-        <div class="flash-success">
-            {{ message|trans }}
-        </div>
-    {% endfor %}
+{% block content %}
+    <section>
+        {% if app.user %}
+            <div class="self-center">
+                <p class="text-lg">{{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.</p>
 
-    {% if app.user %}
-        <div class="mb-3">
-            {{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.
-        </div>
-    {% endif %}
+                <button>
+                    <a href="{{ path('booking_step_date') }}">{{ 'actions.booking'|trans }}</a>
+                </button>
 
-    <a href="{{ path('app_login') }}">Login</a>
-    <a href="{{ path('app_logout') }}">Logout</a>
-    <a href="{{ path('app_forgot_password_request') }}">Forgot Password</a>
-    <a href="{{ path('app_register') }}">Register</a>
-    <a href="{{ path('user_edit') }}">Edit</a>
-    <a href="{{ path('booking_step_date')}}">Booking</a>
+                <button>
+                    <a href="{{ path('user_dashboard') }}">{{ 'actions.user_dashboard'|trans }}</a>
+                    </button>
+
+            </div>
+
+
+        {% endif %}
+
+        {{ 'content'|trans|raw }}
+    </section>
 {% endblock %}

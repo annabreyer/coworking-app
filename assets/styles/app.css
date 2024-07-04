@@ -1,3 +1,110 @@
-body {
-    background-color: skyblue;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: "MiamoRegular";
+        src: url('../fonts/webFonts/MiamoRegular/font.woff2') format('woff2'), url('../fonts/webFonts/MiamoRegular/font.woff') format('woff');
+    }
+    @font-face {
+        font-family: "MiamoScript";
+        src: url('../fonts/webFonts/MiamoScript/font.woff2') format('woff2'), url('../fonts/webFonts/MiamoScript/font.woff') format('woff');
+    }
+
+    body {
+        @apply bg-yellow-lightest;
+        @apply text-red-darkest;
+        @apply font-Helvetica;
+    }
+
+    header {
+        @apply bg-gradient-to-r from-blue via-blue-darkest to-blue;
+        @apply text-silverpink;
+
+        nav ul li a {
+            @apply text-xl;
+            @apply font-MiamoRegular;
+        }
+    }
+
+    h1 {
+        @apply text-5xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h2 {
+        @apply text-4xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h3 {
+        @apply text-3xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h4 {
+        @apply text-2xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    h4 {
+        @apply text-xl;
+        @apply font-MiamoRegular;
+        @apply my-4;
+    }
+
+    p {
+        @apply text-base;
+        @apply font-Helvetica;
+        @apply my-4;
+    }
+
+    label {
+        @apply text-xl;
+        @apply font-MiamoRegular;
+    }
+
+    input {
+        @apply text-xl;
+        @apply font-Helvetica;
+    }
+
+    main {
+        @apply bg-yellow-lightest;
+        @apply text-red-darkest;
+    }
+
+    main button {
+        @apply bg-red;
+        @apply text-yellow;
+        @apply px-4;
+        @apply py-2;
+        @apply rounded;
+        @apply my-4;
+    }
+
+    main button:hover {
+        @apply bg-red-dark;
+    }
+
+    .spinner {
+        display: block;
+        width: 70px;
+        height: 70px;
+        border: 7px solid #ff23693b;
+        border-radius: 50%;
+        border-top-color: #ff2369;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            -webkit-transform: rotate(360deg);
+        }
+    }
 }

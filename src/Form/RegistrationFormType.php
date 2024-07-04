@@ -8,6 +8,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,7 +23,16 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
+            ->add('email', EmailType::class, [
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your email',
+                    ]),
+                    new Length([
+                        'max' => 180,
+                    ]),
+                ],
+            ])
             ->add('mobilePhone', TextType::class, [
                 'help'        => 'registration.form.phone.help',
                 'constraints' => [
@@ -40,11 +50,28 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('firstName')
-            ->add('lastName')
+            ->add('firstName', TextType::class, [
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your first name',
+                    ]),
+                ],
+            ])
+            ->add('lastName', TextType::class, [
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your last name',
+                    ]),
+                ],
+            ])
             ->add('birthDate', BirthdayType::class, [
-                'widget' => 'choice',
-                'years'  => range(date('Y') - 18, date('Y') - 70),
+                'widget'      => 'choice',
+                'years'       => range(date('Y') - 18, date('Y') - 70),
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your birth date',
+                    ]),
+                ],
             ])
             ->add('termsOfUse', CheckboxType::class, [
                 'mapped'      => false,

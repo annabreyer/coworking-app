@@ -60,7 +60,9 @@ I did not want to do a setting table in the database, as I think it is overkill 
 Depending on how this app might be used by others in the future, this might change.
 
 ## Translations & Internationalization
-The App has two languages, German and English. Number and Date formats are hard coded to German standard.
+There are two languages in the translation files, but only the German translations are used. I planned to use the browser 
+locale to switch between languages, but this goes against good practices and for instance it is only supposed to be used in Germany. 
+Number and Date formats are hard coded to German standard.
 Depending on the future use of the app, this might change.
 
 ## Admin

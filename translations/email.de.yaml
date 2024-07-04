@@ -2,8 +2,8 @@ booking:
   invoice:
     subject: 'Coworking Hahnheim: Deine Rechnung'
     salutation: 'Hallo %firstName%!'
-    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail. Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum.'
-    explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
+    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail.'
+    explanation: 'Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum. Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
     signature: 'Vielen Dank!'
     button_text: 'Mit Paypal bezahlen'
 
@@ -11,8 +11,8 @@ voucher:
   invoice:
     subject: 'Coworking Hahnheim: Deine Rechnung'
     salutation: 'Hallo %firstName%!'
-    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail. So lange die Rechnung nicht bezahlt ist, sind die Gutscheine nicht gültig.'
-    explanation: 'Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
+    instructions: 'Deine Rechnung ist im Anhang zu dieser E-Mail. '
+    explanation: 'So lange die Rechnung nicht bezahlt ist, sind die Gutscheine nicht gültig. Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
     signature: 'Vielen Dank!'
     button_text: 'Mit Paypal bezahlen'
 
