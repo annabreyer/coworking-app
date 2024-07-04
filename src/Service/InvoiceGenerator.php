@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
+use App\Entity\Payment;
 use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
@@ -319,7 +320,17 @@ class InvoiceGenerator
             return;
         }
 
-        $dueMessage = $this->translator->trans('booking.invoice.already_paid');
+        $payPalPayment = $invoice->getPayments()->first();
+        if (false === $payPalPayment instanceof Payment || false === $payPalPayment->isPayPalPayment()) {
+            throw new \InvalidArgumentException('Already paid invoice must have a PayPal payment.');
+        }
+
+        $paymentDate = $payPalPayment->getDate();
+        if (null === $paymentDate) {
+            throw new \InvalidArgumentException('Already paid invoice must have a payment date.');
+        }
+
+        $dueMessage = $this->translator->trans('booking.invoice.already_paid', ['%date%' => $paymentDate->format('d.m.Y')]);
         $this->setBoldFont();
         $this->writeValue(15, 210, 200, 8, $dueMessage);
         $this->setStandardFont();
