@@ -36,17 +36,17 @@ class PasswordForgottenService
             'ResetPasswordBundle'
         );
 
-        $subject = $this->translator->trans('reset_password.subject',[], 'email');
-        $link    = $this->urlGenerator->generate('app_reset_password', ['token' =>$resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $subject = $this->translator->trans('reset_password.subject', [], 'email');
+        $link    = $this->urlGenerator->generate('app_reset_password', ['token' => $resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
         $context = [
             'link'  => $link,
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $this->translator->trans('reset_password.salutation', ['%firstName%' => $user->getFirstName()], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('reset_password.instructions',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('reset_password.instructions', [], 'email'),
                 self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('reset_password.explanation', ['%timeLimit%' => $timeLimit], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('reset_password.signature',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('reset_password.signature', [], 'email'),
                 self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('reset_password.button_text',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('reset_password.button_text', [], 'email'),
             ],
         ];
 

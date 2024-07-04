@@ -9,7 +9,6 @@ use App\Entity\BusinessDay;
 use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\User;
-use App\Entity\Voucher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 

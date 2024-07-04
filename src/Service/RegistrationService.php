@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -47,26 +47,29 @@ class RegistrationService
             throw new \LogicException('User email is required to send registration email');
         }
 
-        $subject = $this->translator->trans('registration.email_verification.subject', [], 'email');
+        $subject         = $this->translator->trans('registration.email_verification.subject', [], 'email');
         $specificContext = $this->emailVerifier->getEmailConfirmationContext('app_verify_email', $user);
         $standardContext = [
             'texts' => [
-                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $this->translator->trans(
+                self::EMAIL_STANDARD_ELEMENT_SALUTATION => $this->translator->trans(
                     'registration.email_verification.email.salutation',
                     ['%firstName%' => $user->getFirstName()]
                 ),
                 self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('registration.email_verification.instructions', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('registration.email_verification.explanation',
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans(
+                    'registration.email_verification.explanation',
                     [
                         '%timeLimit%' => $this->translator->trans(
                             $specificContext['expiresAtMessageKey'],
                             $specificContext['expiresAtMessageData'],
                             'VerifyEmailBundle'
                         ),
-                    ], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('registration.email_verification.signature', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('registration.email_verification.button_text', [], 'email'),
+                    ],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE   => $this->translator->trans('registration.email_verification.signature', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT     => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT => $this->translator->trans('registration.email_verification.button_text', [], 'email'),
             ],
         ];
 

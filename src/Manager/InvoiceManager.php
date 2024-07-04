@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Manager;
 
@@ -8,7 +8,6 @@ use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Price;
 use App\Entity\User;
-use App\Entity\VoucherType;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
@@ -39,9 +38,10 @@ class InvoiceManager
         private readonly string $documentVaultEmail
     ) {
     }
+
     public static function getClientNumber(int $userId): string
     {
-        $number = (string)$userId;
+        $number = (string) $userId;
         $number = str_pad($number, 5, '0', STR_PAD_LEFT);
 
         return $number;
@@ -110,20 +110,20 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject    = $this->translator->trans('booking.invoice.subject',[], 'email');
+        $subject    = $this->translator->trans('booking.invoice.subject', [], 'email');
         $salutation = $this->translator->trans('booking.invoice.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
-        ],'email');
+        ], 'email');
 
         $context = [
             'link'  => $link,
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.invoice.instructions',[], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('booking.invoice.explanation',[], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('booking.invoice.signature',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.invoice.instructions', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('booking.invoice.explanation', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('booking.invoice.signature', [], 'email'),
                 self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('booking.invoice.button_text',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('booking.invoice.button_text', [], 'email'),
             ],
         ];
 
@@ -187,19 +187,19 @@ class InvoiceManager
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $subject                        = $this->translator->trans('voucher.invoice.subject',[], 'email');
-        $salutation                     = $this->translator->trans('voucher.invoice.salutation', [
+        $subject    = $this->translator->trans('voucher.invoice.subject', [], 'email');
+        $salutation = $this->translator->trans('voucher.invoice.salutation', [
             '%firstName%' => $invoice->getUser()->getFirstName(),
         ], 'email');
         $context = [
             'link'  => $link,
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('voucher.invoice.instructions',[], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('voucher.invoice.explanation',[], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('voucher.invoice.signature',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('voucher.invoice.instructions', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('voucher.invoice.explanation', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('voucher.invoice.signature', [], 'email'),
                 self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT    => $this->translator->trans('voucher.invoice.button_text',[], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('voucher.invoice.button_text', [], 'email'),
             ],
         ];
 
@@ -216,7 +216,7 @@ class InvoiceManager
         }
 
         $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int)$invoiceNumberElements[1];
+        $number                = (int) $invoiceNumberElements[1];
 
         return $this->invoicePrefix . $number + 1;
     }

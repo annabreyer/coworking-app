@@ -197,7 +197,7 @@ class BookingPaymentController extends AbstractController
             return $this->renderVoucherPayment($response, $booking);
         }
 
-        if (null === $booking->getInvoice()){
+        if (null === $booking->getInvoice()) {
             return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
         }
 

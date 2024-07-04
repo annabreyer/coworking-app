@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -8,7 +8,6 @@ use App\Entity\User;
 use App\Form\UserDataFormType;
 use App\Repository\BookingRepository;
 use App\Repository\InvoiceRepository;
-use App\Repository\VoucherRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -79,7 +78,7 @@ class UserController extends AbstractController
     public function showUserVouchers(InvoiceRepository $invoiceRepository): Response
     {
         /** @var User $user */
-        $user                 = $this->getUser();
+        $user                   = $this->getUser();
         $pendingPaymentVouchers = $user->getPendingPaymentVouchers();
 
         return $this->render('user/vouchers.html.twig', [

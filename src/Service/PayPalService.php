@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -11,11 +11,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PayPalService
 {
-    public const  INTENT_AUTHORIZE = 'AUTHORIZE';
-    public const  INTENT_CAPTURE   = 'CAPTURE';
-    public const  STATUS_APPROVED  = 'APPROVED';
-    public const  STATUS_COMPLETED = 'COMPLETED';
-    private const ERROR_MESSAGE    = 'PayPalOrderData error. Expected %s, got: %s. PayPalOrderId: %s';
+    public const INTENT_AUTHORIZE = 'AUTHORIZE';
+    public const INTENT_CAPTURE   = 'CAPTURE';
+    public const STATUS_APPROVED  = 'APPROVED';
+    public const STATUS_COMPLETED = 'COMPLETED';
+    private const ERROR_MESSAGE   = 'PayPalOrderData error. Expected %s, got: %s. PayPalOrderId: %s';
     private ?string $accessToken;
 
     public function __construct(
@@ -33,8 +33,8 @@ class PayPalService
     public function getQueryParametersForJsSdk(): string
     {
         $payPalParameters = [
-            'client-id'        => $this->clientId,
-            'commit'           => 'true',
+            'client-id' => $this->clientId,
+            'commit'    => 'true',
             // Show a 'Pay Now' button
             'components'       => 'buttons',
             'currency'         => 'EUR',
@@ -43,9 +43,9 @@ class PayPalService
             // Do not update this date, it ensures backward-compat
             'intent' => 'capture',
             // capture later via http client
-            'disable-funding'  => 'credit,card,giropay,sepa',
+            'disable-funding' => 'credit,card,giropay,sepa',
             // Disables buttons, see https://developer.paypal.com/sdk/js/configuration/#link-disablefunding
-            'locale'           => 'de_DE',
+            'locale' => 'de_DE',
         ];
 
         return http_build_query($payPalParameters);
@@ -64,7 +64,7 @@ class PayPalService
             sprintf('%s/v2/checkout/orders/%s', $this->endpoint, $invoice->getPayPalOrderId()),
             [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->getAccessToken()
+                    'Authorization' => 'Bearer ' . $this->getAccessToken(),
                 ],
             ]
         );
@@ -154,15 +154,23 @@ class PayPalService
     private function validatePaypalOrderData(Invoice $invoice, array $paypalOrderData): bool
     {
         if (self::INTENT_CAPTURE !== $paypalOrderData['intent']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, self::INTENT_CAPTURE, $paypalOrderData['intent'],
-                $invoice->getPayPalOrderId()));
+            $this->logger->error(sprintf(
+                self::ERROR_MESSAGE,
+                self::INTENT_CAPTURE,
+                $paypalOrderData['intent'],
+                $invoice->getPayPalOrderId()
+            ));
 
             return false;
         }
 
         if (self::STATUS_APPROVED !== $paypalOrderData['status']) {
-            $this->logger->error(sprintf(self::ERROR_MESSAGE, self::STATUS_APPROVED, $paypalOrderData['status'],
-                $invoice->getPayPalOrderId()));
+            $this->logger->error(sprintf(
+                self::ERROR_MESSAGE,
+                self::STATUS_APPROVED,
+                $paypalOrderData['status'],
+                $invoice->getPayPalOrderId()
+            ));
 
             return false;
         }
@@ -175,7 +183,7 @@ class PayPalService
         }
 
         $amount       = $invoice->getAmount() / 100;
-        $payPalAmount = (int)$paypalOrderData['purchase_units'][0]['amount']['value'];
+        $payPalAmount = (int) $paypalOrderData['purchase_units'][0]['amount']['value'];
         if ($amount !== $payPalAmount) {
             $this->logger->error(sprintf(self::ERROR_MESSAGE, $amount, $payPalAmount, $invoice->getPayPalOrderId()));
 
@@ -184,5 +192,4 @@ class PayPalService
 
         return true;
     }
-
 }

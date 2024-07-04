@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Invoice;
-use App\Entity\Payment;
-use App\Manager\PaymentManager;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -54,7 +52,7 @@ class InvoiceRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
-    
+
     public function getUnpaidVoucherInvoicesForUser(int $userId): Collection
     {
         return $this->createQueryBuilder('i')

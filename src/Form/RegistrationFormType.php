@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Form;
 
@@ -110,7 +110,7 @@ class RegistrationFormType extends AbstractType
                         'min'        => 12,
                         'minMessage' => 'password.constraint.length.min',
                         // max length allowed by Symfony for security reasons
-                        'max'        => 4096,
+                        'max' => 4096,
                     ]),
                 ],
             ])

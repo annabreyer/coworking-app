@@ -21,8 +21,8 @@ class RegistrationController extends AbstractController
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly EmailVerifier $emailVerifier)
-    {
+        private readonly EmailVerifier $emailVerifier
+    ) {
     }
 
     #[Route('/register', name: 'app_register')]

@@ -6,7 +6,6 @@ namespace App\Service;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
-use App\Entity\Price;
 use App\Entity\VoucherType;
 use App\Manager\InvoiceManager;
 use setasign\Fpdi\Tfpdf\Fpdi;

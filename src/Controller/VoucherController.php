@@ -26,7 +26,7 @@ class VoucherController extends AbstractController
     }
 
     #[Route('/voucher', name: 'voucher_index')]
-    public function index(Request $request, PriceRepository $priceRepository, VoucherManager $voucherManager, InvoiceManager $invoiceManager,): Response
+    public function index(Request $request, PriceRepository $priceRepository, VoucherManager $voucherManager, InvoiceManager $invoiceManager): Response
     {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
 
@@ -83,7 +83,7 @@ class VoucherController extends AbstractController
         }
 
         /** @var User $user */
-        $user    = $this->getUser();
+        $user = $this->getUser();
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
@@ -93,7 +93,7 @@ class VoucherController extends AbstractController
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $exception) {
             $this->entityManager->getConnection()->rollback();
-            $this->logger->error('Vouchers and Invoice were not created for User '. $user->getId() .' : ' . $exception->getMessage());
+            $this->logger->error('Vouchers and Invoice were not created for User ' . $user->getId() . ' : ' . $exception->getMessage());
 
             $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);

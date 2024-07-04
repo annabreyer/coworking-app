@@ -20,6 +20,7 @@ class PriceFixtures extends Fixture implements DependentFixtureInterface
             VoucherTypeFixtures::class,
         ];
     }
+
     public function load(ObjectManager $manager)
     {
         $this->loadPrices($manager);

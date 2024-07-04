@@ -8,8 +8,6 @@ use App\Entity\Invoice;
 use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -28,8 +26,8 @@ class VoucherManager
 
     public function createVouchers(User $user, VoucherType $voucherType, int $unitaryValue, Invoice $invoice): void
     {
-        $vouchers        = $voucherType->getUnits();
-        $validityMonths  = $voucherType->getValidityMonths() ?? 0;
+        $vouchers       = $voucherType->getUnits();
+        $validityMonths = $voucherType->getValidityMonths() ?? 0;
 
         for ($i = 0; $i < $vouchers; ++$i) {
             $voucher = new Voucher();

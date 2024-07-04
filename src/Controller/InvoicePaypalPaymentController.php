@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -24,6 +26,7 @@ class InvoicePaypalPaymentController extends AbstractController
         private readonly PaymentManager $paymentManager,
     ) {
     }
+
     #[Route('/invoice/{uuid}/paypal', name: 'invoice_payment_paypal')]
     public function payInvoiceWithPayPal(
         string $uuid,
@@ -37,20 +40,21 @@ class InvoicePaypalPaymentController extends AbstractController
 
         if (null === $invoice) {
             $this->addFlash('error', $this->translator->trans('invoice_payment.invoice_not_found', [], 'flash'));
+
             return $this->redirectToRoute('user_dashboard');
         }
 
-        if ($invoice->isFullyPaid()){
+        if ($invoice->isFullyPaid()) {
             $this->addFlash('success', $this->translator->trans('invoice_payment.already_paid', [], 'flash'));
 
-            if ($invoice->isBookingInvoice()){
+            if ($invoice->isBookingInvoice()) {
                 return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
             }
 
             return $this->redirectToRoute('user_dashboard');
         }
 
-        if (null !== $invoice->getPayPalOrderId()){
+        if (null !== $invoice->getPayPalOrderId()) {
             $request = new Request();
             $request->setMethod('POST');
             $request->request->set('data', ['orderID' => $invoice->getPayPalOrderId()]);
@@ -59,13 +63,13 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         return $this->render('invoice/paypal_payment.html.twig', [
-            'invoice'     => $invoice,
-            'parameters'  => $this->payPalService->getQueryParametersForJsSdk(),
+            'invoice'    => $invoice,
+            'parameters' => $this->payPalService->getQueryParametersForJsSdk(),
         ]);
     }
 
     #[Route('/invoice/{uuid}/paypal/capture', name: 'invoice_payment_paypal_capture', methods: ['POST'])]
-    public function capturePayPalPayment(string $uuid, Request $request,): Response
+    public function capturePayPalPayment(string $uuid, Request $request): Response
     {
         try {
             $invoice = $this->invoiceRepository->findOneBy(['uuid' => $uuid]);
@@ -86,9 +90,10 @@ class InvoicePaypalPaymentController extends AbstractController
         if ($invoice->isFullyPaid()) {
             $targetUrl = $this->generateUrl('user_dashboard');
 
-            if ($invoice->isBookingInvoice()){
+            if ($invoice->isBookingInvoice()) {
                 $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getBookings()->first()->getUuid()]);
             }
+
             return $this->json(
                 ['error' => 'Invoice has already been paid.', 'targetUrl' => $targetUrl],
                 Response::HTTP_BAD_REQUEST
@@ -119,12 +124,12 @@ class InvoicePaypalPaymentController extends AbstractController
 
         $this->paymentManager->finalizePaypalPayment($invoice);
 
-        if ($invoice->isVoucherInvoice()){
+        if ($invoice->isVoucherInvoice()) {
             $this->invoiceManager->generateVoucherInvoicePdf($invoice);
             $this->invoiceManager->sendVoucherInvoiceToUser($invoice);
         }
 
-        if ($invoice->isBookingInvoice()){
+        if ($invoice->isBookingInvoice()) {
             $this->invoiceManager->generateBookingInvoicePdf($invoice);
             $this->invoiceManager->sendBookingInvoiceToUser($invoice);
         }
@@ -149,7 +154,7 @@ class InvoicePaypalPaymentController extends AbstractController
 
         return $this->render('invoice/confirmation.html.twig', [
             'invoice' => $invoice,
-            'isError' => $invoice->isFullyPaid() === false,
+            'isError' => false === $invoice->isFullyPaid(),
         ]);
     }
 }
