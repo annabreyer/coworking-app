@@ -1,10 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Controller\Admin;
 
-use App\Entity\Invoice;
+use App\Entity\Price;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -12,11 +10,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class InvoiceCrudController extends AbstractCrudController
+class PriceCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return Invoice::class;
+        return Price::class;
     }
 
     public function configureFields(string $pageName): iterable
@@ -24,14 +22,11 @@ class InvoiceCrudController extends AbstractCrudController
         yield IdField::new('id')
                      ->hideOnForm()
         ;
+        yield Field::new('isActive');
         yield Field::new('amount');
-        yield Field::new('number');
-        yield Field::new('date');
-        yield AssociationField::new('user');
-        yield AssociationField::new('bookings');
-        yield AssociationField::new('payments');
-        yield AssociationField::new('vouchers');
-        yield TextField::new('uuid');
-        yield TextField::new('payPalOrderId');
+        yield Field::new('isUnitary');
+        yield Field::new('isVoucher');
+        yield Field::new('isSubscription');
+        yield AssociationField::new('voucherType');
     }
 }

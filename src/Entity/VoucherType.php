@@ -52,4 +52,9 @@ class VoucherType
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->units . ' Unit(s) - ' . $this->validityMonths . 'Month(s) Validity ';
+    }
 }

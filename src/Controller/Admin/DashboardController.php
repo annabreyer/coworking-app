@@ -7,10 +7,15 @@ namespace App\Controller\Admin;
 use App\Entity\AdminAction;
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
+use App\Entity\Invoice;
+use App\Entity\Payment;
+use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\TermsOfUse;
 use App\Entity\User;
 use App\Entity\UserAction;
+use App\Entity\Voucher;
+use App\Entity\VoucherType;
 use App\Entity\WorkStation;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -62,6 +67,12 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Room', 'fas fa-door-open', Room::class);
         yield MenuItem::linkToCrud('Workstation', 'fas fa-chair', WorkStation::class);
         yield MenuItem::linkToCrud('Booking', 'fas fa-file-contract', Booking::class);
+        yield MenuItem::section('Money Administration');
+        yield MenuItem::linkToCrud('Price', 'fas fa-euro-sign', Price::class);
+        yield MenuItem::linkToCrud('Voucher', 'fas fa-vote-yea', Voucher::class);
+        yield MenuItem::linkToCrud('VoucherType', 'fas fa-vote-yea', VoucherType::class);
+        //yield MenuItem::linkToCrud('Payment', 'fas fa-money-bill-wave', Payment::class);
+        yield MenuItem::linkToCrud('Invoice', 'fas fa-money-bill-wave', Invoice::class);
     }
 
     public function configureAssets(): Assets

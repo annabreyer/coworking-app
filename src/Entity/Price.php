@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: PriceRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_ISUNITARY_ISACTIVE', fields: ['isUnitary', 'isActive'])]
 class Price
 {
     use TimestampableEntity;
