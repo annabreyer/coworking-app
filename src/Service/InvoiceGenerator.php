@@ -110,8 +110,10 @@ class InvoiceGenerator
         $this->addClientData($user);
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherType);
+        $this->writeVoucherCodes($invoice);
         $this->writeAmount($invoiceAmount);
         $this->writeTotalAmount($invoiceAmount);
+        $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
     }
@@ -257,6 +259,13 @@ class InvoiceGenerator
         $this->writeValue(30, 145, 140, 8, $description);
     }
 
+    private function writeVoucherCodes(Invoice $invoice): void
+    {
+        $codes = implode(', ', $invoice->getVouchers()->map(fn (Voucher $voucher) => $voucher->getCode())->toArray());
+        $this->writeValue(30, 155, 120, 5, $codes);
+
+    }
+
     private function writeAmount(int $amount): void
     {
         $amount /= 100;
@@ -308,7 +317,12 @@ class InvoiceGenerator
             return;
         }
 
-        $dueMessage = $this->translator->trans('booking.invoice.due');
+        if ($invoice->isBookingInvoice()) {
+            $dueMessage = $this->translator->trans('booking.invoice.due');
+        } else {
+            $dueMessage = $this->translator->trans('voucher.invoice.due');
+        }
+
         $this->setBoldFont();
         $this->writeValue(15, 210, 200, 8, $dueMessage);
         $this->setStandardFont();

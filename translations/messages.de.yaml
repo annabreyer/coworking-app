@@ -161,7 +161,8 @@ voucher:
       action: 'Kaufen'
       payment_method: 'Zahlungsmethode'
   invoice:
-    description: '%units% Stück %validityMonths% Monate gültig.'
+    description: 'Mehrfachkarte: %units% Stück %validityMonths% Monate gültig.'
+    due: 'Fällig innerhalb von 10 Tagen.'
 
 
 invoice:
