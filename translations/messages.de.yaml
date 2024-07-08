@@ -86,7 +86,8 @@ reset_password:
   page:
     title: 'Setze Dein Passwort zurück'
     instructions: 'Gib Deine E-Mail-Adresse ein, und wir senden Dir einen Link zum Zurücksetzen Deines Passworts.'
-    form.button: 'E-Mail zum Zurücksetzen des Passworts senden'
+    request.button: 'E-Mail zum Zurücksetzen des Passworts senden'
+    reset.button: 'Zurücksetzen'
   email_sent_page:
     title: 'Die E-Mail zum Zurücksetzen Deines Passworts wurde gesendet.'
     info: 'Sofern ein Konto mit Deiner E-Mail-Adresse existiert, wurde soeben eine E-Mail gesendet, die einen Link enthält, den Du zum Zurücksetzen Deines Passworts verwenden kannst.'

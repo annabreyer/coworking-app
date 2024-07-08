@@ -5,7 +5,7 @@
 {% block header %}{{ 'page.title'|trans }}{% endblock %}
 
 {% block content %}
-    <section>
+    <section class="self-center">
         {% if app.user %}
             <div class="self-center">
                 <p class="text-lg">{{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.</p>
