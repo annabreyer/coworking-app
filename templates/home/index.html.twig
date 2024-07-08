@@ -7,22 +7,17 @@
 {% block content %}
     <section class="self-center">
         {% if app.user %}
-            <div class="self-center">
-                <p class="text-lg">{{ 'You are logged in as %userIdentifier%'|trans({'%userIdentifier%': app.user.userIdentifier})}}.</p>
-
+            <div class="self-center mx-auto">
                 <button>
                     <a href="{{ path('booking_step_date') }}">{{ 'actions.booking'|trans }}</a>
                 </button>
 
                 <button>
                     <a href="{{ path('user_dashboard') }}">{{ 'actions.user_dashboard'|trans }}</a>
-                    </button>
+                </button>
 
             </div>
-
-
         {% endif %}
-
         {{ 'content'|trans|raw }}
     </section>
 {% endblock %}

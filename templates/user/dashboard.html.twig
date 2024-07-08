@@ -4,7 +4,7 @@
 {% block header %}{{ 'user_account.title'|trans }}{% endblock %}
 
 {% block content %}
-<section class="self-center grid grid-cols-2">
+<section class="self-center grid grid-cols-1 md:grid-cols-2">
     <div class="max-w-sm p-6 bg-gradient-to-r from-blue from-75% to-blue-darkest to-95% border border-blue-darkest text-yellow-lightest rounded-lg shadow m-2">
         <a href="{{ path('user_edit')}}">
             <h5 class="mb-2 text-2xl font-bold tracking-tight dark:text-white">{{ 'user_account.edit_data.card.title'|trans }}</h5>

@@ -25,7 +25,7 @@ class UserController extends AbstractController
         $user  = $this->getUser();
         $email = $this->getParameter('support_email');
 
-        return $this->render('user/account.html.twig', [
+        return $this->render('user/dashboard.html.twig', [
             'user'         => $user,
             'supportEmail' => $email,
         ]);
