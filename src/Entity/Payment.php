@@ -102,6 +102,13 @@ class Payment
         return $this->invoice;
     }
 
+    public function setInvoice(Invoice $invoice): static
+    {
+        $this->invoice = $invoice;
+
+        return $this;
+    }
+
     public function getVoucher(): ?Voucher
     {
         return $this->voucher;
@@ -139,5 +146,10 @@ class Payment
     public function isPayPalPayment(): bool
     {
         return self::PAYMENT_TYPE_PAYPAL === $this->type;
+    }
+
+    public function __toString(): string
+    {
+        return $this->type . ' ' . $this->amount;
     }
 }

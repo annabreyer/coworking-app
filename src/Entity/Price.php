@@ -36,6 +36,9 @@ class Price
     #[ORM\ManyToOne()]
     private ?VoucherType $voucherType = null;
 
+    #[ORM\Column(length: 100)]
+    private ?string $name = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -116,6 +119,18 @@ class Price
     {
         $this->voucherType = $voucherType;
         $this->setIsVoucher(true);
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }

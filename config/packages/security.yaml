@@ -41,9 +41,9 @@ security:
       - { path: ^/terms-of-use, roles: PUBLIC_ACCESS }
       - { path: ^/data-protection, roles: PUBLIC_ACCESS }
       - { path: ^/code-of-conduct, roles: PUBLIC_ACCESS }
-      - { path: ^/, roles: PUBLIC_ACCESS }
       - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
-      - { path: ^/*, roles: ROLE_USER }
+      - { path: ^/, roles: PUBLIC_ACCESS }
+      - { path: ^/*, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_USER] }
 
 when@test:
     security:

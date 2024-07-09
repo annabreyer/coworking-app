@@ -29,6 +29,17 @@ class InvoiceGenerator
         $this->pdf = new Fpdi();
     }
 
+    public function generateInvoicePdf(Invoice $invoice): void
+    {
+        if ($invoice->isBookingInvoice()) {
+            $this->generateBookingInvoice($invoice);
+        } elseif ($invoice->isVoucherInvoice()) {
+            $this->generateVoucherInvoice($invoice);
+        } else {
+            $this->generateGeneralInvoice($invoice);
+        }
+    }
+
     public function generateBookingInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getId()) {
@@ -113,6 +124,33 @@ class InvoiceGenerator
         $this->writeVoucherCodes($invoice);
         $this->writeAmount($invoiceAmount);
         $this->writeTotalAmount($invoiceAmount);
+        $this->addDueMention($invoice);
+
+        $this->saveInvoice($invoice);
+    }
+
+    public function generateGeneralInvoice(Invoice $invoice): void
+    {
+        if (null === $invoice->getId()) {
+            throw new \InvalidArgumentException('Invoice must be persisted.');
+        }
+
+        if (0 === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $user = $invoice->getUser();
+        if (false === $user instanceof User) {
+            throw new \InvalidArgumentException('Invoice must have a user.');
+        }
+
+        $this->setupInvoiceTemplate();
+        $this->addInvoiceData($invoice);
+        $this->addClientData($user);
+        $this->writeFirstPositionNumber();
+        $this->writeValue(30, 145, 140, 8, (string)$invoice->getDescription());
+        $this->writeAmount($invoice->getAmount());
+        $this->writeTotalAmount($invoice->getAmount());
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
