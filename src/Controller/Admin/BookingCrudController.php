@@ -20,12 +20,11 @@ class BookingCrudController extends AbstractCrudController
         return Booking::class;
     }
 
-
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')
                      ->onlyOnIndex();
-        ;
+
         yield FormField::addColumn(6);
         yield FormField::addFieldset('Booking Details');
         yield AssociationField::new('businessDay');
@@ -34,14 +33,11 @@ class BookingCrudController extends AbstractCrudController
         yield MoneyField::new('amount')->setCurrency('EUR');
         yield DateField::new('createdAt');
 
-
         yield FormField::addColumn(6);
         yield FormField::addFieldset('PaymentDetails');
         yield AssociationField::new('invoice');
         yield MoneyField::new('invoice.amount')->setCurrency('EUR');
         yield DateField::new('invoice.date');
         yield CollectionField::new('invoice.payments');
-        ;
-
     }
 }

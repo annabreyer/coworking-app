@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -11,7 +11,6 @@ use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -22,11 +21,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 class UserCrudController extends AbstractCrudController
 {
-
     public function __construct()
     {
     }
@@ -38,7 +35,7 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        //@todo Custom Actions to User Invoices, User Bookings, User Vouchers
+        // @todo Custom Actions to User Invoices, User Bookings, User Vouchers
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)
@@ -54,7 +51,7 @@ class UserCrudController extends AbstractCrudController
             yield BooleanField::new('isVerified');
             yield DateField::new('createdAt');
             yield AssociationField::new('bookings');
-            yield CollectionField::new('unpaidInvoices');;
+            yield CollectionField::new('unpaidInvoices');
         }
 
         if (Crud::PAGE_DETAIL === $pageName) {
@@ -87,9 +84,8 @@ class UserCrudController extends AbstractCrudController
 
             yield FormField::addTab('Vouchers');
             yield UserVouchersField::new('vouchers', '');
-            ;;
 
-            yield FormField::addTab('Invoices');;
+            yield FormField::addTab('Invoices');
             yield UserInvoicesField::new('invoices', '');
         }
 
@@ -125,6 +121,5 @@ class UserCrudController extends AbstractCrudController
                              ->hideOnIndex()
             ;
         }
-
     }
 }
