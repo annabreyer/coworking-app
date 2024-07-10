@@ -164,4 +164,9 @@ class Voucher
 
         return $this->hasBeenPaid();
     }
+
+    public function __toString(): string
+    {
+        return $this->code ?? '';
+    }
 }

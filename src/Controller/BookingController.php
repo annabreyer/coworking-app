@@ -199,7 +199,22 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('user_bookings');
         }
 
-        $bookingDate = $booking->getBusinessDay()->getDate();
+        $businessDay = $booking->getBusinessDay();
+        if (!$businessDay instanceof BusinessDay) {
+            $this->addFlash('error', $this->translator->trans('form.booking.cancel.impossible', [], 'flash'));
+            $this->logger->error('Booking has no BusinessDay. ' . $uuid);
+
+            return $this->redirectToRoute('user_bookings');
+        }
+
+        $bookingDate = $businessDay->getDate();
+        if (!$bookingDate instanceof \DateTimeInterface) {
+            $this->addFlash('error', $this->translator->trans('form.booking.cancel.impossible', [], 'flash'));
+            $this->logger->error('BookingBusinessDay has no date. ' . $uuid);
+
+            return $this->redirectToRoute('user_bookings');
+        }
+
         $this->bookingManager->cancelBooking($booking);
 
         $adminMailerService->notifyAdminAboutBookingCancellation($bookingDate);

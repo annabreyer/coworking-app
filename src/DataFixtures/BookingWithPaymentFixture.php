@@ -44,9 +44,11 @@ class BookingWithPaymentFixture extends BookingFixtures
         $manager->persist($invoice);
         $manager->flush();
 
-        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
-        $payment->setAmount($invoice->getAmount());
-        $payment->setDate($invoice->getDate());
+        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment->setInvoice($invoice)
+                ->setAmount($invoice->getAmount())
+                ->setDate($invoice->getDate())
+        ;
 
         $manager->persist($payment);
         $manager->flush();

@@ -38,8 +38,8 @@ class Payment
     #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
 
-    #[ORM\ManyToOne(inversedBy: 'payments')]
-    private ?Transaction $transaction = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $comment = null;
 
     /**
      * @return array<string>
@@ -53,14 +53,19 @@ class Payment
         ];
     }
 
-    public function __construct(Invoice $invoice, string $type)
+    public function __construct(?string $type = null)
     {
+        if (null === $type) {
+            $this->type = '';
+
+            return;
+        }
+
         if (false === \in_array($type, self::getPaymentTypes(), true)) {
             throw new \InvalidArgumentException('Invalid payment type');
         }
-        $this->type    = $type;
-        $this->invoice = $invoice;
-        $invoice->addPayment($this);
+
+        $this->type = $type;
     }
 
     public function getId(): ?int
@@ -85,6 +90,17 @@ class Payment
         return $this->type;
     }
 
+    public function setType(string $type): static
+    {
+        if (false === \in_array($type, self::getPaymentTypes(), true)) {
+            throw new \InvalidArgumentException('Invalid payment type');
+        }
+
+        $this->type = $type;
+
+        return $this;
+    }
+
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
@@ -102,6 +118,13 @@ class Payment
         return $this->invoice;
     }
 
+    public function setInvoice(Invoice $invoice): static
+    {
+        $this->invoice = $invoice;
+
+        return $this;
+    }
+
     public function getVoucher(): ?Voucher
     {
         return $this->voucher;
@@ -110,18 +133,6 @@ class Payment
     public function setVoucher(?Voucher $voucher): static
     {
         $this->voucher = $voucher;
-
-        return $this;
-    }
-
-    public function getTransaction(): ?Transaction
-    {
-        return $this->transaction;
-    }
-
-    public function setTransaction(?Transaction $transaction): static
-    {
-        $this->transaction = $transaction;
 
         return $this;
     }
@@ -139,5 +150,26 @@ class Payment
     public function isPayPalPayment(): bool
     {
         return self::PAYMENT_TYPE_PAYPAL === $this->type;
+    }
+
+    public function __toString(): string
+    {
+        if (null === $this->getDate() || empty($this->getType())) {
+            return '';
+        }
+
+        return $this->amount / 100 . ' € | ' . $this->getDate()->format('d.m.Y') . ' | ' . $this->type . ($this->comment ? ' (' . $this->comment . ')' : '');
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(string $comment): static
+    {
+        $this->comment = $comment;
+
+        return $this;
     }
 }

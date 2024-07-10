@@ -225,6 +225,11 @@ class InvoiceManager
         return $this->invoicePrefix . $newNumber;
     }
 
+    public function generateGeneralInvoicePdf(Invoice $invoice): void
+    {
+        $this->invoiceGenerator->generateGeneralInvoice($invoice);
+    }
+
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
     {
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);

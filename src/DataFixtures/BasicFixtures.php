@@ -57,6 +57,22 @@ class BasicFixtures extends Fixture
 
         $this->addReference('user1', $user);
 
+        $user = new User();
+        $user->setEmail('user.two@annabreyer.dev');
+        $user->setMobilePhone($this->faker->mobileNumber());
+        $user->setFirstName($this->faker->firstName());
+        $user->setLastName($this->faker->lastName());
+        $user->setBirthdate($birthDate);
+        $user->setAcceptedDataProtection($otherDate);
+        $user->setAcceptedCodeOfConduct($otherDate);
+        $password = $this->hasher->hashPassword($user, 'Passw0rd');
+        $user->setPassword($password);
+
+        $manager->persist($user);
+        $manager->flush();
+
+        $this->addReference('user2', $user);
+
         $userTermsOfUse = new UserTermsOfUse($user, $this->getReference('terms-of-use-1.0', TermsOfUse::class));
         $userTermsOfUse->setAcceptedOn($otherDate);
         $manager->persist($userTermsOfUse);

@@ -29,22 +29,27 @@ class PriceFixtures extends Fixture implements DependentFixtureInterface
     private function loadPrices(ObjectManager $manager)
     {
         $priceMonthly = new Price();
-        $priceMonthly->setIsSubscription(false)
+        $priceMonthly->setIsSubscription(true)
                      ->setAmount(23000)
-                     ->setIsActive(false);
+                     ->setIsActive(false)
+                        ->setName('Monatsabo');
 
         $manager->persist($priceMonthly);
 
         $priceSingle = new Price();
         $priceSingle->setIsUnitary(true)
-                    ->setAmount(self::SINGLE_PRICE_AMOUNT);
+                    ->setAmount(self::SINGLE_PRICE_AMOUNT)
+                    ->setIsActive(true)
+                    ->setName('Einzelticket');
 
         $manager->persist($priceSingle);
         $this->addReference('price-single', $priceSingle);
 
         $priceVoucher = new Price();
         $priceVoucher->setVoucherType($this->getReference('voucherType10Units', VoucherType::class))
-                     ->setAmount(13500);
+                     ->setAmount(13500)
+                        ->setIsActive(true)
+                        ->setName('10er-Ticket');
 
         $manager->persist($priceVoucher);
         $manager->flush();

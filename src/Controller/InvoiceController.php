@@ -43,14 +43,19 @@ class InvoiceController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        if ($invoice->getUser() !== $this->getUser()) {
+        $accessDenied = $invoice->getUser() !== $this->getUser();
+        if ($accessDenied) {
+            $accessDenied = false === $this->isGranted('ROLE_SUPER_ADMIN');
+        }
+
+        if ($accessDenied) {
             throw $this->createAccessDeniedException('You are not allowed to download this invoice');
         }
 
         $invoicePath = $invoiceGenerator->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
 
         if (false === $filesystem->exists($invoicePath)) {
-            $invoiceGenerator->generateBookingInvoice($invoice);
+            $invoiceGenerator->generateInvoicePdf($invoice);
         }
 
         return new BinaryFileResponse($invoicePath);

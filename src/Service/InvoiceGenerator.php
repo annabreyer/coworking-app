@@ -29,6 +29,17 @@ class InvoiceGenerator
         $this->pdf = new Fpdi();
     }
 
+    public function generateInvoicePdf(Invoice $invoice): void
+    {
+        if ($invoice->isBookingInvoice()) {
+            $this->generateBookingInvoice($invoice);
+        } elseif ($invoice->isVoucherInvoice()) {
+            $this->generateVoucherInvoice($invoice);
+        } else {
+            $this->generateGeneralInvoice($invoice);
+        }
+    }
+
     public function generateBookingInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getId()) {
@@ -111,6 +122,38 @@ class InvoiceGenerator
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
+        $this->writeAmount($invoiceAmount);
+        $this->writeTotalAmount($invoiceAmount);
+        $this->addDueMention($invoice);
+
+        $this->saveInvoice($invoice);
+    }
+
+    public function generateGeneralInvoice(Invoice $invoice): void
+    {
+        if (null === $invoice->getId()) {
+            throw new \InvalidArgumentException('Invoice must be persisted.');
+        }
+
+        if (0 === $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $user = $invoice->getUser();
+        if (false === $user instanceof User) {
+            throw new \InvalidArgumentException('Invoice must have a user.');
+        }
+
+        $invoiceAmount = $invoice->getAmount();
+        if (null === $invoiceAmount) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
+        $this->setupInvoiceTemplate();
+        $this->addInvoiceData($invoice);
+        $this->addClientData($user);
+        $this->writeFirstPositionNumber();
+        $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
         $this->writeAmount($invoiceAmount);
         $this->writeTotalAmount($invoiceAmount);
         $this->addDueMention($invoice);
@@ -261,9 +304,8 @@ class InvoiceGenerator
 
     private function writeVoucherCodes(Invoice $invoice): void
     {
-        $codes = implode(', ', $invoice->getVouchers()->map(fn (Voucher $voucher) => $voucher->getCode())->toArray());
+        $codes = implode(', ', $invoice->getVouchers()->map(static fn (Voucher $voucher) => $voucher->getCode())->toArray());
         $this->writeValue(30, 155, 120, 5, $codes);
-
     }
 
     private function writeAmount(int $amount): void

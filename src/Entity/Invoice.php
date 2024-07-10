@@ -13,6 +13,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
+#[ORM\UniqueConstraint(fields: ['number'])]
 class Invoice
 {
     use TimestampableEntity;
@@ -34,13 +35,13 @@ class Invoice
     #[ORM\ManyToOne(inversedBy: 'invoices')]
     private ?User $user = null;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class, cascade: ['persist'])]
     private Collection $bookings;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $payments;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class, cascade: ['persist'])]
     private Collection $vouchers;
 
     #[ORM\Column(type: 'uuid')]
@@ -48,6 +49,9 @@ class Invoice
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $payPalOrderId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $description = null;
 
     public function __construct()
     {
@@ -149,7 +153,15 @@ class Invoice
     {
         if (false === $this->payments->contains($payment)) {
             $this->payments->add($payment);
+            $payment->setInvoice($this);
         }
+
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): static
+    {
+        $this->payments->removeElement($payment);
 
         return $this;
     }
@@ -303,6 +315,18 @@ class Invoice
 
     public function __toString(): string
     {
-        return $this->getNumber();
+        return $this->getNumber() ?? '';
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }

@@ -53,11 +53,14 @@ class UserCrudController extends AbstractCrudController
         yield BooleanField::new('isActive');
         yield BooleanField::new('isVerified');
         yield TextField::new('street')
-                       ->hideOnIndex();
+                       ->hideOnIndex()
+        ;
         yield TextField::new('postCode')
-                       ->hideOnIndex();
+                       ->hideOnIndex()
+        ;
         yield TextField::new('city')
-                      ->hideOnIndex();
+                       ->hideOnIndex()
+        ;
         yield DateField::new('createdAt');
         yield DateField::new('acceptedCodeOfConduct')
                        ->hideOnIndex()
@@ -74,6 +77,7 @@ class UserCrudController extends AbstractCrudController
                              ->setEntryIsComplex()
                              ->useEntryCrudForm()
                              ->setFormTypeOption('label', false)
+                             ->hideOnIndex()
         ;
     }
 }

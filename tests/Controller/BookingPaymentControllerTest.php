@@ -700,7 +700,9 @@ class BookingPaymentControllerTest extends WebTestCase
         $invoice = static::getContainer()
                          ->get(InvoiceRepository::class)
                          ->findInvoiceForBookingAndUserAndPaymentType($booking->getId(), $bookingUser->getId(), Payment::PAYMENT_TYPE_VOUCHER);
+
         self::assertNotNull($invoice);
+        self::assertCount(1, $invoice->getPayments());
         self::assertSame($voucher->getId(), $invoice->getPayments()->first()->getVoucher()->getId());
     }
 

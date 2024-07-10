@@ -28,7 +28,7 @@ class InvoicePaypalPaymentController extends AbstractController
     }
 
     #[Route('/invoice/{uuid}/paypal', name: 'invoice_payment_paypal')]
-    public function payInvoiceWithPayPal(string $uuid,): Response
+    public function payInvoiceWithPayPal(string $uuid): Response
     {
         $invoice = null;
         try {
@@ -127,7 +127,18 @@ class InvoicePaypalPaymentController extends AbstractController
 
             if ($request->getSession()->has(BookingPaymentController::BOOKING_STEP_PAYMENT)) {
                 $request->getSession()->remove(BookingPaymentController::BOOKING_STEP_PAYMENT);
-                $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $invoice->getFirstBooking()->getUuid()]);
+                $firstBooking = $invoice->getFirstBooking();
+
+                if (null === $firstBooking) {
+                    $this->logger->error('First booking not found. Invoice No. ' . $invoice->getNumber());
+                    $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
+
+                    return $this->json(
+                        ['error' => 'First booking not found.', 'targetUrl' => $targetUrl],
+                        Response::HTTP_BAD_REQUEST
+                    );
+                }
+                $targetUrl = $this->generateUrl('booking_payment_confirmation', ['uuid' => $firstBooking->getUuid()]);
             }
         }
 
