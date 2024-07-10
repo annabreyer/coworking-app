@@ -153,6 +153,7 @@ class Invoice
     {
         if (false === $this->payments->contains($payment)) {
             $this->payments->add($payment);
+            $payment->setInvoice($this);
         }
 
         return $this;

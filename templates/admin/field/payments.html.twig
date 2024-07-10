@@ -6,6 +6,6 @@
 Keine Zahlungen vorhanden
 {% else %}
     {% for payment in entity.instance.payments %}
-        {{ payment.amount/100 }} € bezahlt am {{ payment.date|date('d.m.Y') }} via {{ payment.type }}<br>
+        {{ (payment.amount/100)|number_format(2, ',', '.') }} € | {{ payment.date|date('d.m.Y') }} | {{ payment.type|trans }} {% if payment.comment is not empty %}({{ payment.comment }}){% endif %}<br>
     {% endfor %}
 {% endif %}

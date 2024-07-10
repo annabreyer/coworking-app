@@ -37,6 +37,9 @@ class Payment
 
     #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $comment = null;
     /**
      * @return array<string>
      */
@@ -149,6 +152,18 @@ class Payment
 
     public function __toString(): string
     {
-        return $this->type . ' ' . $this->amount;
+        return $this->amount/100 . ' € | ' . $this->date->format('d.m.Y') . ' | ' . $this->type . ($this->comment ? ' (' . $this->comment . ')' : '');
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(string $comment): static
+    {
+        $this->comment = $comment;
+
+        return $this;
     }
 }
