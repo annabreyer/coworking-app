@@ -167,6 +167,6 @@ class Voucher
 
     public function __toString(): string
     {
-        return $this->code;
+        return $this->code ?? '';
     }
 }

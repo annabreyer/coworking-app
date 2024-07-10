@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\EasyAdmin\ListField;
 use App\EasyAdmin\PaymentsField;
 use App\Entity\Invoice;
 use App\Manager\InvoiceManager;
@@ -21,8 +20,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 class InvoiceCrudController extends AbstractCrudController
@@ -30,9 +27,7 @@ class InvoiceCrudController extends AbstractCrudController
     use ClockAwareTrait;
 
     public function __construct(
-        private InvoiceManager $invoiceManager,
-        private AdminUrlGenerator $adminUrlGenerator,
-        private AdminContextProvider $adminContextProvider
+        private readonly InvoiceManager $invoiceManager,
     ) {
     }
 
@@ -49,8 +44,10 @@ class InvoiceCrudController extends AbstractCrudController
                      ->setAutofocusSearch(true)
                      ->setSearchFields(['number', 'description', 'payPalOrderId', 'uuid', 'user.lastName'])
                      ->setSearchMode(SearchMode::ALL_TERMS)
-                     ->setHelp('index',
-                         'Rechnungen können nicht bearbeitet oder gelöscht werden. <br>Suche nach Rechnungen mit der Nachnamen, Rechnungsnummer, Beschreibung, PayPal-Transaktions-ID oder UUID.')
+                     ->setHelp(
+                         'index',
+                         'Rechnungen können nicht bearbeitet oder gelöscht werden. <br>Suche nach Rechnungen mit der Nachnamen, Rechnungsnummer, Beschreibung, PayPal-Transaktions-ID oder UUID.'
+                     )
                      ->setDefaultSort(['createdAt' => 'DESC'])
                      ->setPaginatorPageSize(20)
                      ->setDateTimeFormat('dd.MM.yyyy HH:mm:ss')
@@ -88,8 +85,8 @@ class InvoiceCrudController extends AbstractCrudController
                                   ->linkToCrudAction(Action::EDIT)
                                   ->setIcon('fa fa-euro')
                                   ->setHtmlAttributes(['class' => 'btn btn-primary'])
-                                  ->displayIf(function ($entity) {
-                                      return $entity->isFullyPaid() === false;
+                                  ->displayIf(static function ($entity) {
+                                      return false === $entity->isFullyPaid();
                                   })
         ;
 
@@ -149,14 +146,14 @@ class InvoiceCrudController extends AbstractCrudController
             ;
             yield Field::new('date')
                        ->setFormTypeOption('required', true)
-            ;;
+            ;
             yield MoneyField::new('amount')
                             ->setCurrency('EUR')
                             ->setFormTypeOption('required', true)
-            ;;
+            ;
             yield TextField::new('description')
                            ->setFormTypeOption('required', true)
-            ;;
+            ;
         }
 
         if (Crud::PAGE_EDIT === $pageName) {

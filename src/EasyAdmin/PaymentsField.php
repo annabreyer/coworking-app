@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\EasyAdmin;
 
@@ -20,6 +22,6 @@ class PaymentsField implements FieldInterface
             ->setFormType(CollectionType::class)
             ->addCssClass('field-collection')
             ->addJsFiles(Asset::fromEasyAdminAssetPackage('field-collection.js')->onlyOnForms())
-            ;
+        ;
     }
 }

@@ -144,13 +144,18 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must have a user.');
         }
 
+        $invoiceAmount = $invoice->getAmount();
+        if (null === $invoiceAmount) {
+            throw new \InvalidArgumentException('Invoice must have an amount.');
+        }
+
         $this->setupInvoiceTemplate();
         $this->addInvoiceData($invoice);
         $this->addClientData($user);
         $this->writeFirstPositionNumber();
-        $this->writeValue(30, 145, 140, 8, (string)$invoice->getDescription());
-        $this->writeAmount($invoice->getAmount());
-        $this->writeTotalAmount($invoice->getAmount());
+        $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
+        $this->writeAmount($invoiceAmount);
+        $this->writeTotalAmount($invoiceAmount);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -299,9 +304,8 @@ class InvoiceGenerator
 
     private function writeVoucherCodes(Invoice $invoice): void
     {
-        $codes = implode(', ', $invoice->getVouchers()->map(fn (Voucher $voucher) => $voucher->getCode())->toArray());
+        $codes = implode(', ', $invoice->getVouchers()->map(static fn (Voucher $voucher) => $voucher->getCode())->toArray());
         $this->writeValue(30, 155, 120, 5, $codes);
-
     }
 
     private function writeAmount(int $amount): void

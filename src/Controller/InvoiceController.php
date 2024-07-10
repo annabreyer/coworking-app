@@ -44,7 +44,7 @@ class InvoiceController extends AbstractController
         }
 
         $accessDenied = $invoice->getUser() !== $this->getUser();
-        if ($accessDenied){
+        if ($accessDenied) {
             $accessDenied = false === $this->isGranted('ROLE_SUPER_ADMIN');
         }
 

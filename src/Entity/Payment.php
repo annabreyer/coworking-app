@@ -40,6 +40,7 @@ class Payment
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $comment = null;
+
     /**
      * @return array<string>
      */
@@ -56,6 +57,7 @@ class Payment
     {
         if (null === $type) {
             $this->type = '';
+
             return;
         }
 
@@ -63,7 +65,7 @@ class Payment
             throw new \InvalidArgumentException('Invalid payment type');
         }
 
-        $this->type    = $type;
+        $this->type = $type;
     }
 
     public function getId(): ?int
@@ -116,15 +118,9 @@ class Payment
         return $this->invoice;
     }
 
-    public function setInvoice(?Invoice $invoice): static
+    public function setInvoice(Invoice $invoice): static
     {
         $this->invoice = $invoice;
-
-        if (null !== $invoice) {
-            $invoice->addPayment($this);
-        } else {
-            $this->invoice->removePayment($this);
-        }
 
         return $this;
     }
@@ -158,7 +154,11 @@ class Payment
 
     public function __toString(): string
     {
-        return $this->amount/100 . ' € | ' . $this->date->format('d.m.Y') . ' | ' . $this->type . ($this->comment ? ' (' . $this->comment . ')' : '');
+        if (null === $this->getDate() || empty($this->getType())) {
+            return '';
+        }
+
+        return $this->amount / 100 . ' € | ' . $this->getDate()->format('d.m.Y') . ' | ' . $this->type . ($this->comment ? ' (' . $this->comment . ')' : '');
     }
 
     public function getComment(): ?string

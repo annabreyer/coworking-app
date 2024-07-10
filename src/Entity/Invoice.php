@@ -38,7 +38,7 @@ class Invoice
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class, cascade: ['persist'])]
     private Collection $bookings;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist', 'delete'], orphanRemoval: true)]
     private Collection $payments;
 
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class, cascade: ['persist'])]
@@ -161,12 +161,7 @@ class Invoice
 
     public function removePayment(Payment $payment): static
     {
-        if ($this->payments->removeElement($payment)) {
-            // set the owning side to null (unless already changed)
-            if ($payment->getInvoice() === $this) {
-                $payment->setInvoice(null);
-            }
-        }
+        $this->payments->removeElement($payment);
 
         return $this;
     }
@@ -320,7 +315,7 @@ class Invoice
 
     public function __toString(): string
     {
-        return $this->getNumber();
+        return $this->getNumber() ?? '';
     }
 
     public function getDescription(): ?string

@@ -8,7 +8,6 @@ use App\Entity\AdminAction;
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Invoice;
-use App\Entity\Payment;
 use App\Entity\Price;
 use App\Entity\Room;
 use App\Entity\TermsOfUse;
