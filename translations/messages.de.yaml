@@ -35,7 +35,7 @@ menu:
     register: Registrierung
     home: Startseite
     booking: Buchung
-    vouchers: Gutscheine
+    vouchers: Mehrfachkarten/Gutscheine
     sr.open: Öffnen
   user:
     dashboard: Dashboard
