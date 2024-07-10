@@ -38,7 +38,7 @@ content: '<h2>Buchungsmodalitäten</h2>
   <hr>
   
   <h2>Kontakt</h2>
-  <p class="text-lg">Du hast eine Frage oder willst uns besuchen? Schreib uns! Wir helfen gerne. <a href="mailto:office@coworking-hahnheim.de" class="underline">office@coworking-hanheim.de</a></p>'
+  <p class="text-lg">Du hast eine Frage oder willst uns besuchen? Schreib uns! Wir helfen gerne. <a href="mailto:office@coworking-hahnheim.de" class="underline">office@coworking-hahnheim.de</a></p>'
 
 actions:
   booking: Zur Buchung
