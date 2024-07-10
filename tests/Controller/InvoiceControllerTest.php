@@ -61,7 +61,7 @@ class InvoiceControllerTest extends WebTestCase
         $databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
 
         $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $testUser       = $userRepository->findOneBy(['email' => 'user.two@annabreyer.dev']);
         $client->loginUser($testUser);
 
         $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingFixtures::BOOKING_WITH_INVOICE_NO_PAYMENT_INVOICE_NUMBER]);

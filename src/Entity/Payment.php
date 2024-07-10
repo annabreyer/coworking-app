@@ -38,7 +38,7 @@ class Payment
     #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $comment = null;
     /**
      * @return array<string>
@@ -119,6 +119,12 @@ class Payment
     public function setInvoice(?Invoice $invoice): static
     {
         $this->invoice = $invoice;
+
+        if (null !== $invoice) {
+            $invoice->addPayment($this);
+        } else {
+            $this->invoice->removePayment($this);
+        }
 
         return $this;
     }
