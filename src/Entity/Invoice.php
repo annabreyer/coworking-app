@@ -38,7 +38,7 @@ class Invoice
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class, cascade: ['persist'])]
     private Collection $bookings;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist', 'delete'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $payments;
 
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class, cascade: ['persist'])]
