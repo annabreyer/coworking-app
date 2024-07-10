@@ -1,0 +1,11 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+
+{% if entity.instance.payments is empty %}
+Keine Zahlungen vorhanden
+{% else %}
+    {% for payment in entity.instance.payments %}
+        {{ payment.amount/100 }} € bezahlt am {{ payment.date|date('d.m.Y') }} via {{ payment.type }}<br>
+    {% endfor %}
+{% endif %}

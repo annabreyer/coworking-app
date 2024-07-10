@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Controller\Admin;
 
+use App\EasyAdmin\PaymentsField;
 use App\Entity\Invoice;
+use App\Entity\Payment;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -18,12 +20,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 class InvoiceCrudController extends AbstractCrudController
 {
     use ClockAwareTrait;
-    public function __construct(private InvoiceManager $invoiceManager)
+    public function __construct(private InvoiceManager $invoiceManager, private AdminUrlGenerator $adminUrlGenerator, private AdminContextProvider $adminContextProvider)
     {
     }
 
@@ -63,6 +67,15 @@ class InvoiceCrudController extends AbstractCrudController
             ->setHtmlAttributes(['target' => '_blank'])
             ;
 
+        $addPaymentAction = Action::new('addPayment', 'Zahlung hinzufügen')
+            ->linkToCrudAction(Action::EDIT)
+            ->setIcon('fa fa-euro')
+            ->setHtmlAttributes(['class' => 'btn btn-primary'])
+            ->displayIf(function ($entity) {
+                return $entity->isFullyPaid() === false;
+            })
+            ;
+
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::DELETE)
@@ -70,6 +83,9 @@ class InvoiceCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_DETAIL, Action::DELETE)
             ->add(Crud::PAGE_INDEX, $invoiceDownload)
             ->add(Crud::PAGE_DETAIL, $invoiceDownload)
+            ->add(Crud::PAGE_DETAIL, $addPaymentAction)
+            ->add(Crud::PAGE_INDEX, $addPaymentAction)
+
         ;
     }
 
@@ -82,6 +98,7 @@ class InvoiceCrudController extends AbstractCrudController
             yield Field::new('date');
             yield Field::new('amount');
             yield AssociationField::new('user');
+            yield AssociationField::new('payments');
         }
 
         if (Crud::PAGE_DETAIL === $pageName) {
@@ -95,7 +112,7 @@ class InvoiceCrudController extends AbstractCrudController
             yield TextField::new('description');
             yield AssociationField::new('bookings');
             yield AssociationField::new('vouchers');
-            yield AssociationField::new('payments');
+            yield PaymentsField::new('payments');
             yield TextField::new('payPalOrderId');
         }
 
@@ -114,6 +131,27 @@ class InvoiceCrudController extends AbstractCrudController
                 ->setFormTypeOption('required', true);;
             yield TextField::new('description')
                 ->setFormTypeOption('required', true);;
+        }
+
+        if (Crud::PAGE_EDIT === $pageName) {
+            yield Field::new('number')
+                       ->setFormTypeOption('disabled', true)
+            ;
+            yield Field::new('amount')
+                       ->setFormTypeOption('disabled', true);
+            yield CollectionField::new('payments')
+                ->setEntryIsComplex()
+                ->renderExpanded()
+                ->allowAdd()
+                ->useEntryCrudForm(PaymentCrudController::class);
+            yield AssociationField::new('user')
+                ->setFormTypeOption('disabled', true);
+            yield Field::new('date')
+                ->setFormTypeOption('disabled', true);
+            yield Field::new('amount')
+                ->setFormTypeOption('disabled', true);
+            yield TextField::new('description')
+                ->setFormTypeOption('disabled', true);
         }
     }
 

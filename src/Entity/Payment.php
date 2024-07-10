@@ -37,10 +37,6 @@ class Payment
 
     #[ORM\ManyToOne]
     private ?Voucher $voucher = null;
-
-    #[ORM\ManyToOne(inversedBy: 'payments')]
-    private ?Transaction $transaction = null;
-
     /**
      * @return array<string>
      */
@@ -53,14 +49,18 @@ class Payment
         ];
     }
 
-    public function __construct(Invoice $invoice, string $type)
+    public function __construct(?string $type = null)
     {
+        if (null === $type) {
+            $this->type = '';
+            return;
+        }
+
         if (false === \in_array($type, self::getPaymentTypes(), true)) {
             throw new \InvalidArgumentException('Invalid payment type');
         }
+
         $this->type    = $type;
-        $this->invoice = $invoice;
-        $invoice->addPayment($this);
     }
 
     public function getId(): ?int
@@ -85,6 +85,17 @@ class Payment
         return $this->type;
     }
 
+    public function setType(string $type): static
+    {
+        if (false === \in_array($type, self::getPaymentTypes(), true)) {
+            throw new \InvalidArgumentException('Invalid payment type');
+        }
+
+        $this->type = $type;
+
+        return $this;
+    }
+
     public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
@@ -102,7 +113,7 @@ class Payment
         return $this->invoice;
     }
 
-    public function setInvoice(Invoice $invoice): static
+    public function setInvoice(?Invoice $invoice): static
     {
         $this->invoice = $invoice;
 
@@ -117,18 +128,6 @@ class Payment
     public function setVoucher(?Voucher $voucher): static
     {
         $this->voucher = $voucher;
-
-        return $this;
-    }
-
-    public function getTransaction(): ?Transaction
-    {
-        return $this->transaction;
-    }
-
-    public function setTransaction(?Transaction $transaction): static
-    {
-        $this->transaction = $transaction;
 
         return $this;
     }

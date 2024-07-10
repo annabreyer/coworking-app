@@ -58,7 +58,8 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         ;
         $manager->persist($invoice);
 
-        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment->setInvoice($invoice);
         $payment->setAmount($voucherPrice->getAmount());
         $payment->setDate($invoice->getDate());
 
@@ -164,7 +165,8 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($voucherInvoice);
         $manager->flush();
 
-        $voucherInvoicePayment = new Payment($voucherInvoice, Payment::PAYMENT_TYPE_TRANSACTION);
+        $voucherInvoicePayment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $voucherInvoicePayment->setInvoice($voucherInvoice);
         $voucherInvoicePayment->setAmount(0);
         $voucherInvoicePayment->setDate($voucherPaymentDate);
         $manager->persist($voucherInvoicePayment);
@@ -200,7 +202,8 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($bookingInvoice);
         $manager->flush();
 
-        $bookingVoucherPayment = new Payment($bookingInvoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $bookingVoucherPayment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $bookingVoucherPayment->setInvoice($bookingInvoice);
         $bookingVoucherPayment->setAmount($voucher->getValue());
         $bookingVoucherPayment->setVoucher($voucher);
         $bookingVoucherPayment->setDate($bookingInvoiceDate);

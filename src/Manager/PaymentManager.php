@@ -32,8 +32,9 @@ class PaymentManager
         }
 
         $invoiceAmount = $invoice->getAmount() - $voucher->getValue();
-        $payment       = new Payment($invoice, Payment::PAYMENT_TYPE_VOUCHER);
+        $payment       = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
         $payment
+            ->setInvoice($invoice)
             ->setAmount($voucher->getValue())
             ->setDate($this->now())
             ->setVoucher($voucher)
@@ -57,8 +58,9 @@ class PaymentManager
             throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
-        $payment = new Payment($invoice, Payment::PAYMENT_TYPE_PAYPAL);
+        $payment = new Payment(Payment::PAYMENT_TYPE_PAYPAL);
         $payment
+            ->setInvoice($invoice)
             ->setAmount($invoiceAmount)
             ->setDate($this->now());
 

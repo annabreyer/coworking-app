@@ -35,13 +35,13 @@ class Invoice
     #[ORM\ManyToOne(inversedBy: 'invoices')]
     private ?User $user = null;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Booking::class, cascade: ['persist'])]
     private Collection $bookings;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Payment::class, cascade: ['persist'])]
     private Collection $payments;
 
-    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class)]
+    #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: Voucher::class, cascade: ['persist'])]
     private Collection $vouchers;
 
     #[ORM\Column(type: 'uuid')]
