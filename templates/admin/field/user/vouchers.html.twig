@@ -1,0 +1,44 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% if ea.crud.currentAction == 'detail' %}
+    <table class="table table-striped">
+        <tr>
+            <th>Gutschein-Code</th>
+            <th>Wert</th>
+            <th>gültig bis</th>
+            <th>Eingelöst</th>
+            <th>bezahlt am</th>
+            <th></th>
+        </tr>
+        {% for voucher in entity.instance.vouchers %}
+            {% set url = ea_url()
+                .setController('App\\Controller\\Admin\\VoucherCrudController')
+                .setAction('detail')
+                .setEntityId(voucher.id)
+            %}
+            <tr>
+                <td>{{ voucher.code }}</td>
+                <td>{{ (voucher.value/100)|number_format(2, ",", '.') }} € </td>
+                <td>{{ voucher.expiryDate|date('d.m.Y') }}</td>
+                <td>
+                    {% if voucher.useDate is not null %}
+                        {{ voucher.useDate|date('d.m.Y') }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if voucher.invoice is not null and voucher.invoice.isFullyPaid %}
+                        {{ voucher.invoice.payments.last.date|date('d.m.Y') }}
+                    {% else %}
+                        <span class="badge badge-warning">offen</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url }}" class="btn btn-sm"><span class="fa fa-eye"></span></a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <span class="badge badge-secondary">{{ field.formattedValue }}</span>
+{% endif %}

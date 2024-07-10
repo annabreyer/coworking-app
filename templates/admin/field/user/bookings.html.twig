@@ -1,0 +1,40 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% if ea.crud.currentAction == 'detail' %}
+    <table class="table table-striped">
+        <tr>
+            <th>Buchungsdatum</th>
+            <th>Raum</th>
+            <th>Preis</th>
+            <th>gebucht am</th>
+            <th>bezahlt am</th>
+            <th></th>
+        </tr>
+        {% for booking in entity.instance.bookings %}
+            {% set url = ea_url()
+                .setController('App\\Controller\\Admin\\BookingCrudController')
+                .setAction('detail')
+                .setEntityId(booking.id)
+            %}
+            <tr>
+                <td>{{ booking.businessday.date|date('d.m.Y') }}</td>
+                <td>{{ booking.room.name }}</td>
+                <td>{{ (booking.amount/100)|number_format(2, ",", '.') }} € </td>
+                <td>{{ booking.createdAt|date('d.m.Y H:i') }}</td>
+                <td>
+                    {% if booking.invoice is not null and booking.invoice.isFullyPaid %}
+                        {{ booking.invoice.payments.last.date|date('d.m.Y') }}
+                    {% else %}
+                        <span class="badge badge-warning">offen</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url }}" class="btn btn-sm"><span class="fa fa-eye"></span></a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <span class="badge badge-secondary">{{ field.formattedValue }}</span>
+{% endif %}

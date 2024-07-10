@@ -140,7 +140,7 @@ class BookingPaymentController extends AbstractController
             throw $this->createAccessDeniedException('You are not allowed to view this booking.');
         }
 
-        if ($booking->hasBeenPaid()) {
+        if ($booking->isFullyPaid()) {
             return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
 
