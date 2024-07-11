@@ -75,7 +75,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/vouchers', name: 'user_vouchers')]
-    public function showUserVouchers(InvoiceRepository $invoiceRepository): Response
+    public function showUserVouchers(): Response
     {
         /** @var User $user */
         $user                   = $this->getUser();

@@ -60,15 +60,16 @@ class InvoiceGenerator
 
         if ($invoice->isFullyPaidByVoucher()) {
             $this->addVoucherPayment($invoice);
+            $this->writeTotalAmount(0);
         }
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount((int) $invoice->getAmount());
+            $this->writeTotalAmount($invoice->getAmount()/100);
             $this->addAlreadyPaidMention($invoice);
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount((int) $invoice->getAmount());
+            $this->writeTotalAmount($invoice->getAmount()/100);
             $this->addDueMention($invoice);
         }
 
@@ -111,8 +112,8 @@ class InvoiceGenerator
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
-        $this->writeAmount($invoiceAmount);
-        $this->writeTotalAmount($invoiceAmount);
+        $this->writeAmount($invoiceAmount/100);
+        $this->writeTotalAmount($invoiceAmount/100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -143,8 +144,8 @@ class InvoiceGenerator
         $this->addClientData($user);
         $this->writeFirstPositionNumber();
         $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
-        $this->writeAmount($invoiceAmount);
-        $this->writeTotalAmount($invoiceAmount);
+        $this->writeAmount($invoiceAmount/100);
+        $this->writeTotalAmount($invoiceAmount/100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -254,7 +255,7 @@ class InvoiceGenerator
 
         $this->writeFirstPositionNumber();
         $this->writeBookingDescription($booking);
-        $this->writeAmount($bookingAmount);
+        $this->writeAmount($bookingAmount/100);
     }
 
     private function writeFirstPositionNumber(): void
@@ -297,18 +298,18 @@ class InvoiceGenerator
         $this->writeValue(30, 155, 120, 5, $codes);
     }
 
-    private function writeAmount(int $amount): void
+    private function writeAmount(float $amount): void
     {
-        $amount /= 100;
+        $invoiceAmount = number_format($amount, 2, ',', '');
 
-        $this->writeValue(180, 145, 30, 8, $amount . ',00 €');
+        $this->writeValue(180, 145, 30, 8, $invoiceAmount . ' €');
     }
 
-    private function writeTotalAmount(int $amount): void
+    private function writeTotalAmount(float $amount): void
     {
-        $amount /= 100;
+        $invoiceAmount = number_format($amount, 2, ',', '');
 
-        $this->writeValue(180, 182, 30, 8, $amount . ',00 €');
+        $this->writeValue(180, 182, 30, 8, $invoiceAmount . ' €');
     }
 
     private function addVoucherPayment(Invoice $invoice): void

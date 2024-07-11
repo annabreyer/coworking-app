@@ -209,9 +209,9 @@ class BookingPaymentController extends AbstractController
             return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
         }
 
-        $this->paymentManager->handleVoucherPayment($booking->getInvoice(), $voucher);
-        $this->invoiceManager->generateBookingInvoicePdf($booking->getInvoice());
-        $this->invoiceManager->sendBookingInvoiceToUser($booking->getInvoice());
+        $invoice = $this->paymentManager->handleVoucherPayment($booking->getInvoice(), $voucher);
+        $this->invoiceManager->generateBookingInvoicePdf($invoice);
+        $this->invoiceManager->sendBookingInvoiceToUser($invoice);
 
         return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
     }

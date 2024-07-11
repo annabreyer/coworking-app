@@ -121,6 +121,7 @@ class Payment
     public function setInvoice(Invoice $invoice): static
     {
         $this->invoice = $invoice;
+        $invoice->addPayment($this);
 
         return $this;
     }

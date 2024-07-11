@@ -196,7 +196,8 @@ class InvoiceManagerTest extends KernelTestCase
             $invoiceRepository,
             $mockFilesystem,
             $invoicePrefix,
-            'documentVaultEmail'
+            'documentVaultEmail',
+            'test'
         );
     }
 

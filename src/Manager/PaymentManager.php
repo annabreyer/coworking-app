@@ -21,7 +21,7 @@ class PaymentManager
     ) {
     }
 
-    public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): void
+    public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): Invoice
     {
         if (null === $invoice->getAmount()) {
             throw new \InvalidArgumentException('Invoice must have an amount.');
@@ -42,6 +42,7 @@ class PaymentManager
 
         $voucher->setUseDate($this->now());
         $invoice->setAmount($invoiceAmount);
+        $invoice->addPayment($payment);
 
         $this->entityManager->persist($payment);
         $this->entityManager->flush();
@@ -49,6 +50,8 @@ class PaymentManager
         if (0 > $invoiceAmount) {
             $this->adminMailer->notifyAdminAboutNegativeInvoice($invoice);
         }
+
+        return $invoice;
     }
 
     public function finalizePaypalPayment(Invoice $invoice): void

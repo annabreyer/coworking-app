@@ -9,7 +9,7 @@
                 {% for voucherPrice in voucherPrices %}
                     <li>
                         <input type="radio" id="{{ voucherPrice.id }}" name="voucherPrice" value="{{ voucherPrice.id }}"
-                               class="hidden peer" required/>
+                               class="hidden peer" checked required/>
                         <label for="{{ voucherPrice.id }}"
                                class="inline-flex items-center justify-between w-full p-5 border bg-red border-red-darkest text-yellow-lightest rounded-lg cursor-pointer hover:bg-red-dark hover:text-yellow-lightest peer-checked:border-yellow peer-checked:text-yellow peer-checked:bg-red-dark">
                             <div class="block">

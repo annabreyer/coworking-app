@@ -534,7 +534,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getExpiredOrUsedVouchers(): Collection
     {
         return $this->vouchers->filter(static function (Voucher $voucher) {
-            return $voucher->isExpired() && null !== $voucher->getUseDate();
+            return $voucher->isExpired() || null !== $voucher->getUseDate();
         });
     }
 

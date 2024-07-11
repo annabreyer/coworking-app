@@ -38,7 +38,8 @@ class InvoiceManager
         private readonly InvoiceRepository $invoiceRepository,
         private readonly Filesystem $filesystem,
         private readonly string $invoicePrefix,
-        private readonly string $documentVaultEmail
+        private readonly string $documentVaultEmail,
+        private readonly string $env
     ) {
     }
 
@@ -232,6 +233,10 @@ class InvoiceManager
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
     {
+        if (in_array($this->env, ['dev', 'staging'])) {
+            return;
+        }
+
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 

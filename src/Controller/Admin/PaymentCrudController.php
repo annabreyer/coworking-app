@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller\Admin;
 
@@ -23,11 +23,17 @@ class PaymentCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         if (Crud::PAGE_NEW === $pageName) {
-            yield MoneyField::new('amount')->setCurrency('EUR');
-            yield Field::new('date');
+            yield MoneyField::new('amount')
+                            ->setCurrency('EUR')
+                            ->setRequired(true)
+            ;
+            yield Field::new('date')
+                       ->setRequired(true)
+            ;
             yield ChoiceField::new('type')
                              ->setChoices(Payment::getPaymentTypes())
-            ;
+                             ->setRequired(true)
+            ;;
             yield AssociationField::new('voucher');
             yield TextField::new('comment');
         }

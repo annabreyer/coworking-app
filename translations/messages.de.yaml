@@ -105,6 +105,7 @@ booking:
       title: 'Preise'
       voucher_card:
           link: 'Mehrfachkarte kaufen'
+      unitary.explanation: 'Wird bei der Bezahlung automatisch angewandt, ausser bei der Zahlung mit dem Gutschein.'
   invoice:
     description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
