@@ -46,7 +46,7 @@ class VoucherManagerTest extends KernelTestCase
         $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+        $voucherManager->createVouchers($user, $voucherType, $invoice, $singlePrice->getAmount());
 
         $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         self::assertCount(10, $vouchers);
@@ -64,7 +64,7 @@ class VoucherManagerTest extends KernelTestCase
         $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+        $voucherManager->createVouchers($user, $voucherType, $invoice, $singlePrice->getAmount());
 
         $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         $codes    = [];
@@ -87,7 +87,7 @@ class VoucherManagerTest extends KernelTestCase
         $invoice        = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
-        $voucherManager->createVouchers($user, $voucherType, $singlePrice->getAmount(), $invoice);
+        $voucherManager->createVouchers($user, $voucherType, $invoice, $singlePrice->getAmount());
 
         $vouchers       = static::getContainer()->get(VoucherRepository::class)->findBy(['user' => $user, 'invoice' => $invoice]);
         $expirationDate = $now->modify('+' . $voucherType->getValidityMonths() . ' months');

@@ -55,7 +55,13 @@ class InvoiceController extends AbstractController
         $invoicePath = $invoiceGenerator->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
 
         if (false === $filesystem->exists($invoicePath)) {
-            $invoiceGenerator->generateInvoicePdf($invoice);
+            if ($invoice->isBookingInvoice()) {
+                $invoiceGenerator->generateBookingInvoice($invoice);
+            } elseif ($invoice->isVoucherInvoice()) {
+                $invoiceGenerator->generateVoucherInvoice($invoice);
+            } else {
+                $invoiceGenerator->generateGeneralInvoice($invoice);
+            }
         }
 
         return new BinaryFileResponse($invoicePath);

@@ -23,5 +23,6 @@ class VoucherTypeCrudController extends AbstractCrudController
         ;
         yield Field::new('units');
         yield Field::new('validityMonths');
+        yield Field::new('unitaryValue');
     }
 }

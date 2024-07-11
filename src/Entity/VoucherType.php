@@ -24,6 +24,9 @@ class VoucherType
     #[ORM\Column(nullable: true)]
     private ?int $validityMonths = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $unitaryValue = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -56,5 +59,17 @@ class VoucherType
     public function __toString(): string
     {
         return $this->units . ' Unit(s) - ' . $this->validityMonths . 'Month(s) Validity ';
+    }
+
+    public function getUnitaryValue(): ?int
+    {
+        return $this->unitaryValue;
+    }
+
+    public function setUnitaryValue(int $unitaryValue): static
+    {
+        $this->unitaryValue = $unitaryValue;
+
+        return $this;
     }
 }

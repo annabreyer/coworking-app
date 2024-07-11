@@ -29,17 +29,6 @@ class InvoiceGenerator
         $this->pdf = new Fpdi();
     }
 
-    public function generateInvoicePdf(Invoice $invoice): void
-    {
-        if ($invoice->isBookingInvoice()) {
-            $this->generateBookingInvoice($invoice);
-        } elseif ($invoice->isVoucherInvoice()) {
-            $this->generateVoucherInvoice($invoice);
-        } else {
-            $this->generateGeneralInvoice($invoice);
-        }
-    }
-
     public function generateBookingInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getId()) {

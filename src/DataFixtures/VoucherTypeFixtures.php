@@ -20,6 +20,7 @@ class VoucherTypeFixtures extends Fixture
         $voucherType10 = new VoucherType();
         $voucherType10->setUnits(10);
         $voucherType10->setValidityMonths(12);
+        $voucherType10->setUnitaryValue(1500);
 
         $manager->persist($voucherType10);
         $manager->flush();
@@ -28,7 +29,8 @@ class VoucherTypeFixtures extends Fixture
 
         $voucherType = new VoucherType();
         $voucherType->setValidityMonths(1)
-                    ->setUnits(1);
+                    ->setUnits(1)
+            ->setUnitaryValue(1500);
 
         $manager->persist($voucherType);
         $manager->flush();
