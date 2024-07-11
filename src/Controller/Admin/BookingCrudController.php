@@ -7,7 +7,11 @@ namespace App\Controller\Admin;
 use App\Entity\Booking;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 
 class BookingCrudController extends AbstractCrudController
 {
@@ -19,10 +23,21 @@ class BookingCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')
-                     ->hideOnForm()
-        ;
+                     ->onlyOnIndex();
+
+        yield FormField::addColumn(6);
+        yield FormField::addFieldset('Booking Details');
         yield AssociationField::new('businessDay');
         yield AssociationField::new('user');
         yield AssociationField::new('room');
+        yield MoneyField::new('amount')->setCurrency('EUR');
+        yield DateField::new('createdAt');
+
+        yield FormField::addColumn(6);
+        yield FormField::addFieldset('PaymentDetails');
+        yield AssociationField::new('invoice');
+        yield MoneyField::new('invoice.amount')->setCurrency('EUR');
+        yield DateField::new('invoice.date');
+        yield CollectionField::new('invoice.payments');
     }
 }

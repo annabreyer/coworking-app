@@ -9,7 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
-class PaymentsField implements FieldInterface
+class UserBookingsField implements FieldInterface
 {
     use FieldTrait;
 
@@ -18,7 +18,7 @@ class PaymentsField implements FieldInterface
         return (new self())
             ->setProperty($propertyName)
             ->setLabel($label)
-            ->setTemplatePath('admin/field/payments.html.twig')
+            ->setTemplatePath('admin/field/user/bookings.html.twig')
             ->setFormType(CollectionType::class)
             ->addCssClass('field-collection')
             ->addJsFiles(Asset::fromEasyAdminAssetPackage('field-collection.js')->onlyOnForms())

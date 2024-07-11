@@ -537,4 +537,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return $voucher->isExpired() && null !== $voucher->getUseDate();
         });
     }
+
+    public function getUnpaidInvoices(): Collection
+    {
+        return $this->invoices->filter(static function (Invoice $invoice) {
+            return false === $invoice->isFullyPaid();
+        });
+    }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\EasyAdmin\PaymentsField;
+use App\EasyAdmin\InvoicePaymentsField;
 use App\Entity\Invoice;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -129,7 +129,7 @@ class InvoiceCrudController extends AbstractCrudController
             yield TextField::new('description');
             yield AssociationField::new('bookings');
             yield AssociationField::new('vouchers');
-            yield PaymentsField::new('payments');
+            yield InvoicePaymentsField::new('payments');
             yield TextField::new('payPalOrderId');
         }
 

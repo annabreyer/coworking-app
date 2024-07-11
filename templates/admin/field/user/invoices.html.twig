@@ -1,0 +1,38 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% if ea.crud.currentAction == 'detail' %}
+    <table class="table table-striped">
+        <tr>
+            <th>Nummer</th>
+            <th>Rechnungsdatum</th>
+            <th>Betrag</th>
+            <th>bezahlt am</th>
+            <th></th>
+        </tr>
+        {% for invoice in entity.instance.invoices %}
+            {% set url = ea_url()
+                .setController('App\\Controller\\Admin\\InvoiceCrudController')
+                .setAction('detail')
+                .setEntityId(invoice.id)
+            %}
+            <tr>
+                <td>{{ invoice.number }}</td>
+                <td>{{ invoice.date|date('d.m.Y') }}</td>
+                <td>{{ (invoice.amount/100)|number_format(2, ",", '.') }} € </td>
+                <td>
+                    {% if invoice.isFullyPaid %}
+                        {{ invoice.payments.last.date|date('d.m.Y') }}
+                    {% else %}
+                        <span class="badge badge-warning">offen</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url }}" class="btn btn-sm"><span class="fa fa-eye"></span></a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <span class="badge badge-secondary">{{ field.formattedValue }}</span>
+{% endif %}
