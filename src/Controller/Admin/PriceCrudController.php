@@ -22,6 +22,7 @@ class PriceCrudController extends AbstractCrudController
         yield IdField::new('id')
                      ->hideOnForm()
         ;
+        yield Field::new('name');
         yield Field::new('isActive');
         yield Field::new('amount');
         yield Field::new('isUnitary');
