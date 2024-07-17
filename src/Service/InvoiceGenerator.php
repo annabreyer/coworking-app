@@ -187,6 +187,8 @@ class InvoiceGenerator
 
         $this->writeInvoiceNumber($invoice);
         $this->writeInvoiceDate($invoice);
+        $this->writeInvoiceType($invoice->isRefund());
+        $this->writeIntro($invoice->isRefund());
     }
 
     private function addClientData(User $user): void
@@ -198,6 +200,29 @@ class InvoiceGenerator
             $this->writeClientStreet($user);
             $this->writeClientCity($user);
         }
+    }
+
+    private function writeInvoiceType(bool $isRefund): void
+    {
+        if ($isRefund) {
+            $type = $this->translator->trans('invoice.type.refund', [], 'invoice');
+        } else {
+            $type = $this->translator->trans('invoice.type.invoice', [], 'invoice');
+        }
+        $this->setTitleFont();
+        $this->writeValue(13, 45.5, 50, 24, $type); //@todo check location
+        $this->setStandardFont();
+    }
+
+    private function writeIntro(bool $isRefund): void
+    {
+        if ($isRefund) {
+            $intro = $this->translator->trans('invoice.intro.refund', [], 'invoice');
+        } else {
+            $intro = $this->translator->trans('invoice.intro.invoice', [], 'invoice');
+        }
+
+        $this->writeValue(13, 126, 200, 8, $intro); //@todo check location
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
@@ -275,19 +300,19 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Booking must have a room.');
         }
 
-        $description = $this->translator->trans('booking.invoice.description', [
+        $description = $this->translator->trans('invoice.description.booking', [
             '%date%' => $bookingDate->format('d.m.Y'),
             '%room%' => $bookingRoom->getName(),
-        ]);
+        ], 'invoice');
         $this->writeValue(30, 145, 140, 8, $description);
     }
 
     private function writeVoucherDescription(VoucherType $voucherType): void
     {
-        $description = $this->translator->trans('voucher.invoice.description', [
+        $description = $this->translator->trans('invoice.description.voucher', [
             '%units%'          => $voucherType->getUnits(),
             '%validityMonths%' => $voucherType->getValidityMonths(),
-        ]);
+        ], 'invoice');
 
         $this->writeValue(30, 145, 140, 8, $description);
     }
@@ -330,9 +355,9 @@ class InvoiceGenerator
                 throw new \InvalidArgumentException('Payment must have a voucher and a voucher code.');
             }
 
-            $paymentMethodMessage = $this->translator->trans('booking.invoice.paid_by_voucher', [
+            $paymentMethodMessage = $this->translator->trans('invoice.payment.voucher', [
                 '%voucherCode%' => $paymentVoucher->getCode(),
-            ]);
+            ], 'invoice');
             $amount = $payment->getAmount() / 100;
 
             $this->writeValue(15, $y, 10, 8, (string) $position);
@@ -350,9 +375,9 @@ class InvoiceGenerator
         }
 
         if ($invoice->isBookingInvoice()) {
-            $dueMessage = $this->translator->trans('booking.invoice.due');
+            $dueMessage = $this->translator->trans('invoice.due.booking', [], 'invoice');
         } else {
-            $dueMessage = $this->translator->trans('voucher.invoice.due');
+            $dueMessage = $this->translator->trans('invoice.due.general', [], 'invoice');
         }
 
         $this->setBoldFont();
@@ -376,7 +401,7 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Already paid invoice must have a payment date.');
         }
 
-        $dueMessage = $this->translator->trans('booking.invoice.already_paid', ['%date%' => $paymentDate->format('d.m.Y')]);
+        $dueMessage = $this->translator->trans('invoice.payment.paid', ['%date%' => $paymentDate->format('d.m.Y')], 'invoice');
         $this->setBoldFont();
         $this->writeValue(15, 210, 200, 8, $dueMessage);
         $this->setStandardFont();
@@ -403,5 +428,10 @@ class InvoiceGenerator
     private function setBoldFont(): void
     {
         $this->pdf->SetFont('Helvetica', 'b', 12);
+    }
+
+    private function setTitleFont(): void
+    {
+        $this->pdf->SetFont('Helvetica', 'b', 24);
     }
 }

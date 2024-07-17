@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'user_account.invoices.title'|trans }}{% endblock %}
+
+{% block header %}{{ 'user_account.invoices.title'|trans }}{% endblock %}
+{% block content %}
+    <section class="self-center mx-auto">
+        {% if user.invoices.isEmpty %}
+            {{ 'user_account.invoices.no_invoices'|trans }}
+        {% endif %}
+
+        <div class="mt-4">
+            {% for invoice in user.invoices %}
+                <div class="bg-yellow-light m-2 p-2 border-b hover:bg-sunray text-lg">
+                    <span class="px-3 py-2 font-medium whitespace-nowrap dark:text-white">
+                        {{ invoice.date|date('d.m.Y') }}
+                    </span>
+                    <span class="px-3 py-2">
+                            {{ (invoice.amount/100)|number_format(2, ",", '.') }}€
+                    </span>
+                    <span class="px-3 py-2">
+                        <button class="bg-blue-light text-blue-dark hover:bg-blue my-0.5">
+                            <a href="{{ path('invoice_download', {'uuid': invoice.uuid }) }}" target="_blank" class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-invoice"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 7l1 0"/><path d="M9 13l6 0"/><path d="M13 17l2 0"/></svg>
+                                <span class="mt-0.5">Download</span>
+                            </a>
+                        </button>
+                    </span>
+                    <span class="px-3 py-2">
+                            {% if invoice.isFullyPaid != true and invoice.payPalOrderId is null %}
+                                <button class="my-0.5 bg-silverpink-light text-red-darkest hover:bg-silverpink">
+                                    <a href="{{ path('invoice_payment_paypal', {'uuid': invoice.uuid }) }}" target="_blank" class="flex items-start">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-paypal"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13l2.5 0c2.5 0 5 -2.5 5 -5c0 -3 -1.9 -5 -5 -5h-5.5c-.5 0 -1 .5 -1 1l-2 14c0 .5 .5 1 1 1h2.8l1.2 -5c.1 -.6 .4 -1 1 -1zm7.5 -5.8c1.7 1 2.5 2.8 2.5 4.8c0 2.5 -2.5 4.5 -5 4.5h-2.6l-.6 3.6a1 1 0 0 1 -1 .8l-2.7 0a.5 .5 0 0 1 -.5 -.6l.2 -1.4" /></svg>
+                                        <span class="mt-0.5">{{ 'user_account.bookings.paypal_link'|trans }}</span>
+                                    </a>
+                                </button>
+                            {% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

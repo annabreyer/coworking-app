@@ -329,4 +329,9 @@ class Invoice
 
         return $this;
     }
+
+    public function isRefund(): bool
+    {
+        return 0 > $this->getAmount();
+    }
 }

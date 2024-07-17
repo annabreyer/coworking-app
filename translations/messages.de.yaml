@@ -41,6 +41,7 @@ menu:
     dashboard: Dashboard
     bookings: Meine Buchungen
     vouchers: Meine Gutscheine
+    invoices: Meine Rechnungen
     edit_user: Meine Daten
     logout: Abmelden
     sr.open: Öffnen
@@ -107,11 +108,7 @@ booking:
           link: 'Mehrfachkarte kaufen'
       unitary.explanation: 'Wird bei der Bezahlung automatisch angewandt, ausser bei der Zahlung mit dem Gutschein.'
   invoice:
-    description: 'Ein Coworking-Platz am %date% im Raum %room%'
     paid: 'Bezahlt'
-    paid_by_voucher: 'Bezahlt mit Gutschein %voucherCode%'
-    due: 'Fällig innerhalb von 10 Tagen oder mindestens 24 Stunden vor Buchungsdatum.'
-    already_paid: 'Bezahlt am %date%'
   recap:
     card:
       title: 'Deine Buchung'
@@ -161,10 +158,6 @@ voucher:
     form:
       action: 'Kaufen'
       payment_method: 'Zahlungsmethode'
-  invoice:
-    description: 'Mehrfachkarte: %units% Stück %validityMonths% Monate gültig.'
-    due: 'Fällig innerhalb von 10 Tagen.'
-
 
 invoice:
   payment:
@@ -240,6 +233,13 @@ user_account:
         button: 'Jetzt bezahlen'
       invoice:
           info: 'Rechnung Nr. %invoiceId% vom %invoiceDate%'
+  invoices:
+    title: 'Rechnungen'
+    no_invoices: 'Du hast noch keine Rechnungen.'
+    card:
+      title: 'Meine Rechnungen'
+      text: 'Hier findest Du eine Übersicht Deiner Rechnungen.'
+      button: 'Zu meinen Rechnungen'
 
 
 footer:

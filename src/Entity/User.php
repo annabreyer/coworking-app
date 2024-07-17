@@ -92,6 +92,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $bookings;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Invoice::class)]
+    #[ORM\OrderBy(['date' => 'DESC'])]
     private Collection $invoices;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Voucher::class)]
