@@ -35,7 +35,6 @@ class UserCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        // @todo Custom Actions to User Invoices, User Bookings, User Vouchers
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)

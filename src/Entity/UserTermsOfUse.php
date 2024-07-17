@@ -61,4 +61,9 @@ class UserTermsOfUse
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->getTermsOfUse()->getVersion() . '|' . $this->getAcceptedOn()->format('Y-m-d H:i:s');
+    }
 }
