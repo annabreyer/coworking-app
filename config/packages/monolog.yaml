@@ -53,7 +53,7 @@ when@prod:
                 path: php://stderr
                 formatter: monolog.formatter.json
 
-when@stagi:
+when@staging:
   monolog:
     handlers:
       main:
