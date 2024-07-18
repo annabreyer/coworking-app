@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller\Admin;
 
@@ -38,6 +38,7 @@ class UserCrudController extends AbstractCrudController
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)
+                     ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
     }
 
@@ -75,11 +76,13 @@ class UserCrudController extends AbstractCrudController
             yield FormField::addFieldset('Legal Information');
             yield DateField::new('acceptedCodeOfConduct');
             yield DateField::new('acceptedDataProtection');
-            yield AssociationField::new('acceptedTermsOfUse');
+            yield CollectionField::new('acceptedTermsOfUse')
+            ->setEntryIsComplex()
+            ->renderExpanded()
+            ->useEntryCrudForm();
 
             yield FormField::addTab('Bookings');
-            yield UserBookingsField::new('bookings', '')
-            ;
+            yield UserBookingsField::new('bookings', '');
 
             yield FormField::addTab('Vouchers');
             yield UserVouchersField::new('vouchers', '');
@@ -88,7 +91,7 @@ class UserCrudController extends AbstractCrudController
             yield UserInvoicesField::new('invoices', '');
         }
 
-        if (Crud::PAGE_EDIT === $pageName || Crud::PAGE_NEW === $pageName) {
+        if (Crud::PAGE_EDIT === $pageName) {
             yield TextField::new('firstName');
             yield TextField::new('lastName');
             yield EmailField::new('email');

@@ -17,8 +17,6 @@ class TermsOfUseCrudController extends AbstractCrudController
     }
     public function configureFields(string $pageName): iterable
     {
-        yield Field::new('id')
-            ->onlyOnIndex();
         yield Field::new('version');
         yield Field::new('date');
         yield Field::new('path');
