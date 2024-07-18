@@ -233,7 +233,7 @@ class InvoiceManager
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
     {
-        if (in_array($this->env, ['dev', 'staging'])) {
+        if (\in_array($this->env, ['dev', 'staging'], true)) {
             return;
         }
 

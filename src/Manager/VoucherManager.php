@@ -24,7 +24,7 @@ class VoucherManager
         return mb_strtoupper(bin2hex(random_bytes(5)));
     }
 
-    public function createVouchers(User $user, VoucherType $voucherType,  Invoice $invoice, ?int $unitaryValue = null): void
+    public function createVouchers(User $user, VoucherType $voucherType, Invoice $invoice, ?int $unitaryValue = null): void
     {
         if (null === $unitaryValue) {
             $unitaryValue = $voucherType->getUnitaryValue();

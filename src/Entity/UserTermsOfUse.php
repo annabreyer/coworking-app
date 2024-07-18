@@ -40,12 +40,12 @@ class UserTermsOfUse
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function getTermsOfUse(): ?TermsOfUse
+    public function getTermsOfUse(): TermsOfUse
     {
         return $this->termsOfUse;
     }
@@ -60,5 +60,14 @@ class UserTermsOfUse
         $this->acceptedOn = $acceptedOn;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        if (null === $this->getAcceptedOn()) {
+            return '';
+        }
+
+        return $this->getTermsOfUse()->getVersion() . ' | ' . $this->getAcceptedOn()->format('d.m.Y');
     }
 }
