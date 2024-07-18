@@ -64,12 +64,12 @@ class InvoiceGenerator
         }
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount()/100);
+            $this->writeTotalAmount($invoice->getAmount() / 100);
             $this->addAlreadyPaidMention($invoice);
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount()/100);
+            $this->writeTotalAmount($invoice->getAmount() / 100);
             $this->addDueMention($invoice);
         }
 
@@ -112,8 +112,8 @@ class InvoiceGenerator
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
-        $this->writeAmount($invoiceAmount/100);
-        $this->writeTotalAmount($invoiceAmount/100);
+        $this->writeAmount($invoiceAmount / 100);
+        $this->writeTotalAmount($invoiceAmount / 100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -144,8 +144,8 @@ class InvoiceGenerator
         $this->addClientData($user);
         $this->writeFirstPositionNumber();
         $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
-        $this->writeAmount($invoiceAmount/100);
-        $this->writeTotalAmount($invoiceAmount/100);
+        $this->writeAmount($invoiceAmount / 100);
+        $this->writeTotalAmount($invoiceAmount / 100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -255,7 +255,7 @@ class InvoiceGenerator
 
         $this->writeFirstPositionNumber();
         $this->writeBookingDescription($booking);
-        $this->writeAmount($bookingAmount/100);
+        $this->writeAmount($bookingAmount / 100);
     }
 
     private function writeFirstPositionNumber(): void

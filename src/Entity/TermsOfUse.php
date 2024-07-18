@@ -89,6 +89,6 @@ class TermsOfUse
 
     public function __toString(): string
     {
-        return $this->path;
+        return $this->path ?? '';
     }
 }
