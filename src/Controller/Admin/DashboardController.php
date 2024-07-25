@@ -38,19 +38,23 @@ class DashboardController extends AbstractDashboardController
     public function configureCrud(): Crud
     {
         return parent::configureCrud()
-                     ->showEntityActionsInlined();
+                     ->showEntityActionsInlined()
+            ->setDateFormat('dd.MM.yyyy')
+        ;
     }
 
     public function configureActions(): Actions
     {
         return parent::configureActions()
-            ->add(Crud::PAGE_INDEX, 'detail');
+                     ->add(Crud::PAGE_INDEX, 'detail')
+        ;
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Coworking Administration');
+                        ->setTitle('Coworking Administration')
+        ;
     }
 
     public function configureMenuItems(): iterable
@@ -63,7 +67,15 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
         yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
         yield MenuItem::section('Room Administration');
-        yield MenuItem::linkToCrud('BusinessDays', 'fas fa-calendar', BusinessDay::class);
+        yield MenuItem::linkToCrud('All BusinessDays', 'fas fa-calendar', BusinessDay::class)
+                      ->setController(BusinessDayCrudController::class)
+        ;
+        yield MenuItem::linkToCrud('Future BusinessDays', 'fas fa-file-calendar', Booking::class)
+                      ->setController(FutureBusinessDayCrudController::class)
+        ;
+        yield MenuItem::linkToCrud('PastBusinessDays', 'fas fa-calendar', BusinessDay::class)
+                      ->setController(PastBusinessDayCrudController::class)
+        ;
         yield MenuItem::linkToCrud('Room', 'fas fa-door-open', Room::class);
         yield MenuItem::linkToCrud('Workstation', 'fas fa-chair', WorkStation::class);
         yield MenuItem::linkToCrud('Booking', 'fas fa-file-contract', Booking::class);
@@ -77,6 +89,7 @@ class DashboardController extends AbstractDashboardController
     public function configureAssets(): Assets
     {
         return parent::configureAssets()
-                     ->addCssFile('css/admin.css');
+                     ->addCssFile('css/admin.css')
+        ;
     }
 }

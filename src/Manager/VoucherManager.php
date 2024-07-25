@@ -58,9 +58,9 @@ class VoucherManager
             $unitaryValue = $voucherType->getUnitaryValue();
         }
 
-        $vouchers        = $voucherType->getUnits();
-        $validityMonths  = $voucherType->getValidityMonths() ?? 0;
-        $expiryDate      = static::calculateExpiryDate($this->now(), $validityMonths);
+        $vouchers       = $voucherType->getUnits();
+        $validityMonths = $voucherType->getValidityMonths() ?? 0;
+        $expiryDate     = static::calculateExpiryDate($this->now(), $validityMonths);
         static::createVouchers($user, $voucherType, $vouchers, $unitaryValue, $expiryDate, $invoice);
 
         $this->entityManager->flush();
