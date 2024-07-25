@@ -10,6 +10,7 @@ use App\Entity\Voucher;
 use App\Entity\VoucherType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 class VoucherManager
@@ -30,7 +31,7 @@ class VoucherManager
         return $now->modify('+' . $validityMonths . ' months');
     }
 
-    public static function createVouchers(User $user, VoucherType $voucherType, int $quantity, int $unitaryValue, \DateTimeInterface $expiryDate): ArrayCollection
+    public static function createVouchers(User $user, VoucherType $voucherType, int $quantity, int $unitaryValue, \DateTimeInterface $expiryDate, ?Invoice $invoice = null): ArrayCollection
     {
         $vouchers = new ArrayCollection();
 
@@ -41,6 +42,10 @@ class VoucherManager
             $voucher->setCode(static::generateVoucherCode());
             $voucher->setExpiryDate($expiryDate);
             $voucher->setValue($unitaryValue);
+
+            if (null !== $invoice) {
+                $invoice->addVoucher($voucher);
+            }
 
             $vouchers->add($voucher);
         }
@@ -57,12 +62,7 @@ class VoucherManager
         $vouchers        = $voucherType->getUnits();
         $validityMonths  = $voucherType->getValidityMonths() ?? 0;
         $expiryDate      = static::calculateExpiryDate($this->now(), $validityMonths);
-        $vouchers        = static::createVouchers($user, $voucherType, $vouchers, $unitaryValue, $expiryDate);
-        $invoiceVouchers = $invoice->getVouchers();
-
-        $allVouchers = new ArrayCollection(array_merge($invoiceVouchers->toArray(), $vouchers->toArray()->toArray()));
-
-        $invoice->setVouchers($allVouchers);
+        $vouchers        = static::createVouchers($user, $voucherType, $vouchers, $unitaryValue, $expiryDate, $invoice);
 
         $this->entityManager->flush();
     }

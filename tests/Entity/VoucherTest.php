@@ -81,15 +81,28 @@ class VoucherTest extends TestCase
         self::assertFalse($voucher->isValid());
     }
 
-    public function testIsValidReturnsFalseWhenNoPaymentIsAttached(): void
+    public function testIsValidReturnsFalseWhenAmountIsSuperiorToZeroNoPaymentIsAttached(): void
     {
         $voucher = new Voucher();
         $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
 
         $invoice = new Invoice();
+        $invoice->setAmount(1355);
         $voucher->setInvoice($invoice);
 
         self::assertFalse($voucher->isValid());
+    }
+
+    public function testIsValidReturnsTrueWhenAmountIsZeroAndNoPaymentIsAttached(): void
+    {
+        $voucher = new Voucher();
+        $voucher->setExpiryDate(new \DateTimeImmutable('tomorrow'));
+
+        $invoice = new Invoice();
+        $invoice->setAmount(0);
+        $invoice->addVoucher($voucher);
+
+        self::assertTrue($voucher->isValid());
     }
 
     public function testIsValidReturnsFalseWhenAttachedPaymentsDoNotCoverTheAmount(): void
