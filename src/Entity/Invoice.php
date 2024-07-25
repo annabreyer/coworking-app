@@ -180,10 +180,6 @@ class Invoice
 
     public function isFullyPaid(): bool
     {
-        if (0 === $this->payments->count()) {
-            return false;
-        }
-
         $paidAmount = 0;
         foreach ($this->payments as $payment) {
             $paidAmount += $payment->getAmount();
@@ -328,5 +324,10 @@ class Invoice
         $this->description = $description;
 
         return $this;
+    }
+
+    public function isRefund(): bool
+    {
+        return 0 > $this->getAmount();
     }
 }

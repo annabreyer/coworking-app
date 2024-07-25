@@ -87,4 +87,15 @@ class UserController extends AbstractController
             'pendingPaymentVouchers' => $pendingPaymentVouchers,
         ]);
     }
+
+    #[Route('/user/invoices', name: 'user_invoices')]
+    public function showInvoices(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return $this->render('user/invoices.html.twig', [
+            'user' => $user,
+        ]);
+    }
 }

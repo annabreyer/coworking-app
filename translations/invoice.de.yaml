@@ -1,0 +1,16 @@
+invoice:
+  type:
+    invoice: 'Rechnung'
+    refund: 'Gutschrift'
+  intro:
+    invoice: 'Wie vertraglich vereinbart, stelle ich folgende Leistungen in Rechnung:'
+    refund: 'Wie vereinbart, schreibe ich folgende Leistungen gut:'
+  description:
+    booking: 'Ein Coworking-Platz am %date% im Raum %room%'
+    voucher: 'Mehrfachkarte: %units% Stück %validityMonths% Monate gültig.'
+  payment:
+    voucher: 'Bezahlt mit Gutschein %voucherCode%'
+    paid: 'Bezahlt am %date%'
+  due:
+    booking: 'Sofort fällig'
+    general: 'Fällig innerhalb von 8 Tagen.'
