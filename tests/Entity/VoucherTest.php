@@ -43,7 +43,7 @@ class VoucherTest extends TestCase
 
         $voucher->setInvoice($invoice);
 
-        self::assertTrue($voucher->hasBeenPaid());
+        self::assertTrue($voucher->isFullyPaid());
     }
 
     public function testHasBeenPaidReturnsFalseWhenAmountOnlyPartlyPaid(): void
@@ -61,7 +61,7 @@ class VoucherTest extends TestCase
         $voucher = new Voucher();
         $voucher->setInvoice($invoice);
 
-        self::assertFalse($voucher->hasBeenPaid());
+        self::assertFalse($voucher->isFullyPaid());
     }
 
     public function testIsValidReturnsFalseWhenExpired(): void

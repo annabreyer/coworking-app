@@ -255,10 +255,10 @@ class VoucherControllerTest extends WebTestCase
         $client             = static::createClient();
         $mockVoucherManager = $this->getMockBuilder(VoucherManager::class)
                                    ->disableOriginalConstructor()
-                                   ->onlyMethods(['createVouchers'])
+                                   ->onlyMethods(['createVouchersForInvoice'])
                                    ->getMock()
         ;
-        $mockVoucherManager->method('createVouchers')->willThrowException(new \Exception('Rollback test'));
+        $mockVoucherManager->method('createVouchersForInvoice')->willThrowException(new \Exception('Rollback test'));
         static::getContainer()->set(VoucherManager::class, $mockVoucherManager);
 
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();

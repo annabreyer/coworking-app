@@ -36,11 +36,14 @@ class Voucher
     #[ORM\ManyToOne(inversedBy: 'vouchers')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'vouchers')]
     private ?VoucherType $voucherType = null;
 
-    #[ORM\ManyToOne(inversedBy: 'vouchers')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'vouchers')]
     private ?Invoice $invoice = null;
+
+    /* Not included in the ORM, only used in EasyAdmin */
+    private ?int $invoiceAmount;
 
     public function getId(): ?int
     {
@@ -139,13 +142,9 @@ class Voucher
         return $this->expiryDate < $this->now();
     }
 
-    public function hasBeenPaid(): bool
+    public function isFullyPaid(): bool
     {
         if (null === $this->invoice) {
-            return false;
-        }
-
-        if (0 === $this->invoice->getPayments()->count()) {
             return false;
         }
 
@@ -162,11 +161,21 @@ class Voucher
             return false;
         }
 
-        return $this->hasBeenPaid();
+        return $this->isFullyPaid();
     }
 
     public function __toString(): string
     {
         return $this->code ?? '';
+    }
+
+    public function getInvoiceAmount(): ?int
+    {
+        return $this->invoiceAmount;
+    }
+
+    public function setInvoiceAmount(?int $invoiceAmount): void
+    {
+        $this->invoiceAmount = $invoiceAmount;
     }
 }

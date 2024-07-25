@@ -7,7 +7,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserDataFormType;
 use App\Repository\BookingRepository;
-use App\Repository\InvoiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;

@@ -199,7 +199,7 @@ class InvoiceCrudController extends AbstractCrudController
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $entityManager->persist($entityInstance);
-        $this->invoiceManager->saveInvoice();
+        $this->invoiceManager->saveInvoice($entityInstance);
 
         if ($entityInstance->getDescription()) {
             $this->invoiceManager->generateGeneralInvoicePdf($entityInstance);

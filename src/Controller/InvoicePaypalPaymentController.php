@@ -101,7 +101,7 @@ class InvoicePaypalPaymentController extends AbstractController
         }
 
         $invoice->setPaypalOrderId($payload['data']['orderID']);
-        $this->invoiceManager->saveInvoice();
+        $this->invoiceManager->saveInvoice($invoice);
 
         $targetUrl = $this->generateUrl('invoice_payment_confirmation', ['uuid' => $invoice->getUuid()]);
 

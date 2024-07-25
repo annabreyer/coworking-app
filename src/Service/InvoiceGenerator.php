@@ -64,12 +64,12 @@ class InvoiceGenerator
         }
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount()/100);
+            $this->writeTotalAmount($invoice->getAmount() / 100);
             $this->addAlreadyPaidMention($invoice);
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount()/100);
+            $this->writeTotalAmount($invoice->getAmount() / 100);
             $this->addDueMention($invoice);
         }
 
@@ -112,8 +112,8 @@ class InvoiceGenerator
         $this->writeFirstPositionNumber();
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
-        $this->writeAmount($invoiceAmount/100);
-        $this->writeTotalAmount($invoiceAmount/100);
+        $this->writeAmount($invoiceAmount / 100);
+        $this->writeTotalAmount($invoiceAmount / 100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -144,8 +144,8 @@ class InvoiceGenerator
         $this->addClientData($user);
         $this->writeFirstPositionNumber();
         $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
-        $this->writeAmount($invoiceAmount/100);
-        $this->writeTotalAmount($invoiceAmount/100);
+        $this->writeAmount($invoiceAmount / 100);
+        $this->writeTotalAmount($invoiceAmount / 100);
         $this->addDueMention($invoice);
 
         $this->saveInvoice($invoice);
@@ -210,7 +210,7 @@ class InvoiceGenerator
             $type = $this->translator->trans('invoice.type.invoice', [], 'invoice');
         }
         $this->setTitleFont();
-        $this->writeValue(13, 45.5, 50, 24, $type); //@todo check location
+        $this->writeValue(13, 45.5, 50, 24, $type); // @todo check location
         $this->setStandardFont();
     }
 
@@ -222,7 +222,7 @@ class InvoiceGenerator
             $intro = $this->translator->trans('invoice.intro.invoice', [], 'invoice');
         }
 
-        $this->writeValue(13, 126, 200, 8, $intro); //@todo check location
+        $this->writeValue(13, 126, 200, 8, $intro); // @todo check location
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
@@ -280,7 +280,7 @@ class InvoiceGenerator
 
         $this->writeFirstPositionNumber();
         $this->writeBookingDescription($booking);
-        $this->writeAmount($bookingAmount/100);
+        $this->writeAmount($bookingAmount / 100);
     }
 
     private function writeFirstPositionNumber(): void

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -33,7 +33,7 @@ class PaymentCrudController extends AbstractCrudController
             yield ChoiceField::new('type')
                              ->setChoices(Payment::getPaymentTypes())
                              ->setRequired(true)
-            ;;
+            ;
             yield AssociationField::new('voucher');
             yield TextField::new('comment');
         }
