@@ -86,4 +86,9 @@ class TermsOfUse
     {
         return $this->userTermsOfUses;
     }
+
+    public function __toString(): string
+    {
+        return $this->path ?? '';
+    }
 }

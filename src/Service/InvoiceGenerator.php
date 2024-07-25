@@ -210,7 +210,7 @@ class InvoiceGenerator
             $type = $this->translator->trans('invoice.type.invoice', [], 'invoice');
         }
         $this->setTitleFont();
-        $this->writeValue(13, 45.5, 50, 24, $type); // @todo check location
+        $this->writeValue(13, 45.5, 50, 24, $type);
         $this->setStandardFont();
     }
 
@@ -222,7 +222,7 @@ class InvoiceGenerator
             $intro = $this->translator->trans('invoice.intro.invoice', [], 'invoice');
         }
 
-        $this->writeValue(13, 126, 200, 8, $intro); // @todo check location
+        $this->writeValue(13, 126, 200, 8, $intro);
     }
 
     private function writeInvoiceNumber(Invoice $invoice): void
