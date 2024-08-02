@@ -37,7 +37,7 @@ class AdminMailerService
 
         $subject = 'Neue Buchung am: ' . $booking->getBusinessDay()->getDate()->format('d/m/Y');
         $context = [
-            'text' => sprintf(
+            'text' => \sprintf(
                 'Es wurde eine neue Buchung für den %s getätigt',
                 $booking->getBusinessDay()->getDate()->format('d/m/Y')
             ),
@@ -51,7 +51,7 @@ class AdminMailerService
     {
         $subject = 'Buchung cancelled : ' . $bookingDate->format('d/m/Y');
         $context = [
-            'text' => sprintf(
+            'text' => \sprintf(
                 'Es wurde eine neue Buchung gecancelt. Buchungsdatum: %s',
                 $bookingDate->format('d/m/Y')
             ),
@@ -71,7 +71,7 @@ class AdminMailerService
 
         $subject = 'Rechnung mit negativem Betrag: ' . $invoice->getNumber();
         $context = [
-            'text' => sprintf(
+            'text' => \sprintf(
                 'Die Rechnung mit der Nummer %s hat einen negativen Betrag',
                 $invoice->getNumber()
             ),

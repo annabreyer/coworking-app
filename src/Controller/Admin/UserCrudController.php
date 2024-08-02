@@ -33,6 +33,13 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+                     ->setDefaultSort(['createdAt' => 'DESC', 'name' => 'ASC'])
+                     ->setPaginatorPageSize(50);
+    }
+
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)

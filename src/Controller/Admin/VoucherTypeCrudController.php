@@ -21,6 +21,13 @@ class VoucherTypeCrudController extends AbstractCrudController
         return VoucherType::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+                     ->setDefaultSort(['name' => 'ASC'])
+                     ->setPaginatorPageSize(50);
+    }
+
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)

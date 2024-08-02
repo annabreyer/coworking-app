@@ -788,7 +788,7 @@ class BookingControllerTest extends WebTestCase
         $limit = static::getContainer()->getParameter('time_limit_cancel_booking_days');
         /** @var Session $session */
         $session         = $client->getRequest()->getSession();
-        $expectedMessage = sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
+        $expectedMessage = \sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
         $errors          = $session->getFlashBag()->get('error');
         self::assertContains($expectedMessage, $errors);
     }

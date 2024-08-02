@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
@@ -79,7 +79,7 @@ class VoucherManagerTest extends KernelTestCase
             'user'    => $this->user,
             'invoice' => $this->invoice,
         ]);
-        $codes    = [];
+        $codes = [];
         foreach ($vouchers as $voucher) {
             $codes[] = $voucher->getCode();
         }
@@ -94,7 +94,7 @@ class VoucherManagerTest extends KernelTestCase
         $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
 
         $voucherManager->createVouchersForInvoice($this->user, $this->voucherType, $this->invoice, $this->singlePrice->getAmount());
-        $vouchers       = static::getContainer()->get(VoucherRepository::class)->findBy([
+        $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy([
             'user'    => $this->user,
             'invoice' => $this->invoice,
         ]);

@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Price;
 use Doctrine\ORM\EntityRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -17,6 +18,13 @@ class PriceCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Price::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+                     ->setDefaultSort(['name' => 'ASC'])
+                     ->setPaginatorPageSize(50);
     }
 
     public function configureFields(string $pageName): iterable

@@ -47,10 +47,10 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment( Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(100)
             ->setInvoice($invoice);
-        $payment2 = new Payment( Payment::PAYMENT_TYPE_VOUCHER);
+        $payment2 = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
         $payment2->setAmount(50)
             ->setInvoice($invoice);
 
@@ -96,7 +96,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment( Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
         $payment->setAmount(100)
             ->setInvoice($invoice);
 
@@ -127,7 +127,7 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $transactionPayment = new Payment( Payment::PAYMENT_TYPE_TRANSACTION);
+        $transactionPayment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
         $transactionPayment->setAmount(50)
         ->setInvoice($invoice);
 

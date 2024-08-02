@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Booking;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
@@ -18,6 +19,13 @@ class BookingCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Booking::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+                     ->setDefaultSort(['date' => 'DESC', 'user' => 'ASC', 'createdAt' => 'DESC'])
+                     ->setPaginatorPageSize(50);
     }
 
     public function configureFields(string $pageName): iterable

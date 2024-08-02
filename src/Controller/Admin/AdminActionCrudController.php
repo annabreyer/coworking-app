@@ -20,6 +20,13 @@ class AdminActionCrudController extends AbstractCrudController
         return AdminAction::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+            ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
+            ->setPaginatorPageSize(50);
+    }
+
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)

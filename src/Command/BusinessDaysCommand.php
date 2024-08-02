@@ -37,7 +37,7 @@ class BusinessDaysCommand extends Command
         $endDate = $input->getArgument('endDate');
 
         if ($endDate) {
-            $io->note(sprintf('You passed an argument: %s', $endDate));
+            $io->note(\sprintf('You passed an argument: %s', $endDate));
             $date = \DateTimeImmutable::createFromFormat('Ymd', $endDate);
 
             if (false === $date) {
@@ -50,7 +50,7 @@ class BusinessDaysCommand extends Command
             $date  = $today->modify('+6 months');
         }
 
-        $io->note(sprintf('BusinessDays will be generated until: %s', $date->format('Ymd')));
+        $io->note(\sprintf('BusinessDays will be generated until: %s', $date->format('Ymd')));
 
         $this->businessDaysManager->generateBusinessDaysUntil($date);
 
