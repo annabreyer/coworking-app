@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\VoucherTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -26,6 +28,24 @@ class VoucherType
 
     #[ORM\Column(nullable: true)]
     private ?int $unitaryValue = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $name = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isActive = null;
+
+    #[ORM\OneToMany(mappedBy: 'voucherType', targetEntity: Voucher::class)]
+    private Collection $vouchers;
+
+    #[ORM\OneToMany(mappedBy: 'voucherType', targetEntity: Price::class)]
+    private Collection $prices;
+
+    public function __construct()
+    {
+        $this->vouchers = new ArrayCollection();
+        $this->prices   = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -56,11 +76,6 @@ class VoucherType
         return $this;
     }
 
-    public function __toString(): string
-    {
-        return $this->units . ' Unit(s) - ' . $this->validityMonths . 'Month(s) Validity ';
-    }
-
     public function getUnitaryValue(): ?int
     {
         return $this->unitaryValue;
@@ -71,5 +86,54 @@ class VoucherType
         $this->unitaryValue = $unitaryValue;
 
         return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name ?? '';
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): static
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getVouchers(): Collection
+    {
+        return $this->vouchers;
+    }
+
+    public function setVouchers(Collection $vouchers): void
+    {
+        $this->vouchers = $vouchers;
+    }
+
+    public function getPrices(): Collection
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(Collection $prices): void
+    {
+        $this->prices = $prices;
     }
 }

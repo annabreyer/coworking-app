@@ -6,7 +6,6 @@ namespace App\Manager;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
-use App\Entity\Price;
 use App\Entity\User;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
@@ -51,12 +50,16 @@ class InvoiceManager
         return $number;
     }
 
-    public function saveInvoice(): void
+    public function saveInvoice(Invoice $invoice): void
     {
+        if (null === $invoice->getid()) {
+            $this->entityManager->persist($invoice);
+        }
+
         $this->entityManager->flush();
     }
 
-    public function createInvoiceFromBooking(Booking $booking, int $amount): Invoice
+    public function createInvoiceFromBooking(Booking $booking, int $amount, bool $save = true): Invoice
     {
         if (null === $booking->getUser()) {
             throw new \InvalidArgumentException('Booking must have a user.');
@@ -76,8 +79,9 @@ class InvoiceManager
             ->setDate($this->now())
         ;
 
-        $this->entityManager->persist($invoice);
-        $this->entityManager->flush();
+        if (true === $save) {
+            $this->saveInvoice($invoice);
+        }
 
         return $invoice;
     }
@@ -142,23 +146,20 @@ class InvoiceManager
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
 
-    public function createVoucherInvoice(User $user, Price $price): Invoice
+    public function createVoucherInvoice(User $user, int $amount, bool $save = true): Invoice
     {
-        if (null === $price->getAmount()) {
-            throw new \InvalidArgumentException('Price must have an amount.');
-        }
-
         $invoiceNumber = $this->getInvoiceNumber();
 
         $invoice = new Invoice();
         $invoice->setUser($user)
-                ->setAmount($price->getAmount())
+                ->setAmount($amount)
                 ->setNumber($invoiceNumber)
                 ->setDate($this->now())
         ;
 
-        $this->entityManager->persist($invoice);
-        $this->entityManager->flush();
+        if (true === $save) {
+            $this->saveInvoice($invoice);
+        }
 
         return $invoice;
     }

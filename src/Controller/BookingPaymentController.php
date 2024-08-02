@@ -198,7 +198,7 @@ class BookingPaymentController extends AbstractController
             return $this->renderVoucherPayment($response, $booking);
         }
 
-        if (false === $voucher->hasBeenPaid()) {
+        if (false === $voucher->isFullyPaid()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.not_paid', [], 'flash'));
 

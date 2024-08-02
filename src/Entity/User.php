@@ -528,7 +528,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPendingPaymentVouchers(): Collection
     {
         return $this->vouchers->filter(static function (Voucher $voucher) {
-            return false === $voucher->isExpired() && false === $voucher->hasBeenPaid();
+            return false === $voucher->isExpired() && false === $voucher->isFullyPaid();
         });
     }
 

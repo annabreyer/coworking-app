@@ -99,8 +99,8 @@ class VoucherController extends AbstractController
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
-            $invoice = $invoiceManager->createVoucherInvoice($user, $voucherPrice);
-            $voucherManager->createVouchers($user, $voucherType, $invoice);
+            $invoice = $invoiceManager->createVoucherInvoice($user, $voucherPrice->getAmount());
+            $voucherManager->createVouchersForInvoice($user, $voucherType, $invoice);
 
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $exception) {
