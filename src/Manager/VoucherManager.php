@@ -25,9 +25,9 @@ class VoucherManager
         return mb_strtoupper(bin2hex(random_bytes(5)));
     }
 
-    public static function calculateExpiryDate(\DateTimeInterface $now, int $validityMonths): \DateTimeImmutable
+    public static function calculateExpiryDate(\DateTimeInterface $startingDate, int $validityMonths): \DateTimeImmutable
     {
-        return $now->modify('+' . $validityMonths . ' months');
+        return $startingDate->modify('+' . $validityMonths . ' months');
     }
 
     public static function createVouchers(User $user, VoucherType $voucherType, int $quantity, int $unitaryValue, \DateTimeInterface $expiryDate, ?Invoice $invoice = null): ArrayCollection
