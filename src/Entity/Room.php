@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
 class Room
@@ -19,6 +20,7 @@ class Room
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

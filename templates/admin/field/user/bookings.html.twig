@@ -24,7 +24,7 @@
                 <td>{{ booking.createdAt|date('d.m.Y H:i') }}</td>
                 <td>
                     {% if booking.invoice is not null and booking.invoice.isFullyPaid %}
-                        {{ booking.invoice.payments.last.date|date('d.m.Y') }}
+                        {{ booking.invoice.paymentDate|date('d.m.Y') }}
                     {% else %}
                         <span class="badge badge-warning">offen</span>
                     {% endif %}

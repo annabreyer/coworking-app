@@ -250,7 +250,7 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitRollsBackVouchersAndInvoiceWhenExceptionIsThrown(): void
     {
-        $this->markTestIncomplete('There is an issue with the test. The mock is not taken into account. The test fails.');
+        self::markTestIncomplete('There is an issue with the test. The mock is not taken into account. The test fails.');
 
         $client             = static::createClient();
         $mockVoucherManager = $this->getMockBuilder(VoucherManager::class)
@@ -293,9 +293,8 @@ class VoucherControllerTest extends WebTestCase
         self::assertNotNull($testHandler);
 
         foreach ($testHandler->getRecords() as $record) {
-            if ($record['level'] === 400){
+            if (400 === $record['level']) {
                 dump($record['message']);
-
             }
         }
 

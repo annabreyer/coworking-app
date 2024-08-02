@@ -5,18 +5,24 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Booking;
+use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityUpdatedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\HttpFoundation\Response;
 
 class BookingCrudController extends AbstractCrudController
 {
@@ -24,6 +30,7 @@ class BookingCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly InvoiceManager $invoiceManager,
+        private readonly BookingManager $bookingManager
     ) {
     }
 
@@ -42,9 +49,21 @@ class BookingCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $cancelAction = Action::new('cancelBooking', 'Stornieren')
+                              ->linkToCrudAction('cancelBooking')
+                              ->displayIf(static function (Booking $booking) {
+                                  return false === $booking->isCancelled();
+                              })
+        ;
+
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, 'delete')
+                     ->remove(Crud::PAGE_DETAIL, 'delete')
                      ->remove(Crud::PAGE_INDEX, 'edit')
+                     ->remove(Crud::PAGE_DETAIL, 'edit')
+                     ->add(Crud::PAGE_DETAIL, $cancelAction)
+                     ->add(Crud::PAGE_INDEX, $cancelAction)
+                     ->add(Crud::PAGE_EDIT, $cancelAction)
         ;
     }
 
@@ -80,7 +99,8 @@ class BookingCrudController extends AbstractCrudController
             yield FormField::addColumn(6);
             yield FormField::addFieldset('PaymentDetails');
             yield AssociationField::new('invoice')
-                                  ->setDisabled();
+                                  ->setDisabled()
+            ;
 
             if (null !== $this->getContext()->getEntity()->getInstance()->getInvoice()) {
                 yield MoneyField::new('invoice.amount')
@@ -91,7 +111,7 @@ class BookingCrudController extends AbstractCrudController
                                ->setLabel('Invoice Date')
                 ;
                 yield BooleanField::new('invoice.isFullyPaid')
-                                      ->renderAsSwitch(false)
+                                  ->renderAsSwitch(false)
                 ;
             }
         }
@@ -114,8 +134,7 @@ class BookingCrudController extends AbstractCrudController
             yield AssociationField::new('room');
             yield MoneyField::new('amount')
                             ->setCurrency('EUR')
-                ->setHelp('Rechnung wird automatisch mit diesem Betrag erstellt.')
-
+                            ->setHelp('Rechnung wird automatisch mit diesem Betrag erstellt.')
             ;
         }
     }
@@ -129,18 +148,25 @@ class BookingCrudController extends AbstractCrudController
         $this->invoiceManager->createInvoiceFromBooking($entityInstance, $entityInstance->getAmount(), true);
     }
 
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function cancelBooking(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
-        if (!$entityInstance instanceof Booking) {
-            return;
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl()
+        ;
+
+        $booking = $context->getEntity()->getInstance();
+
+        if (!$booking instanceof Booking) {
+            $this->addFlash('danger', 'Booking not found.');
+
+            return $this->redirect($targetUrl);
         }
 
-        //create negative invoice for booking
-        //send cancel email to user
+        $this->bookingManager->cancelBooking($booking);
+        $this->container->get('event_dispatcher')->dispatch(new AfterEntityUpdatedEvent($booking));
 
-        // if voucher has been used, create a new voucher
-        ////if invoice has been paid, create voiucher
-
+        return $this->redirect($targetUrl);
     }
-
 }

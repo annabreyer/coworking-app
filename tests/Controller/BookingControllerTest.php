@@ -788,12 +788,12 @@ class BookingControllerTest extends WebTestCase
         $limit = static::getContainer()->getParameter('time_limit_cancel_booking_days');
         /** @var Session $session */
         $session         = $client->getRequest()->getSession();
-        $expectedMessage = sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
+        $expectedMessage = \sprintf('Buchungen können nur %d Tag(e) vorher storniert werden.', $limit);
         $errors          = $session->getFlashBag()->get('error');
         self::assertContains($expectedMessage, $errors);
     }
 
-    public function testCancelBookingSuccessfullDeletesBookingFromDatabase(): void
+    public function testCancelBookingSuccessfullSetsBookingAsCancelled(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client            = static::createClient();
@@ -811,8 +811,8 @@ class BookingControllerTest extends WebTestCase
         $uri = '/booking/' . $booking->getUuid() . '/cancel';
         $client->request('POST', $uri, ['bookingId' => $bookingId]);
 
-        $deletedBooking = $bookingRepository->find($bookingId);
-        self::assertNull($deletedBooking);
+        $cancelledBooking = $bookingRepository->find($bookingId);
+        self::assertTrue($cancelledBooking->isCancelled());
     }
 
     public function testCancelBookingSuccessfullRedirectsToUserBookings(): void
@@ -850,7 +850,7 @@ class BookingControllerTest extends WebTestCase
         $client->request('POST', $uri, ['bookingId' => $booking->getId()]);
 
         static::assertResponseRedirects();
-        self::assertNull($booking->getId());
+        self::assertTrue($booking->isCancelled());
         static::assertEmailCount(1);
 
         $email = $this->getMailerMessage();

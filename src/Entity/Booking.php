@@ -9,41 +9,51 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
 {
     use TimestampableEntity;
+    #[Groups(['admin_action_booking_booking'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?BusinessDay $businessDay = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: true)]
     private ?WorkStation $workStation = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Room $room = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     private ?Invoice $invoice = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     private ?Uuid $uuid = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\Column(nullable: true)]
     private ?int $amount = null;
 
+    #[Groups(['admin_action_booking'])]
     #[ORM\Column()]
     private bool $isCancelled = false;
 
