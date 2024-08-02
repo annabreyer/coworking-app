@@ -3,7 +3,4 @@ password.constraint.length.min: 'Your password should be at least %limit% charac
 
 The password fields must match.: 'Die Passwörter müssen übereinstimmen.'
 Your password should be at least {{ limit }} characters.: 'Dein Passwort sollte mindestens {{ limit }} Zeichen lang sein.'
-Please enter your phone number in international format, e.g. +491234567890': 'Bitte gib Deine Telefonnummer im internationalen Format ein, z.B. +491234567890'
-Please enter your phone number in international format: 'Bitte gib Deine Telefonnummer im internationalen Format ein'
-Your phone number should be at least {{ limit }} characters.: 'Deine Telefonnummer sollte mindestens {{ limit }} Zeichen lang sein.'
 There is already an account with this email: 'Es gibt bereits ein Konto mit dieser E-Mail-Adresse'

@@ -27,7 +27,7 @@
                     {% if invoiceId != unpaidVoucher.invoice.id %}
                         {% set invoiceId = unpaidVoucher.invoice.id %}
                     <div class="flex">
-                        {{ 'user_account.vouchers.unpaid_vouchers.invoice.info'|trans({'%invoiceId%': invoiceId, '%invoiceDate%': unpaidVoucher.invoice.date|date('d.m.Y') }) }}
+                        <span class="mr-4 py-2">{{ 'user_account.vouchers.unpaid_vouchers.invoice.info'|trans({'%invoiceId%': invoiceId, '%invoiceDate%': unpaidVoucher.invoice.date|date('d.m.Y') }) }}</span>
                         {% if unpaidVoucher.invoice.payPalOrderId is null %}
                             <button class="my-0.5 bg-yellow text-red-darkest hover:bg-yellow-dark">
                                 <a href="{{ path('invoice_payment_paypal', {'uuid': unpaidVoucher.invoice.uuid }) }}"

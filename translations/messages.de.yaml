@@ -61,7 +61,7 @@ registration:
     terms.agreement.necessary: 'Bitte akzeptiere die Allgemeinen Geschäftsbedingungen.'
     code.of.conduct.agreement.necessary: 'Bitte akzeptiere unseren Verhaltenskodex.'
     data.protection.agreement.necessary: 'Bitte akzeptiere unsere Datenschutzbestimmungen.'
-    phone.help: 'Bitte gib Deine Telefonnummer im internationalen Format ein'
+    phone.help: 'Deine Mobilnummer sollte keine Ländevorwahl enthalten und zwischen 9 und 15 Ziffern haben.'
     action: 'Registrieren'
   success: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'
   email_verification:
