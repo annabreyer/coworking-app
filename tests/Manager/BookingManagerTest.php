@@ -23,7 +23,7 @@ class BookingManagerTest extends TestCase
 
         static::expectException(\LogicException::class);
         static::expectExceptionMessage('Booking must have a business day and a date.');
-        $bookingManager->canBookingBeCancelled($booking);
+        $bookingManager->canBookingBeCancelledByUser($booking);
     }
 
     public function testCanBookingBeCancelledThrowsExceptionIfNoTimeLimit(): void
@@ -36,7 +36,7 @@ class BookingManagerTest extends TestCase
 
         static::expectException(\LogicException::class);
         static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
-        $bookingManager->canBookingBeCancelled($booking);
+        $bookingManager->canBookingBeCancelledByUser($booking);
     }
 
     public function testCanBookingBeCancelledThrowsExceptionIfTimeLimitIsHalfDay(): void
@@ -49,7 +49,7 @@ class BookingManagerTest extends TestCase
 
         static::expectException(\LogicException::class);
         static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
-        $bookingManager->canBookingBeCancelled($booking);
+        $bookingManager->canBookingBeCancelledByUser($booking);
     }
 
     public function testCanBookingBeCancelledThrowsExceptionIfTimeLimitIsOneAndHalfDay(): void
@@ -62,7 +62,7 @@ class BookingManagerTest extends TestCase
 
         static::expectException(\LogicException::class);
         static::expectExceptionMessage('Time limit cancel booking is wrongly configured.');
-        $bookingManager->canBookingBeCancelled($booking);
+        $bookingManager->canBookingBeCancelledByUser($booking);
     }
 
     public function testCanBookingReturnsTrueIfBookingIsInTheFuture(): void
@@ -74,7 +74,7 @@ class BookingManagerTest extends TestCase
         $businessDay       = new BusinessDay(new \DateTimeImmutable('2024-03-16'));
         $booking->setBusinessDay($businessDay);
 
-        self::assertTrue($bookingManager->canBookingBeCancelled($booking));
+        self::assertTrue($bookingManager->canBookingBeCancelledByUser($booking));
     }
 
     public function testCanBookingReturnsFalseIfBookingIsInThePast(): void
@@ -86,6 +86,6 @@ class BookingManagerTest extends TestCase
         $businessDay       = new BusinessDay(new \DateTimeImmutable('2024-02-16'));
         $booking->setBusinessDay($businessDay);
 
-        self::assertFalse($bookingManager->canBookingBeCancelled($booking));
+        self::assertFalse($bookingManager->canBookingBeCancelledByUser($booking));
     }
 }

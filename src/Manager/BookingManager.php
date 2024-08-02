@@ -44,11 +44,21 @@ class BookingManager
 
     public function cancelBooking(Booking $booking): void
     {
-        $this->entityManager->remove($booking);
+        $booking->setIsCancelled(true);
+
+        if ($booking->isFullyPaid()) {
+            $this->refundBooking($booking);
+        }
+
+
+
+        $this->sendBookingCancelledEmail($booking);
+
         $this->entityManager->flush();
+
     }
 
-    public function canBookingBeCancelled(Booking $booking): bool
+    public function canBookingBeCancelledByUser(Booking $booking): bool
     {
         if (null === $booking->getBusinessDay()) {
             throw new \LogicException('Booking must have a business day and a date.');
@@ -72,5 +82,29 @@ class BookingManager
         }
 
         return true;
+    }
+
+    public function refundBooking(Booking $booking): void
+    {
+        if (null === $booking->getAmount()) {
+            throw new \LogicException('Booking must have an amount to be refunded.');
+        }
+
+        $bookingInvoice = $booking->getInvoice();
+        if (null === $bookingInvoice) {
+            throw new \LogicException('Booking must have an invoice to be refunded.');
+        }
+
+        if (false === $bookingInvoice->isFullyPaid()) {
+            throw new \LogicException('Booking invoice must be fully paid to be refunded.');
+        }
+
+
+
+    }
+
+    public function sendBookingCancelledEmail(Booking $booking): void
+    {
+        //todo send email to user
     }
 }

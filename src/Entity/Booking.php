@@ -44,6 +44,9 @@ class Booking
     #[ORM\Column(nullable: true)]
     private ?int $amount = null;
 
+    #[ORM\Column()]
+    private bool $isCancelled = false;
+
     public function __construct()
     {
         $this->uuid = Uuid::v7();
@@ -153,5 +156,17 @@ class Booking
         }
 
         return $roomName . ' - ' . $businessDayDate->format('d.m.Y');
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->isCancelled;
+    }
+
+    public function setIsCancelled(bool $isCancelled): static
+    {
+        $this->isCancelled = $isCancelled;
+
+        return $this;
     }
 }

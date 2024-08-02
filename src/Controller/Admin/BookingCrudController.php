@@ -128,4 +128,19 @@ class BookingCrudController extends AbstractCrudController
 
         $this->invoiceManager->createInvoiceFromBooking($entityInstance, $entityInstance->getAmount(), true);
     }
+
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Booking) {
+            return;
+        }
+
+        //create negative invoice for booking
+        //send cancel email to user
+
+        // if voucher has been used, create a new voucher
+        ////if invoice has been paid, create voiucher
+
+    }
+
 }
