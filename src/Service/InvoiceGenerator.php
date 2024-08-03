@@ -278,7 +278,7 @@ class InvoiceGenerator
         $this->writeValue(13, 90, 100, 8, $user->getEmail());
     }
 
-    private function writeBookingLine(Booking $booking): voidtres
+    private function writeBookingLine(Booking $booking): void
     {
         $bookingAmount = $booking->getAmount();
         if (null === $bookingAmount) {

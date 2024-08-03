@@ -42,7 +42,7 @@ class BookingCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-                     ->setDefaultSort(['date' => 'DESC', 'user' => 'ASC', 'createdAt' => 'DESC'])
+                     ->setDefaultSort(['businessDay.date' => 'DESC', 'user' => 'ASC', 'createdAt' => 'DESC'])
                      ->setPaginatorPageSize(50);
     }
 
@@ -51,6 +51,7 @@ class BookingCrudController extends AbstractCrudController
         return parent::configureFilters($filters)
                      ->add('user')
                      ->add('room')
+                     ->add('businessDay')
         ;
     }
 
