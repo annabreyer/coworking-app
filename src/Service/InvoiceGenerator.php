@@ -199,6 +199,8 @@ class InvoiceGenerator
         if ($user->hasAddress()) {
             $this->writeClientStreet($user);
             $this->writeClientCity($user);
+        } else {
+            $this->writeEmailAddress($user);
         }
     }
 
@@ -271,7 +273,12 @@ class InvoiceGenerator
         $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
     }
 
-    private function writeBookingLine(Booking $booking): void
+    private function writeEmailAddress(User $user): void
+    {
+        $this->writeValue(13, 90, 100, 8, $user->getEmail());
+    }
+
+    private function writeBookingLine(Booking $booking): voidtres
     {
         $bookingAmount = $booking->getAmount();
         if (null === $bookingAmount) {
