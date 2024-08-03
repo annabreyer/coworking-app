@@ -113,8 +113,16 @@ class InvoiceGenerator
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
         $this->writeAmount($invoiceAmount / 100);
-        $this->writeTotalAmount($invoiceAmount / 100);
-        $this->addDueMention($invoice);
+
+        if ($invoice->isFullyPaidByPayPal()) {
+            $this->writeTotalAmount($invoice->getAmount() / 100);
+            $this->addAlreadyPaidMention($invoice);
+        }
+
+        if (false === $invoice->isFullyPaid()) {
+            $this->writeTotalAmount($invoice->getAmount() / 100);
+            $this->addDueMention($invoice);
+        }
 
         $this->saveInvoice($invoice);
     }
@@ -317,7 +325,7 @@ class InvoiceGenerator
     private function writeVoucherDescription(VoucherType $voucherType): void
     {
         $description = $this->translator->trans('invoice.description.voucher', [
-            '%units%'          => $voucherType->getUnits(),
+            '%name%'           => $voucherType->getName(),
             '%validityMonths%' => $voucherType->getValidityMonths(),
         ], 'invoice');
 

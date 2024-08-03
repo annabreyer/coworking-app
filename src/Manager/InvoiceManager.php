@@ -271,6 +271,11 @@ class InvoiceManager
             ],
         ];
 
+        if ($invoice->isFullyPaid()) {
+            $context['link']                 = '';
+            $context['texts']['explanation'] = '';
+        }
+
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
     }
 

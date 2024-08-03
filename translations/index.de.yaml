@@ -7,13 +7,14 @@ content: '<h2>Buchungsmodalitäten</h2>
   <strong>Bitte beachte: Erst nach vollständiger Zahlung ist Deine Buchung gültig.</strong></p>
   <h3>Bezahlung</h3>
   <p class="text-lg">Bezahlen kannst Du direkt per Paypal, oder auf Rechnung. Im Falle einer Zahlung auf Rechnung sollte der Betrag spätestens 24 Stunden vor Buchungsdatum eingegangen sein. Wenn Du bereits eine Zehnerkarte erstanden hast, kannst Du auch diese für Deine Buchung verwenden. </br>
-  Nachdem Du Deine Buchung abgeschlossen hast bekommst Du eine Bestätigung per E-mail. </p>
+  Nachdem Du Deine Buchung abgeschlossen hast, bekommst Du eine Bestätigung per E-mail. </p>
   
   <h3>Stornierung</h3>
   <p class="text-lg">Du kannst Deine Buchung bis zu 24 Stunden vorher stornieren. </p>
   <hr>
   <h2>Preise</h2>
-  <p class="text-lg">Unsere Preise sind fair und transparent. Wir bieten verschiedene Tarife an, um Deinen Bedürfnissen gerecht zu werden. Ob Du nur gelegentlich einen Arbeitsplatz benötigst oder regelmäßig einen festen Platz, wir haben das passende Angebot für Dich. Und solltest du wider Erwarten doch nicht fündig werden, sprich uns einfach an. Per Email oder am Besten vor Ort. Wir finden eine Lösung.</br>
+  <p class="text-lg">Unsere Preise sind fair und transparent. Wir bieten verschiedene Tarife an, um Deinen Bedürfnissen gerecht zu werden. Ob Du nur gelegentlich einen Arbeitsplatz benötigst oder regelmäßig einen festen Platz, wir haben das passende Angebot für Dich. 
+  Und solltest du wider Erwarten doch nicht fündig werden, sprich uns einfach an. Per E-Mail oder am besten vor Ort. Wir finden eine Lösung.</br>
   
   <h4>Einzelbuchungen</h4>
   <p class="text-lg">Einzelbuchungen gibt es jeweils nur für einen vollen Tag.</p>
@@ -29,7 +30,7 @@ content: '<h2>Buchungsmodalitäten</h2>
   Du kannst Deine offenen Rechnungen mit PayPal bezahlen und die Rechnungen zu Deinen Buchungen und Gutscheinen herunterladen. </p>
   <hr>
   <h2>Öffnungszeiten</h2>
-  <p class="text-lg">Unsere Öffnungszeiten sind flexibel. Du kannst von Montag bis Freitag von 8:00 bis 18:00 Uhr bei uns arbeiten. Solltest Du außerhalb dieser Zeiten arbeiten wollen, sprich uns einfach an. Wir finden eine Lösung.</p>
+  <p class="text-lg">Unsere Öffnungszeiten sind von Montag bis Freitag von 9:00 bis 18:00 Uhr bei uns arbeiten. Solltest Du außerhalb dieser Zeiten arbeiten wollen, sprich uns einfach an. Wir finden eine Lösung.</p>
   
   <hr>
   
