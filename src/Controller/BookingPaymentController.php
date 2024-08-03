@@ -252,6 +252,7 @@ class BookingPaymentController extends AbstractController
         return $this->render('booking/payment.html.twig', [
             'booking'      => $booking,
             'unitaryPrice' => $unitaryPrice,
+            'allowInvoicePayment' => $this->bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate()),
         ], $response);
     }
 

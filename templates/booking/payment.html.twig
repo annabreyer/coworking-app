@@ -41,8 +41,10 @@
                 <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
                 <input type="radio" id="voucher" name="paymentMethod" value="voucher" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
                 <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
-                <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
-                <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
+                {% if allowInvoicePayment == true %}
+                    <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
+                    <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
+                {% endif %}
                 <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
                 <br>
                 <button type="submit" class="text-lg">{{ 'booking.payment.form.action'|trans }}</button>
