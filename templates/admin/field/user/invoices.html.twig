@@ -21,8 +21,8 @@
                 <td>{{ invoice.date|date('d.m.Y') }}</td>
                 <td>{{ (invoice.amount/100)|number_format(2, ",", '.') }} € </td>
                 <td>
-                    {% if invoice.isFullyPaid %}
-                        {{ invoice.payments.last.date|date('d.m.Y') }}
+                    {% if invoice.isFullyPaid == true and invoice.payments.last != false %}
+                        {{ invoice.paymentDate|date('d.m.Y') }}
                     {% else %}
                         <span class="badge badge-warning">offen</span>
                     {% endif %}

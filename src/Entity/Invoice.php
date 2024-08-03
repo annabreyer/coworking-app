@@ -330,4 +330,13 @@ class Invoice
     {
         return 0 > $this->getAmount();
     }
+
+    public function getPaymentDate(): ?\DateTimeInterface
+    {
+        if ($this->isFullyPaid() && 0 === $this->payments->count()) {
+            return $this->date;
+        }
+
+        return $this->payments->last()->getDate();
+    }
 }

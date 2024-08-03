@@ -15,6 +15,8 @@ class VoucherType
 {
     use TimestampableEntity;
 
+    public const NAME_REFUND = 'refund';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

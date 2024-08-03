@@ -193,7 +193,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('user_bookings');
         }
 
-        if (false === $this->bookingManager->canBookingBeCancelled($booking)) {
+        if (false === $this->bookingManager->canBookingBeCancelledByUser($booking)) {
             $this->addFlash('error', $this->translator->trans('form.booking.cancel.time_limit_exceeded', ['%d%' => $this->timeLimitCancelBooking], 'flash'));
 
             return $this->redirectToRoute('user_bookings');

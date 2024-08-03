@@ -11,7 +11,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250000000001 extends AbstractMigration
+final class Version20250000000002 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,8 +20,8 @@ final class Version20250000000001 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('INSERT INTO `user` (first_name, last_name, birthdate, email, mobile_phone, roles, password, is_active, is_verified, created_at, updated_at) 
-                            VALUES ("Anna", "Breyer", "1981-05-12", "office@coworking-hahnheim.de", "+491746509125",'.  json_encode("[\"ROLE_SUPER_ADMIN\"]") .', "test", "1", "1", NOW(), NOW())');
+        $this->addSql('INSERT INTO voucher_type (units, validity_months, unitary_value, name, is_active, created_at, updated_at) 
+                            VALUES (1, 6, 0, "'.VoucherType::NAME_REFUND.'", 1, NOW(), NOW())');
     }
 
     public function down(Schema $schema): void

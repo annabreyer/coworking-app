@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -25,6 +26,15 @@ class AdminActionCrudController extends AbstractCrudController
         return parent::configureCrud($crud)
             ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
             ->setPaginatorPageSize(50);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return parent::configureFilters($filters)
+            ->add('adminUser')
+            ->add('user')
+            ->add('createdAt')
+        ;
     }
 
     public function configureActions(Actions $actions): Actions

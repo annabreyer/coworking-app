@@ -186,7 +186,7 @@ class VoucherCrudController extends AbstractCrudController
             $entityInstance->setValue($entityInstance->getVoucherType()->getUnitaryValue());
         }
 
-        $invoice = $this->invoiceManager->createVoucherInvoice($entityInstance->getUser(), $entityInstance->getInvoiceAmount(), false);
+        $invoice = $this->invoiceManager->createInvoice($entityInstance->getUser(), $entityInstance->getInvoiceAmount(), false);
 
         if (1 === $entityInstance->getVoucherType()->getUnits()) {
             $entityInstance->setInvoice($invoice);

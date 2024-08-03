@@ -22,32 +22,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableEntity;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user', 'admin_action_booking'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user', 'admin_action_booking'])]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $firstName = null;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user', 'admin_action_booking'])]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $lastName = null;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $birthdate = null;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -63,11 +63,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $acceptedDataProtection = null;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
@@ -77,7 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ResetPasswordRequest::class, cascade: ['persist', 'remove'])]
     private Collection $resetPasswordRequests;
 
-    #[Groups(['admin_action'])]
+    #[Groups(['admin_action_user'])]
     #[ORM\Column(type: 'string')]
     private ?string $mobilePhone = null;
 

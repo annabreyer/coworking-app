@@ -50,6 +50,40 @@ class InvoiceManager
         return $number;
     }
 
+    public function getInvoiceNumber(): string
+    {
+        $year        = $this->now()->format('Y');
+        $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
+
+        if (null === $lastInvoice || null === $lastInvoice->getNumber()) {
+            return $this->invoicePrefix . $year . '0001';
+        }
+
+        $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
+        $number                = (int) $invoiceNumberElements[1];
+        $newNumber             = $number + 1;
+
+        return $this->invoicePrefix . $newNumber;
+    }
+
+    public function createInvoice(User $user, int $amount, bool $save = true): Invoice
+    {
+        $invoiceNumber = $this->getInvoiceNumber();
+
+        $invoice = new Invoice();
+        $invoice->setUser($user)
+                ->setAmount($amount)
+                ->setNumber($invoiceNumber)
+                ->setDate($this->now())
+        ;
+
+        if (true === $save) {
+            $this->saveInvoice($invoice);
+        }
+
+        return $invoice;
+    }
+
     public function saveInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getid()) {
@@ -57,6 +91,21 @@ class InvoiceManager
         }
 
         $this->entityManager->flush();
+    }
+
+    public function cancelInvoice(Invoice $invoice): void
+    {
+        if (true === $invoice->isFullyPaid()) {
+            throw new \InvalidArgumentException('Invoice is already fully paid.');
+        }
+
+        $cancelledAmount = $invoice->getAmount() * -1;
+        $description     = $this->translator->trans('invoice.description.cancel', ['%%invoiceNumber%' => $invoice->getNumber()], 'invoice');
+        $invoice         = $this->createInvoice($invoice->getUser(), $cancelledAmount, false);
+        $invoice->setDescription($description);
+
+        $this->saveInvoice($invoice);
+        $this->generateGeneralInvoicePdf($invoice);
     }
 
     public function createInvoiceFromBooking(Booking $booking, int $amount, bool $save = true): Invoice
@@ -127,11 +176,27 @@ class InvoiceManager
             'link'  => $link,
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.invoice.instructions', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('booking.invoice.explanation', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('booking.invoice.signature', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('booking.invoice.button_text', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans(
+                    'booking.invoice.instructions',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION => $this->translator->trans(
+                    'booking.invoice.explanation',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE => $this->translator->trans(
+                    'booking.invoice.signature',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT     => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT => $this->translator->trans(
+                    'booking.invoice.button_text',
+                    [],
+                    'email'
+                ),
             ],
         ];
 
@@ -144,24 +209,6 @@ class InvoiceManager
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
-    }
-
-    public function createVoucherInvoice(User $user, int $amount, bool $save = true): Invoice
-    {
-        $invoiceNumber = $this->getInvoiceNumber();
-
-        $invoice = new Invoice();
-        $invoice->setUser($user)
-                ->setAmount($amount)
-                ->setNumber($invoiceNumber)
-                ->setDate($this->now())
-        ;
-
-        if (true === $save) {
-            $this->saveInvoice($invoice);
-        }
-
-        return $invoice;
     }
 
     public function generateVoucherInvoicePdf(Invoice $invoice): void
@@ -200,31 +247,31 @@ class InvoiceManager
             'link'  => $link,
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('voucher.invoice.instructions', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans('voucher.invoice.explanation', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE    => $this->translator->trans('voucher.invoice.signature', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SUBJECT      => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  => $this->translator->trans('voucher.invoice.button_text', [], 'email'),
+                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans(
+                    'voucher.invoice.instructions',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_EXPLANATION => $this->translator->trans(
+                    'voucher.invoice.explanation',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_SIGNATURE => $this->translator->trans(
+                    'voucher.invoice.signature',
+                    [],
+                    'email'
+                ),
+                self::EMAIL_STANDARD_ELEMENT_SUBJECT     => $subject,
+                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT => $this->translator->trans(
+                    'voucher.invoice.button_text',
+                    [],
+                    'email'
+                ),
             ],
         ];
 
         $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
-    }
-
-    public function getInvoiceNumber(): string
-    {
-        $year        = $this->now()->format('Y');
-        $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
-
-        if (null === $lastInvoice || null === $lastInvoice->getNumber()) {
-            return $this->invoicePrefix . $year . '0001';
-        }
-
-        $invoiceNumberElements = explode($this->invoicePrefix, $lastInvoice->getNumber());
-        $number                = (int) $invoiceNumberElements[1];
-        $newNumber             = $number + 1;
-
-        return $this->invoicePrefix . $newNumber;
     }
 
     public function generateGeneralInvoicePdf(Invoice $invoice): void

@@ -58,7 +58,7 @@ class VoucherManagerTest extends KernelTestCase
     public function testCreateVouchersGeneratesVouchers(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
+        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager(), static::getContainer()->get(VoucherTypeRepository::class));
 
         $voucherManager->createVouchersForInvoice($this->user, $this->voucherType, $this->invoice, $this->singlePrice->getAmount());
         $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy([
@@ -72,7 +72,7 @@ class VoucherManagerTest extends KernelTestCase
     public function testCreateVouchersSetsADifferentCodeForAllVouchers(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
-        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
+        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager(), static::getContainer()->get(VoucherTypeRepository::class));
 
         $voucherManager->createVouchersForInvoice($this->user, $this->voucherType, $this->invoice, $this->singlePrice->getAmount());
         $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy([
@@ -91,7 +91,7 @@ class VoucherManagerTest extends KernelTestCase
     {
         $now = new \DateTimeImmutable('2024-03-01');
         static::mockTime($now);
-        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager());
+        $voucherManager = new VoucherManager(static::getContainer()->get('doctrine')->getManager(), static::getContainer()->get(VoucherTypeRepository::class));
 
         $voucherManager->createVouchersForInvoice($this->user, $this->voucherType, $this->invoice, $this->singlePrice->getAmount());
         $vouchers = static::getContainer()->get(VoucherRepository::class)->findBy([
