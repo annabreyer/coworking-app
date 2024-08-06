@@ -6,6 +6,7 @@ namespace App\Manager;
 
 use App\Entity\Booking;
 use App\Entity\Invoice;
+use App\Entity\Payment;
 use App\Entity\User;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceGenerator;
@@ -93,19 +94,28 @@ class InvoiceManager
         $this->entityManager->flush();
     }
 
-    public function cancelInvoice(Invoice $invoice): void
+    public function cancelUnpaidInvoice(Invoice $invoice): void
     {
         if (true === $invoice->isFullyPaid()) {
             throw new \InvalidArgumentException('Invoice is already fully paid.');
         }
 
-        $cancelledAmount = $invoice->getAmount() * -1;
-        $description     = $this->translator->trans('invoice.description.cancel', ['%%invoiceNumber%' => $invoice->getNumber()], 'invoice');
-        $invoice         = $this->createInvoice($invoice->getUser(), $cancelledAmount, false);
-        $invoice->setDescription($description);
+        $description     = $this->translator->trans('invoice.description.cancel', ['%invoiceNumber%' => $invoice->getNumber()], 'invoice');
 
-        $this->saveInvoice($invoice);
-        $this->generateGeneralInvoicePdf($invoice);
+        $originalInvoicePayment = new Payment(Payment::PAYMENT_TYPE_REFUND);
+        $originalInvoicePayment->setAmount($invoice->getAmount())
+                               ->setDate($this->now())
+                               ->setInvoice($invoice)
+                               ->setComment($description);
+        $invoice->addPayment($originalInvoicePayment);
+        $this->entityManager->flush();
+
+        $cancelledAmount = $invoice->getAmount() * -1;
+        $refundInvoice   = $this->createInvoice($invoice->getUser(), $cancelledAmount, false);
+        $refundInvoice->setDescription($description);
+
+        $this->saveInvoice($refundInvoice);
+        $this->generateGeneralInvoicePdf($refundInvoice);
     }
 
     public function createInvoiceFromBooking(Booking $booking, int $amount, bool $save = true): Invoice

@@ -16,7 +16,7 @@ form:
     cancel:
       impossible: 'Diese Buchung kann nicht storniert werden.'
       time_limit_exceeded: 'Buchungen können nur %d% Tag(e) vorher storniert werden.'
-      success: 'Die Buchung für den %date% wurde erfolgreich storniert.'
+      success: 'Die Buchung für den %date% wurde erfolgreich storniert. Solltest Du die Rechnung noch nicht bezahlt haben, wird sie durch eine entsprechende Gutschrift storniert. Wurde die Buchung bereits gezahlt, haben wir Dir einen Gutschein gutgeschrieben.'
     payment:
       no_price: 'Bitte ein Preis auswählen.'
       price_not_found: 'Der ausgewählte Preis konnte nicht gefunden werden.'

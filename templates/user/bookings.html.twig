@@ -56,7 +56,7 @@
                 {% for booking in futureBookings %}
                     <tr class="bg-yellow-light border-b hover:bg-sunray">
                         <th scope="row" class="px-3 py-2 font-medium whitespace-nowrap dark:text-white">
-                            {{ booking.businessDay.date|date('Y-m-d') }}
+                            {{ booking.businessDay.date|date('d.m.Y') }}
                         </th>
                         <td class="px-3 py-2">
                             {{ booking.room.name }}
@@ -118,7 +118,7 @@
                     {% for booking in thisYearBookings %}
                     <tr class="bg-yellow-light border-b hover:bg-sunray">
                         <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap">
-                            {{ booking.businessDay.date|date('Y-m-d') }}
+                            {{ booking.businessDay.date|date('d.m.Y') }}
                         </th>
                         <td class="px-6 py-4">
                             {{ booking.room.name }}

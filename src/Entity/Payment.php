@@ -17,6 +17,7 @@ class Payment
     public const PAYMENT_TYPE_VOUCHER     = 'voucher';
     public const PAYMENT_TYPE_TRANSACTION = 'transaction';
     public const PAYMENT_TYPE_PAYPAL      = 'paypal';
+    public const PAYMENT_TYPE_REFUND        = 'refund';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -50,6 +51,7 @@ class Payment
             self::PAYMENT_TYPE_VOUCHER     => self::PAYMENT_TYPE_VOUCHER,
             self::PAYMENT_TYPE_TRANSACTION => self::PAYMENT_TYPE_TRANSACTION,
             self::PAYMENT_TYPE_PAYPAL      => self::PAYMENT_TYPE_PAYPAL,
+            self::PAYMENT_TYPE_REFUND      => self::PAYMENT_TYPE_REFUND,
         ];
     }
 

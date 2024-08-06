@@ -10,7 +10,7 @@ booking:
     subject: 'Coworking Hahnheim: Deine Buchung wurde storniert'
     salutation: 'Hallo %firstName%!'
     instructions: 'Deine Buchung vom %date% in %room% wurde storniert.'
-    explanation: 'Hast Du die die Buchung bereits bezahlt? Dann wird dir der Betrag als Gutschein gutgeschrieben.'
+    explanation: 'Hast Du die die Buchung bereits bezahlt? Dann wird dir der Betrag als Gutschein gutgeschrieben. Hast Du die Buchung noch nicht bezahlt, wird sie durch eine entsprechende Gutschrift storniert.'
     signature: 'Vielen Dank!'
     button_text: 'Neue Buchung'
 

@@ -219,7 +219,7 @@ class BookingController extends AbstractController
 
         $adminMailerService->notifyAdminAboutBookingCancellation($bookingDate);
 
-        $this->addFlash('success', $this->translator->trans('form.booking.cancel.success', ['%date%' => $bookingDate->format('Y-m-d')], 'flash'));
+        $this->addFlash('success', $this->translator->trans('form.booking.cancel.success', ['%date%' => $bookingDate->format('d.m.Y')], 'flash'));
 
         return $this->redirectToRoute('user_bookings');
     }

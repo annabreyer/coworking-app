@@ -67,7 +67,7 @@ class BookingManager
         if ($booking->isFullyPaid()) {
             $this->refundBooking($booking);
         } else {
-            $this->invoiceManager->cancelInvoice($bookingInvoice);
+            $this->invoiceManager->cancelUnpaidInvoice($bookingInvoice);
         }
 
         $this->sendBookingCancelledEmail($booking);
