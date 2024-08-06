@@ -6,6 +6,13 @@ booking:
     explanation: 'Bitte überweise den Betrag spätestens 24 Stunden vor Buchungsdatum. Du kannst auch gerne Deine Rechnung direkt mit Paypal bezahlen. Klicke dazu einfach auf den oben stehenden Button:'
     signature: 'Vielen Dank!'
     button_text: 'Mit Paypal bezahlen'
+  cancel:
+    subject: 'Coworking Hahnheim: Deine Buchung wurde storniert'
+    salutation: 'Hallo %firstName%!'
+    instructions: 'Deine Buchung vom %date% in %room% wurde storniert.'
+    explanation: 'Hast Du die die Buchung bereits bezahlt? Dann wird dir der Betrag als Gutschein gutgeschrieben.'
+    signature: 'Vielen Dank!'
+    button_text: 'Neue Buchung'
 
 voucher:
   invoice:

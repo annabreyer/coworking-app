@@ -7,10 +7,10 @@ namespace App\Controller\Admin;
 use App\Entity\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 class AdminActionCrudController extends AbstractCrudController
@@ -23,8 +23,17 @@ class AdminActionCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
-            ->setPaginatorPageSize(50);
+                     ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
+                     ->setPaginatorPageSize(50);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return parent::configureFilters($filters)
+            ->add('adminUser')
+            ->add('user')
+            ->add('createdAt')
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -40,7 +49,6 @@ class AdminActionCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
             AssociationField::new('adminUser'),
             AssociationField::new('user'),
             TextareaField::new('dataString'),

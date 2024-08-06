@@ -8,6 +8,7 @@ invoice:
   description:
     booking: 'Ein Coworking-Platz am %date% im Raum %room%'
     voucher: 'Mehrfachkarte: %units% Stück %validityMonths% Monate gültig.'
+    cancel: 'Stornierung von Rechnung Nummer %invoiceNumber%.'
   payment:
     voucher: 'Bezahlt mit Gutschein %voucherCode%'
     paid: 'Bezahlt am %date%'

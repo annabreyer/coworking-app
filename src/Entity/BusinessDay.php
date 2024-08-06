@@ -108,6 +108,6 @@ class BusinessDay
 
     public function __toString(): string
     {
-        return $this->date->format('Y-m-d');
+        return $this->date->format('d.m.Y');
     }
 }

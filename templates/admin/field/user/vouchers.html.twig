@@ -28,7 +28,7 @@
                 </td>
                 <td>
                     {% if voucher.invoice is not null and voucher.invoice.isFullyPaid %}
-                        {{ voucher.invoice.payments.last.date|date('d.m.Y') }}
+                        {{ voucher.invoice.paymentDate|date('d.m.Y') }}
                     {% else %}
                         <span class="badge badge-warning">offen</span>
                     {% endif %}

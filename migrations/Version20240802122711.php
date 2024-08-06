@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use App\Entity\VoucherType;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250000000001 extends AbstractMigration
+final class Version20240802122711 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +19,13 @@ final class Version20250000000001 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('INSERT INTO `user` (first_name, last_name, birthdate, email, mobile_phone, roles, password, is_active, is_verified, created_at, updated_at) 
-                            VALUES ("Anna", "Breyer", "1981-05-12", "office@coworking-hahnheim.de", "+491746509125",'.  json_encode("[\"ROLE_SUPER_ADMIN\"]") .', "test", "1", "1", NOW(), NOW())');
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE booking ADD is_cancelled TINYINT(1) DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE booking DROP is_cancelled');
     }
 }
