@@ -2,6 +2,6 @@ framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
         envelope:
-            sender: 'office@coworking-hahnheim.de'
+            sender: 'ensemble@coworking-hahnheim.de'
         headers:
-            From: 'Ensemble Coworking Hahnheim <office@coworking-hahnheim.de>'
+            From: 'Ensemble Coworking Hahnheim <ensemble@coworking-hahnheim.de>'
