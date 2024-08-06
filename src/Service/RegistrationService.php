@@ -52,8 +52,9 @@ class RegistrationService
         $standardContext = [
             'texts' => [
                 self::EMAIL_STANDARD_ELEMENT_SALUTATION => $this->translator->trans(
-                    'registration.email_verification.email.salutation',
-                    ['%firstName%' => $user->getFirstName()]
+                    'registration.email_verification.salutation',
+                    ['%firstName%' => $user->getFirstName()],
+                    'email'
                 ),
                 self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('registration.email_verification.instructions', [], 'email'),
                 self::EMAIL_STANDARD_ELEMENT_EXPLANATION  => $this->translator->trans(
@@ -71,6 +72,7 @@ class RegistrationService
                 self::EMAIL_STANDARD_ELEMENT_SUBJECT     => $subject,
                 self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT => $this->translator->trans('registration.email_verification.button_text', [], 'email'),
             ],
+            'link' => $specificContext['signedUrl'],
         ];
 
         $context = array_merge($specificContext, $standardContext);

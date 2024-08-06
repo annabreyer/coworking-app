@@ -25,7 +25,7 @@
                 <select id="room" name="room" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
                     {% for option in bookingOption %}
                         <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }} >
-                            {{ option.roomName }}
+                            {{ option.roomName }} ({{ 'booking.page.form.room.capacity'|trans({'%capacity%': option.capacity, '%bookings%': option.bookingCount}) }})
                         </option>
                     {% endfor %}
                 </select>
@@ -38,28 +38,31 @@
 
     <section class="mt-20">
         <h2 class="text-center">{{ 'booking.page.prices.title'|trans }}</h2>
-        <div class="self-center grid grid-cols-1 md:grid-cols-2 space-x-4 space-y-4">
+        <div class="self-center grid grid-cols-1 md:grid-cols-3 space-x-4 space-y-4">
         {% for price in prices %}
             {%  if price.isVoucher %}
-                <a href="{{ path('voucher_index') }}" class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
-                    <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }}</h3>
-                    <h3 class="mt-1 mb-2 font-normal text-yellow-lightest "> {{ price.amount/100 }} € <span class="my-1 text-lg text-yellow-lightest">{{ price.voucherType.units }} {{ 'price.voucher.units'|trans }}</span></h3>
-                        <span class="inline-flex items-center px-3 py-2 text-lg font-medium text-center text-red-darkest bg-yellow rounded-lg hover:bg-yellow-light focus:ring-4 focus:outline-none focus:ring-yellow">
+                <div class="block self-auto max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                        <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }}</h3>
+                        <h3 class="mt-1 mb-2 font-normal text-yellow-lightest "> {{ price.amount/100 }} €</h3>
+                        <a href="{{ path('voucher_index') }}">
+                            <span class="inline-flex items-center p-2 text-lg font-medium text-center text-red-darkest bg-yellow rounded-lg hover:bg-yellow-light focus:ring-4 focus:outline-none focus:ring-yellow">
                             {{ 'booking.page.prices.voucher_card.link'|trans }}
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </span>
-                </a>
+                                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                </svg>
+                            </span>
+                        </a>
+                </div>
             {%  elseif price.isUnitary %}
                 <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
-                    <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }}</h3>
-                    <h3 class="my-1 font-normal text-yellow-lightest"> {{ price.amount/100 }} €</h3>
-                    <p class="my-1 font-normal text-yellow-lightest">{{ 'booking.page.prices.unitary.explanation'|trans }}</p>
+                    <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
+                    <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.unitary.explanation'|trans }}</p>
                 </div>
             {% elseif price.isSubscription %}
-                <div href="{{ path('voucher_index') }}" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow">
-                    <h4 class="my-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ price.name }}: {{ price.amount/100 }} €</h4>
+                <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                    <h3 class="my-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
+                    <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.subscription.explanation'|trans }}</p>
+
                 </div>
             {%  endif %}
         {% endfor %}

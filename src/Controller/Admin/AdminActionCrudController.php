@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 class AdminActionCrudController extends AbstractCrudController
@@ -23,8 +24,8 @@ class AdminActionCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-                     ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
-                     ->setPaginatorPageSize(50);
+            ->setDefaultSort(['createdAt' => 'DESC', 'user' => 'ASC'])
+            ->setPaginatorPageSize(50);
     }
 
     public function configureFilters(Filters $filters): Filters

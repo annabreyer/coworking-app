@@ -73,12 +73,8 @@ class BookingManager
         $this->sendBookingCancelledEmail($booking);
     }
 
-    public function canBookingBeCancelledByUser(Booking $booking): bool
+    public function canBookingBeCancelledByUser(\DateTimeInterface $bookingDate): bool
     {
-        if (null === $booking->getBusinessDay()) {
-            throw new \LogicException('Booking must have a business day and a date.');
-        }
-
         $now   = $this->now();
         $limit = $this->now()->modify('-' . $this->timeLimitCancelBooking . 'days');
 
@@ -86,7 +82,7 @@ class BookingManager
             throw new \LogicException('Time limit cancel booking is wrongly configured.');
         }
 
-        $interval = $limit->diff($booking->getBusinessDay()->getDate());
+        $interval = $limit->diff($bookingDate);
 
         if (1 === $interval->invert) {
             return false;

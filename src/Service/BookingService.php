@@ -33,10 +33,13 @@ class BookingService
         $bookingOptions = [];
 
         foreach ($rooms as $room) {
-            $availableCapacity            = $this->getAvailableRoomCapacityOnBusinessDay($room, $businessDay);
-            $bookingOption['isAvailable'] = 0 === $availableCapacity ? false : $businessDay->isOpen();
-            $bookingOption['roomId']      = $room->getId();
-            $bookingOption['roomName']    = $room->getName();
+            $bookingCount                  = $this->bookingRepository->countBookingsForRoomOnDay($room->getId(), $businessDay->getDate());
+            $availableCapacity             = $room->getCapacity() - $bookingCount;
+            $bookingOption['isAvailable']  = 0 === $availableCapacity ? false : $businessDay->isOpen();
+            $bookingOption['roomId']       = $room->getId();
+            $bookingOption['roomName']     = $room->getName();
+            $bookingOption['capacity']     = $room->getCapacity();
+            $bookingOption['bookingCount'] = $bookingCount;
 
             if ($includeWorkstations) {
                 $bookingOption['workStations'] = $this->getWorkStations($room);
@@ -46,17 +49,6 @@ class BookingService
         }
 
         return $bookingOptions;
-    }
-
-    private function getAvailableRoomCapacityOnBusinessDay(Room $room, BusinessDay $businessDay): int
-    {
-        if (null === $room->getId()) {
-            throw new \Exception('Can not get available Room Capacity on Business Day. Room ID is null');
-        }
-
-        $bookingCount = $this->bookingRepository->countBookingsForRoomOnDay($room->getId(), $businessDay->getDate());
-
-        return $room->getCapacity() - $bookingCount;
     }
 
     /**

@@ -10,8 +10,13 @@
     <form method="post" class="mt-10">
         <input type="hidden" name="token" value="{{ csrf_token('voucher') }}" >
         <label for="voucher">{{ 'booking.payment.voucher.form.label'|trans }}</label>
-        <input id="voucher" type="text" name="voucher" placeholder="{{ 'booking.payment.voucher.form.placeholder'|trans }}"
+        <input list="vouchers" id="voucher" name="voucher" type="text" placeholder="{{ 'booking.payment.voucher.form.placeholder'|trans }}"
                class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
+        <datalist id="vouchers">
+            {% for voucher in app.user.validVouchers %}
+                <option value="{{ voucher.code }}">{{ voucher.code }} ({{ voucher.voucherType.name }}, {{ voucher.expiryDate|date('d.m.Y') }})</option>
+            {% endfor %}
+        </datalist>
         <button type="submit" class="btn btn-primary">{{ 'booking.payment.voucher.form.button'|trans }}</button>
     </form>
 

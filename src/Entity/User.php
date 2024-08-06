@@ -314,7 +314,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setMobilePhone(?string $mobilePhone): static
     {
-        $this->mobilePhone = $mobilePhone;
+        $this->mobilePhone = trim(str_replace(' ', '', $mobilePhone));
 
         return $this;
     }

@@ -5,6 +5,7 @@
 User is logged in after registration. 
 User needs to confirm their email address, the link sent in the email is valid for 1h. 
 The Link to confirm the email can be access from another device than the one the registration was made.
+If the user does not confirm their email adress, nothing happens. There are no restrictions on the account.
 
 ## Login
 Standard Login without remember-me function
@@ -17,7 +18,8 @@ The user can edit their profile data.
 The user can not change their password, this needs to be done by the password-reset function. 
 
 # Back
-Form submits made by the user, that change data in the database are serialized and stored in a user action table. 
+Form submits made by the user, that change data in the database are serialized and stored in a user action table.
+Bookings are not stored in the user action table, but payments are.
 
 
 # Admin
@@ -47,23 +49,26 @@ Rooms can also have workstations, they have no effect of the capacity of the roo
 ### Booking
 Bookings contain the BusinessDay, the room and the user and the amount. The amount usually is the current unitary price. 
 They can also contain the workstation.
-If rooms or workstations are used will be configurable in the future.
+If rooms or workstations are used, it will be configurable in the future.
 
 ### Workstation
 The entity exists but is not used in the code yet. 
 
 ## Process
 ### Step Day
-First User selects a business day.
-At this point no changes in the database are made. 
+The First user selects a business day.
+At this point, no changes in the database are made. 
 
 ### Step Room
-User selects a room. Which creates a booking. 
+User selects a room. Which creates a booking.
+If the user does finalize the booking, it will be removed from the database after one day. 
 
 ### Step Payment
-User can choose to pay an invoice or pay immediately by voucher or paypal.
-For further details on the payment process, see the section Payment System. 
-
+User can choose to pay an invoice or pay immediately by voucher or PayPal. 
+Invoice payment is only possible if we are still in the timeframe for a booking to be canceled.
+The choice of the payment method validates the booking and creates an invoice.
+It has one line, which corresponds to the booking.
+For further details on the payment process, see the section Payment System.
 
 ## Admin
 ### Business Day
@@ -73,50 +78,45 @@ BDs can only be opened or closed.
 Rooms can be opened or closed and also created or deleted.
 
 ### Booking
-Bookings can be created, edited and deleted. 
+Bookings can be created or canceled. 
+A new booking automatically creates an invoice.
 
 
 # Vouchers
-Vouchers can be bought by the user.
+The user can buy vouchers.
 
 ## Entities
-VoucherType : Defines how many units a voucher has, and how long it is valid.
-Voucher: The actual voucher
+VoucherType: Defines how many units a voucher has, and how long it is valid at the value of the sigle voucher.
+Voucher: The actual voucher with its name that will be used for display and its price, and its voucherType
 
 ## Process
 Vouchers are attached to the User and the Invoice they were bought with. 
 Vouchers are not transferable, they can only be used by the user they were bought for.
 They also can only be used once they are paid for.
-A voucher has the value of the unitary price at the moment of purchase.
+A voucher has the value of its voucherType. 
 
+### Invoice
+The Invoice for the voucher contains the voucher codes. 
 
 # Payment System
-A booking can be paid by voucher, Paypal or bank transfer.
+There are three payment methods: voucher, PayPal and bank transfer.
+For voucher purchase, voucher is of course not applicable.
+For bookings, invoice is only available when the booking could theoretically be canceled. This should avoid bookings to be paid by invoice at the last minute. 
+The user can select among their valid (paid for, not expired, not used) vouchers to pay for a booking.
 
-A booking has an invoice.
-It has one line, which corresponds to the booking.
-The amount due is the booking price.
+### Payment by invoice
+The amount due is the voucher or booking price. The invoice contains a mention when its due.
 
-If it is paid by voucher, there is a second line and the voucher amount is substracted from the booking price. 
-The standard use is that both lines cancel each other out an the invoice's total amount is 0. 
-In case of a negative amount an E-Mail is sent to the admin. 
+### Payment by voucher (bookings only)
+If it is paid by voucher, there is a second line and the voucher amount is subtracted from the booking price. 
+The standard use is that both lines cancel each other out and the invoice's total amount is 0. 
+In case of a negative amount, an E-Mail is sent to the admin. 
 A voucher can also only partially pay for the booking, in which case the invoice has a total amount > 0.
 
-If the booking is paid by paypal, the invoice amount will stay the booking price, but it will be mentioned that
-the invoice has been paid by paypal.
+### Payment by PayPal
+The PayPal payment process is centered around the invoice.
+The user is redirected to PayPal, and after the payment is done, the invoice is marked as paid.
 
-If the booking is paid by bank transfer, the invoice amount will stay the booking price,
-but it will contain a due date.
-
-The goal is that the invoices mirror the money flux. 
-In case of a voucher, there is no money exchange, as they vouchers have already been bought.
-
-
-An invoice can have several payments.
-A payment can be either a voucher or a transaction.
-
-A transaction (actual money transfer) can be a bank transfer or a paypal.
-A transaction can be split into several payments, in order to attach it to the correct invoice.
 
 
 

@@ -39,7 +39,7 @@ form:
     invalid_selection: 'Ausgewählter Gutschein oder Mehrfachkarte ungültig. Bitte versuche es erneut.'
     no_payment_method: 'Bitte eine Zahlungsmethode auswählen.'
     payment_method_not_valid: 'Die ausgewählte Zahlungsmethode ist nicht verfügbar.'
-    success: 'Gutschein/Mehrfachkarte erfolgreich gekauft. Die Rechnung ist per E-Mail zugesendet. Bei Zahlungen auf Rechnung sind die Gutscheine erste nach eingegangener Zahlung gültig.'
+    success: 'Gutschein/Mehrfachkarte erfolgreich gekauft. Die Rechnung wurde per E-Mail zugesendet. Bei Zahlungen auf Rechnung sind die Gutscheine erst nach eingegangener Zahlung gültig.'
 invoice_download:
   not_found: 'Rechnung konnte nicht gefunden werden.'
 invoice_payment:

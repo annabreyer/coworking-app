@@ -113,8 +113,16 @@ class InvoiceGenerator
         $this->writeVoucherDescription($voucherType);
         $this->writeVoucherCodes($invoice);
         $this->writeAmount($invoiceAmount / 100);
-        $this->writeTotalAmount($invoiceAmount / 100);
-        $this->addDueMention($invoice);
+
+        if ($invoice->isFullyPaidByPayPal()) {
+            $this->writeTotalAmount($invoice->getAmount() / 100);
+            $this->addAlreadyPaidMention($invoice);
+        }
+
+        if (false === $invoice->isFullyPaid()) {
+            $this->writeTotalAmount($invoice->getAmount() / 100);
+            $this->addDueMention($invoice);
+        }
 
         $this->saveInvoice($invoice);
     }
@@ -199,6 +207,8 @@ class InvoiceGenerator
         if ($user->hasAddress()) {
             $this->writeClientStreet($user);
             $this->writeClientCity($user);
+        } else {
+            $this->writeEmailAddress($user);
         }
     }
 
@@ -271,6 +281,11 @@ class InvoiceGenerator
         $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
     }
 
+    private function writeEmailAddress(User $user): void
+    {
+        $this->writeValue(13, 90, 100, 8, $user->getEmail());
+    }
+
     private function writeBookingLine(Booking $booking): void
     {
         $bookingAmount = $booking->getAmount();
@@ -310,7 +325,7 @@ class InvoiceGenerator
     private function writeVoucherDescription(VoucherType $voucherType): void
     {
         $description = $this->translator->trans('invoice.description.voucher', [
-            '%units%'          => $voucherType->getUnits(),
+            '%name%'           => $voucherType->getName(),
             '%validityMonths%' => $voucherType->getValidityMonths(),
         ], 'invoice');
 

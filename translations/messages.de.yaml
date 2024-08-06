@@ -61,7 +61,7 @@ registration:
     terms.agreement.necessary: 'Bitte akzeptiere die Allgemeinen Geschäftsbedingungen.'
     code.of.conduct.agreement.necessary: 'Bitte akzeptiere unseren Verhaltenskodex.'
     data.protection.agreement.necessary: 'Bitte akzeptiere unsere Datenschutzbestimmungen.'
-    phone.help: 'Bitte gib Deine Telefonnummer im internationalen Format ein'
+    phone.help: 'Deine Mobilnummer sollte keine Ländevorwahl enthalten und zwischen 9 und 15 Ziffern haben.'
     action: 'Registrieren'
   success: 'Dein Konto wurde erstellt. Bitte überprüfe Deine E-Mails auf einen Bestätigungslink.'
   email_verification:
@@ -101,12 +101,14 @@ booking:
     form:
       date.label: 'Datum'
       room.label: 'Raum'
+      room.capacity: '%bookings% von %capacity% Plätzen gebucht.'
       action: 'Buchen'
     prices:
       title: 'Preise'
       voucher_card:
           link: 'Mehrfachkarte kaufen'
-      unitary.explanation: 'Wird bei der Bezahlung automatisch angewandt, ausser bei der Zahlung mit dem Gutschein.'
+      unitary.explanation: 'Wird bei der Bezahlung automatisch angewandt, ausser bei der Zahlung mit Gutschein oder Mehrfachkarte.'
+      subscription.explanation: 'Wird monatlich in Rechnung gestellt, jeweils für den Folgemonat.'
   invoice:
     paid: 'Bezahlt'
   recap:

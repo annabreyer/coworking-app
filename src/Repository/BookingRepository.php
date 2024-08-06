@@ -114,4 +114,15 @@ class BookingRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function findUnfinishedBookingsSince(\DateTimeInterface $dateTime): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.amount is NULL')
+            ->andWhere('b.createdAt <= :dateTime')
+            ->setParameter('dateTime', $dateTime)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

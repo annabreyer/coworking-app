@@ -193,7 +193,7 @@ class BookingPaymentController extends AbstractController
 
         if (null !== $voucher->getUseDate()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.already_used', ['%date%' => $voucher->getUseDate()->format('Y-m-d')], 'flash'));
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.already_used', ['%date%' => $voucher->getUseDate()->format('d.m.Y')], 'flash'));
 
             return $this->renderVoucherPayment($response, $booking);
         }
@@ -252,6 +252,7 @@ class BookingPaymentController extends AbstractController
         return $this->render('booking/payment.html.twig', [
             'booking'      => $booking,
             'unitaryPrice' => $unitaryPrice,
+            'allowInvoicePayment' => $this->bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate()),
         ], $response);
     }
 

@@ -18,12 +18,14 @@
                     <li>{{ 'booking.payment.info_section.point_2'|trans }}</li>
                     <li>{{ 'booking.payment.info_section.point_3'|trans }}</li>
                 </ul>
-                <a href="{{ path('voucher_index') }}" class="inline-flex items-center px-3 py-2 font-medium text-center text-yellow-lightest bg-red rounded-lg hover:bg-red-dark focus:ring-4 focus:outline-none focus:ring-silverpink">
-                    {{ 'booking.payment.info_section.button'|trans }}
-                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                    </svg>
-                </a>
+                {% if app.user.validVouchers.count < 1 %}
+                    <a href="{{ path('voucher_index') }}" class="inline-flex items-center px-3 py-2 font-medium text-center text-yellow-lightest bg-red rounded-lg hover:bg-red-dark focus:ring-4 focus:outline-none focus:ring-silverpink">
+                        {{ 'booking.payment.info_section.button'|trans }}
+                        <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </a>
+                {% endif %}
             </div>
         </div>
 
@@ -39,8 +41,10 @@
                 <label for="paypal">{{ 'payment_method.paypal'|trans }}</label><br>
                 <input type="radio" id="voucher" name="paymentMethod" value="voucher" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
                 <label for="voucher">{{ 'payment_method.voucher'|trans }}</label><br>
-                <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
-                <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
+                {% if allowInvoicePayment == true %}
+                    <input type="radio" id="invoice" name="paymentMethod" value="invoice" class="text-yellow focus:ring-yellow focus:border-yellow my-2">
+                    <label for="invoice">{{ 'payment_method.invoice'|trans }}</label>
+                {% endif %}
                 <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
                 <br>
                 <button type="submit" class="text-lg">{{ 'booking.payment.form.action'|trans }}</button>
