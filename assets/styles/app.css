@@ -68,7 +68,7 @@
         }
 
         h3 {
-            @apply text-1xl;
+            @apply text-lg;
         }
 
         h4 {
@@ -140,9 +140,9 @@
         display: block;
         width: 70px;
         height: 70px;
-        border: 7px solid #ff23693b;
+        border: 7px solid #f5c40e;
         border-radius: 50%;
-        border-top-color: #ff2369;
+        border-top-color: #8C0343;
         animation: spin 1s linear infinite;
     }
 
