@@ -50,7 +50,6 @@ class AdminActionCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
             AssociationField::new('adminUser'),
             AssociationField::new('user'),
             TextareaField::new('dataString'),
