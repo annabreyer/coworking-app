@@ -36,6 +36,7 @@ class BookingRepository extends ServiceEntityRepository
             ->join('b.businessDay', 'bd')
             ->where('r.id = :roomId')
             ->andWhere('bd.date = :date')
+            ->andWhere('b.isCancelled = false')
             ->setParameter('roomId', $roomId)
             ->setParameter('date', $date)
             ->getQuery()
