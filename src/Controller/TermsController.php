@@ -51,7 +51,7 @@ class TermsController extends AbstractController
     #[Route('/code-of-conduct', name: 'app_code_of_conduct')]
     public function codeOfConduct(): Response
     {
-        $codeOfConduct = $this->legalDirectory . '/CodeOfConduct.pdf';
+        $codeOfConduct = $this->legalDirectory . '/CodeOfConduct_202408.pdf';
 
         if (false === $this->filesystem->exists($codeOfConduct)) {
             throw $this->createNotFoundException('No code of conduct found');
