@@ -11,6 +11,7 @@ parameters:
   invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_prefix: 'CO'
   client_number_prefix: 'CO'
+  legal_directory: '%kernel.project_dir%/private/legal'
 
 services:
     # default configuration for services in *this* file
@@ -29,6 +30,7 @@ services:
           $paypalBusinessId: '%env(PAYPAL_BUSINESS_ID)%'
           $paypalClientId: '%env(PAYPAL_CLIENT_ID)%'
           $env: '%kernel.environment%'
+          $legalDirectory: '%legal_directory%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
