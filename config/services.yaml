@@ -26,8 +26,6 @@ services:
           $invoiceDirectory: '%invoice_directory%'
           $invoiceClientNumberPrefix: '%client_number_prefix%'
           $documentVaultEmail: '%document_vault_email%'
-#          $paypalFormAction: '%env(PAYPAL_FORM_ACTION)%'
-#          $paypalBusinessId: '%env(PAYPAL_BUSINESS_ID)%'
           $paypalClientId: '%env(PAYPAL_CLIENT_ID)%'
           $env: '%kernel.environment%'
           $legalDirectory: '%legal_directory%'
