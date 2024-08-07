@@ -17,7 +17,7 @@ class LegalController extends AbstractController
         private readonly string $legalDirectory
     ) {
     }
-    #[Route('/terms-of-use', name: 'terms_of_use')]
+    #[Route('/terms-of-use', name: 'app_terms_of_use')]
     public function downloadTermsOfUse(TermsOfUseRepository $termsOfUseRepository): BinaryFileResponse
     {
         $currentTermsOfUse = $termsOfUseRepository->findLatest();
@@ -35,7 +35,7 @@ class LegalController extends AbstractController
         return new BinaryFileResponse($termsOfUsePath);
     }
 
-    #[Route('/code-of-conduct', name: 'code_of_conduct')]
+    #[Route('/code-of-conduct', name: 'app_code_of_conduct')]
     public function downloadCodeOfConduct(): BinaryFileResponse
     {
         $codeOfConduct = $this->legalDirectory . 'CodeOfConduct.pdf';
@@ -47,7 +47,7 @@ class LegalController extends AbstractController
         return new BinaryFileResponse($codeOfConduct);
     }
 
-    #[Route('/data-protection', name: 'data-protection')]
+    #[Route('/data-protection', name: 'app_data-protection')]
     public function downloadPrivacyPolicy(): BinaryFileResponse
     {
         $dataProtectionPath = $this->legalDirectory . 'Datenschutzerklärung202408.pdf';
