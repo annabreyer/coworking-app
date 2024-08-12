@@ -32,6 +32,9 @@ form:
   registration:
     success: 'Registrierung erfolgreich. Bitte prüfe Deine E-Mails, um die Registrierung abzuschließen.'
     email_verification:
+      error:
+        generic: 'Deine E-Mail Adresse konnte nicht verifiziert werden. Bitte versuche es erneut.'
+        not_allowed: 'Die E-Mail Adresse kann nicht verifiziert werden, da Du mit einer anderen eingeloggt bist.'
       success: 'Deine E-Mail Adresse wurde erfolgreich verifiziert.'
   voucher:
     not_available: 'Gutscheine oder Mehrfachkarten sind derzeit nicht verfügbar.'

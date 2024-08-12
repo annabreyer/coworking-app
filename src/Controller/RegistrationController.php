@@ -9,6 +9,7 @@ use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Service\RegistrationService;
 use App\Service\Security\EmailVerifier;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,16 +59,24 @@ class RegistrationController extends AbstractController
         $id = $request->query->get('id');
 
         if (null === $id) {
+            $this->addFlash('error', $this->translator->trans('form.registration.email_verification.error.generic', [], 'flash'));
             return $this->redirectToRoute('app_register');
         }
 
         $user = $userRepository->find($id);
 
         if (null === $user) {
+            $this->addFlash('error', $this->translator->trans('form.registration.email_verification.error.generic', [], 'flash'));
             return $this->redirectToRoute('app_register');
         }
 
-        // validate email confirmation link, sets User::isVerified=true and persists
+        $loggedInUser = $this->getUser();
+
+        if (null !==  $loggedInUser && $user->getId() !== $loggedInUser->getId()) {
+            $this->addFlash('error', $this->translator->trans('form.registration.email_verification.error.not_allowed', [], 'flash'));
+            return $this->redirectToRoute('app_logout');
+        }
+
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {

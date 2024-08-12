@@ -16,6 +16,11 @@
                     <a href="{{ path('user_dashboard') }}">{{ 'actions.user_dashboard'|trans }}</a>
                 </button>
 
+                {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <button>
+                        <a href="{{ path('admin') }}">Admin</a>
+                    </button>
+                {% endif %}
             </div>
         {% endif %}
         {{ 'content'|trans|raw }}
