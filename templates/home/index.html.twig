@@ -23,6 +23,14 @@
                 {% endif %}
             </div>
         {% endif %}
-        {{ 'content'|trans|raw }}
+        {% trans with ({
+            '%unitaryPrice%': unitaryPrice.amount/100,
+            '%voucherNameOne%': voucherPrices.0.name,
+            '%voucherNameTwo%': voucherPrices.1.name,
+            '%voucherPriceOne%' : voucherPrices.0.amount/100,
+            '%voucherPriceTwo%' : voucherPrices.1.amount/100,
+        }) %}
+        content
+        {% endtrans %}
     </section>
 {% endblock %}
