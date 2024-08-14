@@ -70,6 +70,7 @@ class RegistrationController extends AbstractController
 
             return $this->redirectToRoute('app_register');
         }
+
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 

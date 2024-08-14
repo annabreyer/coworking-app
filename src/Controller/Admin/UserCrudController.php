@@ -8,6 +8,7 @@ use App\EasyAdmin\UserBookingsField;
 use App\EasyAdmin\UserInvoicesField;
 use App\EasyAdmin\UserVouchersField;
 use App\Entity\User;
+use App\Service\RegistrationService;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -15,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
@@ -27,10 +29,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserCrudController extends AbstractCrudController
 {
-    public function __construct()
+    public function __construct(private readonly RegistrationService $registrationService)
     {
     }
 
@@ -39,35 +43,51 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
-    {
+    public function createIndexQueryBuilder(
+        SearchDto $searchDto,
+        EntityDto $entityDto,
+        FieldCollection $fields,
+        FilterCollection $filters
+    ): QueryBuilder {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
                      ->andWhere('entity.isActive = :isActive')
-                     ->setParameter('isActive', true);
+                     ->setParameter('isActive', true)
+        ;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
                      ->setDefaultSort(['firstName' => 'ASC', 'lastName' => 'ASC'])
-                     ->setPaginatorPageSize(50);
+                     ->setPaginatorPageSize(50)
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return parent::configureFilters($filters)
-            ->add('isActive')
-            ->add('isVerified')
-            ->add('createdAt')
+                     ->add('isActive')
+                     ->add('isVerified')
+                     ->add('createdAt')
         ;
     }
 
     public function configureActions(Actions $actions): Actions
     {
+        $sendEmailVerificationAction = Action::new('sendEmailVerification', 'Resend Email Verification')
+                                             ->linkToCrudAction('sendEmailVerification')
+                                             ->setIcon('fa fa-envelope')
+                                             ->setHtmlAttributes(['class' => 'btn btn-primary'])
+                                             ->displayIf(static function ($entity) {
+                                                 return false === $entity->isVerified();
+                                             })
+        ;
+
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)
                      ->remove(Crud::PAGE_INDEX, Action::NEW)
+                     ->add(Crud::PAGE_DETAIL, $sendEmailVerificationAction)
         ;
     }
 
@@ -106,9 +126,10 @@ class UserCrudController extends AbstractCrudController
             yield DateField::new('acceptedCodeOfConduct');
             yield DateField::new('acceptedDataProtection');
             yield CollectionField::new('acceptedTermsOfUse')
-            ->setEntryIsComplex()
-            ->renderExpanded()
-            ->useEntryCrudForm();
+                                 ->setEntryIsComplex()
+                                 ->renderExpanded()
+                                 ->useEntryCrudForm()
+            ;
 
             yield FormField::addTab('Bookings');
             yield UserBookingsField::new('bookings', '');
@@ -152,5 +173,23 @@ class UserCrudController extends AbstractCrudController
                              ->hideOnIndex()
             ;
         }
+    }
+
+    public function sendEmailVerification(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        $user = $context->getEntity()->getInstance();
+        if (!$user instanceof User) {
+            throw new \RuntimeException('This entity is not a User.');
+        }
+
+        $this->registrationService->sendRegistrationEmail($user);
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl()
+        ;
+
+        return $this->redirect($targetUrl);
     }
 }
