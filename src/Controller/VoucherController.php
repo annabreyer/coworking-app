@@ -97,9 +97,17 @@ class VoucherController extends AbstractController
             return $this->renderVoucherTemplate($response, $voucherPrices);
         }
 
+        $invoiceAmount = $voucherPrice->getAmount();
+        if (null === $invoiceAmount) {
+            $this->addFlash('error', $this->translator->trans('form.voucher.invalid_selection', [], 'flash'));
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+            return $this->renderVoucherTemplate($response, $voucherPrices);
+        }
+
         $this->entityManager->getConnection()->beginTransaction();
         try {
-            $invoice = $invoiceManager->createInvoice($user, $voucherPrice->getAmount());
+            $invoice = $invoiceManager->createInvoice($user, $invoiceAmount);
             $voucherManager->createVouchersForInvoice($user, $voucherType, $invoice);
 
             $this->entityManager->getConnection()->commit();

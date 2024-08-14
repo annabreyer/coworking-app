@@ -100,10 +100,15 @@ class InvoiceManager
             throw new \InvalidArgumentException('Invoice is already fully paid.');
         }
 
-        $description     = $this->translator->trans('invoice.description.cancel', ['%invoiceNumber%' => $invoice->getNumber()], 'invoice');
+        $user = $invoice->getUser();
+        if (null === $user) {
+            throw new \InvalidArgumentException('Invoice must have a user.');
+        }
+
+        $description = $this->translator->trans('invoice.description.cancel', ['%invoiceNumber%' => $invoice->getNumber()], 'invoice');
 
         $originalInvoicePayment = new Payment(Payment::PAYMENT_TYPE_REFUND);
-        $originalInvoicePayment->setAmount($invoice->getAmount())
+        $originalInvoicePayment->setAmount((int) $invoice->getAmount())
                                ->setDate($this->now())
                                ->setInvoice($invoice)
                                ->setComment($description);
@@ -111,7 +116,7 @@ class InvoiceManager
         $this->entityManager->flush();
 
         $cancelledAmount = $invoice->getAmount() * -1;
-        $refundInvoice   = $this->createInvoice($invoice->getUser(), $cancelledAmount, false);
+        $refundInvoice   = $this->createInvoice($user, $cancelledAmount, false);
         $refundInvoice->setDescription($description);
 
         $this->saveInvoice($refundInvoice);

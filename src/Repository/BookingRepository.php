@@ -118,6 +118,9 @@ class BookingRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Booking[]
+     */
     public function findUnfinishedBookingsSince(\DateTimeInterface $dateTime): array
     {
         return $this->createQueryBuilder('b')

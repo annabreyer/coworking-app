@@ -105,7 +105,10 @@ class BookingController extends AbstractController
         AdminMailerService $adminMailerService
     ): Response {
         if ($businessDay->getDate() < $this->now()) {
-            $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_no_longer_available', [], 'flash'));
+            $this->addFlash(
+                'error',
+                $this->translator->trans('form.booking.step_room.date_no_longer_available', [], 'flash')
+            );
 
             return $this->redirectToRoute('booking_step_date');
         }
@@ -193,8 +196,20 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('user_bookings');
         }
 
-        if (false === $this->bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate())) {
-            $this->addFlash('error', $this->translator->trans('form.booking.cancel.time_limit_exceeded', ['%d%' => $this->timeLimitCancelBooking], 'flash'));
+        $bookingDate = $booking->getBusinessDay()?->getDate();
+        if (null === $bookingDate) {
+            $this->addFlash('error', $this->translator->trans('form.booking.cancel.impossible', [], 'flash'));
+            $this->logger->error('Booking has no BusinessDay. ' . $uuid);
+
+            return $this->redirectToRoute('user_bookings');
+        }
+
+        if (false === $this->bookingManager->canBookingBeCancelledByUser($bookingDate)) {
+            $this->addFlash('error', $this->translator->trans(
+                'form.booking.cancel.time_limit_exceeded',
+                ['%d%' => $this->timeLimitCancelBooking],
+                'flash'
+            ));
 
             return $this->redirectToRoute('user_bookings');
         }
@@ -219,7 +234,14 @@ class BookingController extends AbstractController
 
         $adminMailerService->notifyAdminAboutBookingCancellation($bookingDate);
 
-        $this->addFlash('success', $this->translator->trans('form.booking.cancel.success', ['%date%' => $bookingDate->format('d.m.Y')], 'flash'));
+        $this->addFlash(
+            'success',
+            $this->translator->trans(
+                'form.booking.cancel.success',
+                ['%date%' => $bookingDate->format('d.m.Y')],
+                'flash'
+            )
+        );
 
         return $this->redirectToRoute('user_bookings');
     }

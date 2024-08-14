@@ -14,10 +14,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class TermsController extends AbstractController
 {
     public function __construct(
-        private readonly FileSystem $filesystem,
+        private readonly Filesystem $filesystem,
         private readonly string $legalDirectory
     ) {
     }
+
     #[Route('/terms-of-use', name: 'app_terms_of_use')]
     public function termsOfUse(TermsOfUseRepository $termsOfUseRepository): Response
     {

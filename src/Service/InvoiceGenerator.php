@@ -283,7 +283,9 @@ class InvoiceGenerator
 
     private function writeEmailAddress(User $user): void
     {
-        $this->writeValue(13, 90, 100, 8, $user->getEmail());
+        $email = $user->getEmail() ?? '';
+
+        $this->writeValue(13, 90, 100, 8, $email);
     }
 
     private function writeBookingLine(Booking $booking): void

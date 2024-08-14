@@ -30,6 +30,10 @@ class VoucherManager
 
     public static function calculateExpiryDate(\DateTimeInterface $startingDate, int $validityMonths): \DateTimeImmutable
     {
+        if (false === $startingDate instanceof \DateTimeImmutable) {
+            $startingDate = new \DateTimeImmutable($startingDate->format('Y-m-d H:i:s'));
+        }
+
         return $startingDate->modify('+' . $validityMonths . ' months');
     }
 
@@ -58,13 +62,13 @@ class VoucherManager
     public function createVouchersForInvoice(User $user, VoucherType $voucherType, Invoice $invoice, ?int $unitaryValue = null): void
     {
         if (null === $unitaryValue) {
-            $unitaryValue = $voucherType->getUnitaryValue();
+            $unitaryValue = (int) $voucherType->getUnitaryValue();
         }
 
-        $vouchers       = $voucherType->getUnits();
+        $quantity       = (int) $voucherType->getUnits();
         $validityMonths = $voucherType->getValidityMonths() ?? 0;
         $expiryDate     = static::calculateExpiryDate($this->now(), $validityMonths);
-        static::createVouchers($user, $voucherType, $vouchers, $unitaryValue, $expiryDate, $invoice);
+        static::createVouchers($user, $voucherType, $quantity, $unitaryValue, $expiryDate, $invoice);
 
         $this->entityManager->flush();
     }
@@ -77,7 +81,7 @@ class VoucherManager
         }
 
         if (null === $expiryDate) {
-            $expiryDate = static::calculateExpiryDate($this->now(), $voucherType->getValidityMonths());
+            $expiryDate = static::calculateExpiryDate($this->now(), (int) $voucherType->getValidityMonths());
         }
 
         $voucher = static::createVouchers($user, $voucherType, 1, $unitaryValue, $expiryDate)[0];

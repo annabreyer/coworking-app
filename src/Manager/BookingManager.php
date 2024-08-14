@@ -110,12 +110,17 @@ class BookingManager
             throw new \LogicException('Booking invoice must be fully paid to be refunded.');
         }
 
+        $user = $booking->getUser();
+        if (null === $user) {
+            throw new \LogicException('Booking must have a user to be refunded.');
+        }
+
         $expiryDate = null;
 
         if ($bookingInvoice->isFullyPaidByVoucher()) {
             $payment = $bookingInvoice->getPayments()->first();
 
-            if (null === $payment) {
+            if (false === $payment) {
                 throw new \LogicException('Fully paid invoice must have a payment.');
             }
 
@@ -127,7 +132,7 @@ class BookingManager
             $expiryDate = $paymentVoucher->getExpiryDate();
         }
 
-        $voucher = $this->voucherManager->createRefundVoucher($booking->getUser(), $booking->getAmount(), $expiryDate);
+        $voucher = $this->voucherManager->createRefundVoucher($user, $booking->getAmount(), $expiryDate);
         $voucher->setInvoice($bookingInvoice);
 
         $this->entityManager->flush();
@@ -135,7 +140,12 @@ class BookingManager
 
     public function sendBookingCancelledEmail(Booking $booking): void
     {
-        $userEmail = $booking->getUser()?->getEmail();
+        $user = $booking->getUser();
+        if (null === $user) {
+            throw new \LogicException('Booking must have a user to send the booking cancelled email.');
+        }
+
+        $userEmail = $user->getEmail();
         if (null === $userEmail) {
             throw new \LogicException('User must have an email to send the booking cancelled email.');
         }
@@ -152,7 +162,7 @@ class BookingManager
 
         $link       = $this->urlGenerator->generate('booking_step_date', [], UrlGeneratorInterface::ABSOLUTE_URL);
         $subject    = $this->translator->trans('booking.cancel.subject', [], 'email');
-        $salutation = $this->translator->trans('booking.cancel.salutation', ['%firstName%' => $booking->getUser()->getFirstName()], 'email');
+        $salutation = $this->translator->trans('booking.cancel.salutation', ['%firstName%' => $user->getFirstName()], 'email');
 
         $context = [
             'link'  => $link,

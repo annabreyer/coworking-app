@@ -244,15 +244,20 @@ class BookingPaymentController extends AbstractController
 
     private function renderStepPayment(Response $response, Booking $booking): Response
     {
+        $bookingDate = $booking->getBusinessDay()?->getDate();
+        if (null === $bookingDate) {
+            return $this->redirectToRoute('booking_step_date');
+        }
+
         $unitaryPrice = $this->priceRepository->findOneBy([
             'isUnitary' => true,
             'isActive'  => true,
         ]);
 
         return $this->render('booking/payment.html.twig', [
-            'booking'      => $booking,
-            'unitaryPrice' => $unitaryPrice,
-            'allowInvoicePayment' => $this->bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate()),
+            'booking'             => $booking,
+            'unitaryPrice'        => $unitaryPrice,
+            'allowInvoicePayment' => $this->bookingManager->canBookingBeCancelledByUser($bookingDate),
         ], $response);
     }
 

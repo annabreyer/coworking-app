@@ -17,7 +17,7 @@ class Payment
     public const PAYMENT_TYPE_VOUCHER     = 'voucher';
     public const PAYMENT_TYPE_TRANSACTION = 'transaction';
     public const PAYMENT_TYPE_PAYPAL      = 'paypal';
-    public const PAYMENT_TYPE_REFUND        = 'refund';
+    public const PAYMENT_TYPE_REFUND      = 'refund';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

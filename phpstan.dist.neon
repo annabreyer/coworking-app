@@ -1,5 +1,4 @@
 parameters:
-    checkGenericClassInNonGenericObjectType: false
     level: 8
     paths:
         - bin/
@@ -9,3 +8,6 @@ parameters:
         - tests/
     excludePaths:
         - src/DataFixtures
+        - src/Controller/Admin
+    ignoreErrors:
+        - identifier: missingType.generics

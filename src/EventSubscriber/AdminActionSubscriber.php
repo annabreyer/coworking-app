@@ -50,7 +50,7 @@ class AdminActionSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function saveAdminUserAction(User $user, User $adminUser)
+    private function saveAdminUserAction(User $user, User $adminUser): void
     {
         $normalizedUser = $this->normalizer->normalize($user, null, ['groups' => 'admin_action_user']);
         if (false === \is_array($normalizedUser)) {
@@ -67,7 +67,7 @@ class AdminActionSubscriber implements EventSubscriberInterface
         $this->entityManager->flush();
     }
 
-    private function saveAdminBookingAction(Booking $booking, User $adminUser)
+    private function saveAdminBookingAction(Booking $booking, User $adminUser): void
     {
         if (null === $booking->getUser()) {
             throw new \LogicException('Booking does not have a user?!');

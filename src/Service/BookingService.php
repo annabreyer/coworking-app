@@ -33,7 +33,7 @@ class BookingService
         $bookingOptions = [];
 
         foreach ($rooms as $room) {
-            $bookingCount                  = $this->bookingRepository->countBookingsForRoomOnDay($room->getId(), $businessDay->getDate());
+            $bookingCount                  = $this->bookingRepository->countBookingsForRoomOnDay((int) $room->getId(), $businessDay->getDate());
             $availableCapacity             = $room->getCapacity() - $bookingCount;
             $bookingOption['isAvailable']  = 0 === $availableCapacity ? false : $businessDay->isOpen();
             $bookingOption['roomId']       = $room->getId();
