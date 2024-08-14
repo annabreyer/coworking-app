@@ -8,10 +8,16 @@ use App\EasyAdmin\UserBookingsField;
 use App\EasyAdmin\UserInvoicesField;
 use App\EasyAdmin\UserVouchersField;
 use App\Entity\User;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -33,11 +39,27 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
+                     ->andWhere('entity.isActive = :isActive')
+                     ->setParameter('isActive', true);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
                      ->setDefaultSort(['firstName' => 'ASC', 'lastName' => 'ASC'])
                      ->setPaginatorPageSize(50);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return parent::configureFilters($filters)
+            ->add('isActive')
+            ->add('isVerified')
+            ->add('createdAt')
+        ;
     }
 
     public function configureActions(Actions $actions): Actions

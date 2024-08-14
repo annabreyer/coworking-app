@@ -39,7 +39,7 @@ class DashboardController extends AbstractDashboardController
     {
         return parent::configureCrud()
                      ->showEntityActionsInlined()
-            ->setDateFormat('dd.MM.yyyy')
+                     ->setDateFormat('dd.MM.yyyy')
         ;
     }
 
@@ -62,10 +62,17 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute('Back to the website', 'fas fa-home', 'home');
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::section('User Administration');
-        yield MenuItem::linkToCrud('User', 'fas fa-user', User::class);
-        yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
+        yield MenuItem::linkToCrud('Active Users', 'fas fa-user', User::class)
+                        ->setController(UserCrudController::class);
+        yield MenuItem::linkToCrud('Inactive User', 'far fa-user', User::class)
+                      ->setController(InactiveUserCrudController::class);
+
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
         yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
+        yield MenuItem::section('Configuration');
+
+        yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
+
         yield MenuItem::section('Room Administration');
         yield MenuItem::linkToCrud('All BusinessDays', 'fas fa-calendar', BusinessDay::class)
                       ->setController(BusinessDayCrudController::class)
