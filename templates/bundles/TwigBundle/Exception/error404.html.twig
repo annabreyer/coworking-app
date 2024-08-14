@@ -1,0 +1,11 @@
+{# templates/bundles/TwigBundle/Exception/error404.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <section class="w-fit text-center">
+        <h1 class="mx-auto mt-4">Oops! Du suchst etwas das es nicht gibt.</h1>
+        <h3>Ob die kleine Hexenkatze es wohl weggezaubert hat?</h3>
+        <img src="{{ asset('images/witch-cat.svg') }}" alt="witch-cat" class="w-fit md:w-96"/>
+        <h3>Weiter oben im Menü findest Du alle Seiten.</h3>
+    </section>
+{% endblock %}

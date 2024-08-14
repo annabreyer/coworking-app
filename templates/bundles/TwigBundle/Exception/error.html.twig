@@ -1,0 +1,12 @@
+
+{# templates/bundles/TwigBundle/Exception/error404.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <section class="w-fit text-center">
+        <h1 class="mx-auto mt-4">Oh nein! Etwas ist schiefgelaufen.</h1>
+        <h3>Unsere Website hat gerade eine kleine Krise. Keine Sorge, unsere kleine Hexenkatze ist schon dabei ihre Magie zu wirken.</h3>
+        <img src="{{ asset('images/witch-cat.svg') }}" alt="witch-cat" class="w-fit md:w-96"/>
+        <h3>Wenn das nicht hilft, probier es in ein paar Minuten nochmal oder hol dir einen Kaffee. Manchmal braucht das Internet auch mal eine Pause.</h3>
+    </section>
+{% endblock %}
