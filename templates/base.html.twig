@@ -24,6 +24,9 @@
                 Coworking in Hahnheim
             </span>
         </a>
+        {% if app.environment != 'PROD' %}
+        <span>TESTVERSION</span>
+        {% endif %}
     </div>
         {% block nav %}
             {% if app.user %}
