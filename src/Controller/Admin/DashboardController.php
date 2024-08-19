@@ -66,9 +66,13 @@ class DashboardController extends AbstractDashboardController
                         ->setController(UserCrudController::class);
         yield MenuItem::linkToCrud('Inactive User', 'far fa-user', User::class)
                       ->setController(InactiveUserCrudController::class);
+        yield MenuItem::section();
+        yield MenuItem::linkToCrud('Buchungen', 'fas fa-file-contract', Booking::class)
+        ->setController(BookingCrudController::class);
+        yield MenuItem::linkToCrud('Stornierte Buchungen', 'far fa-file-contract', Booking::class)
+        ->setController(CanceledBookingCrudController::class);
 
-        yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
-        yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
+
         yield MenuItem::section('Configuration');
 
         yield MenuItem::linkToCrud('Terms of Use', 'fas fa-file', TermsOfUse::class);
@@ -85,12 +89,15 @@ class DashboardController extends AbstractDashboardController
         ;
         yield MenuItem::linkToCrud('Room', 'fas fa-door-open', Room::class);
         yield MenuItem::linkToCrud('Workstation', 'fas fa-chair', WorkStation::class);
-        yield MenuItem::linkToCrud('Booking', 'fas fa-file-contract', Booking::class);
         yield MenuItem::section('Money Administration');
         yield MenuItem::linkToCrud('Invoice', 'fas fa-money-bill-wave', Invoice::class);
         yield MenuItem::linkToCrud('Voucher', 'fas fa-vote-yea', Voucher::class);
         yield MenuItem::linkToCrud('VoucherType', 'fas fa-vote-yea', VoucherType::class);
         yield MenuItem::linkToCrud('Price', 'fas fa-euro-sign', Price::class);
+
+        yield MenuItem::section('Action Log');
+        yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);
+        yield MenuItem::linkToCrud('AdminAction', 'fas fa-home', AdminAction::class);
     }
 
     public function configureAssets(): Assets

@@ -86,7 +86,6 @@ class UserCrudController extends AbstractCrudController
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)
-                     ->remove(Crud::PAGE_INDEX, Action::NEW)
                      ->add(Crud::PAGE_DETAIL, $sendEmailVerificationAction)
         ;
     }
@@ -141,7 +140,7 @@ class UserCrudController extends AbstractCrudController
             yield UserInvoicesField::new('invoices', '');
         }
 
-        if (Crud::PAGE_EDIT === $pageName) {
+        if (Crud::PAGE_EDIT === $pageName || Crud::PAGE_NEW === $pageName) {
             yield TextField::new('firstName');
             yield TextField::new('lastName');
             yield EmailField::new('email');
