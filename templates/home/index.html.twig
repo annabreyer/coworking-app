@@ -7,8 +7,6 @@
 {% block content %}
     <section class="self-center mx-auto">
         {% if app.environment != 'prod' %}
-
-
             <div id="alert-additional-content-2" class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
                 <div class="flex items-center">
                     <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -34,7 +32,6 @@
             </div>
         {% endif  %}
 
-
         {% if app.user %}
             <div class="self-center">
                 <button>
@@ -58,6 +55,7 @@
             '%voucherNameTwo%': voucherPrices.1.name,
             '%voucherPriceOne%' : voucherPrices.0.amount/100,
             '%voucherPriceTwo%' : voucherPrices.1.amount/100,
+            '%registerUrl%' : path('app_register'),
         }) %}
         content
         {% endtrans %}

@@ -169,6 +169,8 @@ class BookingCrudController extends AbstractCrudController
         }
 
         $this->invoiceManager->createInvoiceFromBooking($entityInstance, $entityInstance->getAmount(), true);
+
+        parent::persistEntity($entityManager, $entityInstance);
     }
 
     public function cancelBooking(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response

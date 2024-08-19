@@ -31,6 +31,7 @@ form:
         not_paid: 'Gutscheincode wurde noch nicht bezahlt und kann somit noch nicht genutzt werden.'
   registration:
     success: 'Registrierung erfolgreich. Bitte prüfe Deine E-Mails, um die Registrierung abzuschließen.'
+    already_registered: 'Du bist bereits registriert.'
     email_verification:
       error:
         generic: 'Deine E-Mail Adresse konnte nicht verifiziert werden. Bitte versuche es erneut.'

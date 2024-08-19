@@ -16,7 +16,7 @@ content: '
   </p>
 <hr>
 <h2>Buchungsmodalitäten</h2>
-  <p class="text-lg">Nachdem Du Dir einen Account angelegt hast (<a href="https://app.coworking-hahnheim.de/register" class="underline">Registrierung</a>), kannst über unser Buchungsportal hier auf der Webseite Deinen Arbeitsplatz buchen. 
+  <p class="text-lg">Nachdem Du Dir einen Account angelegt hast (<a href="%registerUrl%" class="underline">Registrierung</a>), kannst über unser Buchungsportal hier auf der Webseite Deinen Arbeitsplatz buchen. 
   Wähle einfach den gewünschten Tag aus. </br>
   <strong>Bitte beachte: Erst nach vollständiger Zahlung ist Deine Buchung gültig.</strong></p>
   <h3>Bezahlung</h3>

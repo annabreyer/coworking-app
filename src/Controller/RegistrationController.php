@@ -29,6 +29,8 @@ class RegistrationController extends AbstractController
     public function register(Request $request, RegistrationService $registrationService, Security $security): ?Response
     {
         if ($this->getUser()) {
+            $this->addFlash('info', $this->translator->trans('form.registration.already_registered', [], 'flash'));
+
             return $this->redirectToRoute('home');
         }
 
