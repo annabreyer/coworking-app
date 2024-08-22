@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controller\Admin;
 
@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\SearchMode;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
@@ -20,7 +21,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceCrudController extends AbstractCrudController
 {
@@ -81,6 +85,12 @@ class InvoiceCrudController extends AbstractCrudController
                                  ->setHtmlAttributes(['target' => '_blank'])
         ;
 
+        $invoiceRegeneration = Action::new('invoiceRegeneration', 'Rechnung neu generieren')
+                                     ->linkToCrudAction('regenerateInvoice')
+                                     ->setIcon('fa fa-refresh')
+                                     ->setHtmlAttributes(['class' => 'btn btn-warning'])
+        ;
+
         $addPaymentAction = Action::new('addPayment', 'Zahlung hinzufügen')
                                   ->linkToCrudAction(Action::EDIT)
                                   ->setIcon('fa fa-euro')
@@ -99,6 +109,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add(Crud::PAGE_DETAIL, $invoiceDownload)
                      ->add(Crud::PAGE_DETAIL, $addPaymentAction)
                      ->add(Crud::PAGE_INDEX, $addPaymentAction)
+                     ->add(Crud::PAGE_DETAIL, $invoiceRegeneration)
         ;
     }
 
@@ -204,5 +215,23 @@ class InvoiceCrudController extends AbstractCrudController
         if (null === $entityInstance->getFilePath()) {
             $this->invoiceManager->generateInvoicePdf($entityInstance);
         }
+    }
+
+    public function regenerateInvoice(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        $invoice = $context->getEntity()->getInstance();
+
+        if (null === $invoice) {
+            throw new \LogicException('Invoice instance is missing.');
+        }
+        $this->invoiceManager->generateInvoicePdf($invoice);
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl()
+        ;
+
+        return $this->redirect($targetUrl);
     }
 }
