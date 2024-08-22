@@ -45,7 +45,7 @@ class VoucherCrudController extends AbstractCrudController
                          'index',
                          'Einzelgutscheine und Mehrfachkarten können über "Erstellen" erstellt werden. <br>
                              Suche nach Gutscheinen mit der Nachnamen, Gutscheincode, Wert oder Gutscheinart.<br>
-                             Bei NICHT genutzten Gutscheinen kann nur der Wert und das Verfallsdatum geändert werden.<br>
+                             Bei NICHT genutzten Gutscheinen kann nur der Wert, Das Nutzungsdatum und das Verfallsdatum geändert werden.<br>
                              Bei genutzten Gutscheinen kann nichts geändert werden.
                              Gutscheine können nur gelöscht werden, sofern sie keine Rechnung haben und nicht benutzt wurden. <br>'
                      )
@@ -123,7 +123,7 @@ class VoucherCrudController extends AbstractCrudController
 
             yield FormField::addFieldset('Modifizierbare Daten')
                            ->setHelp('Bei genutzten Gutscheinen kann nichts geändert werden.<br>
-                                            Bei NICHT genutzten Gutscheinen kann nur der Wert und das Verfallsdatum geändert werden.
+                                            Bei NICHT genutzten Gutscheinen kann nur der Wert, das Nutzungsdatum und das Verfallsdatum geändert werden.
             ');
 
             if (null !== $voucher->getUseDate()) {
@@ -139,6 +139,7 @@ class VoucherCrudController extends AbstractCrudController
                                 ->setCurrency('EUR')
                 ;
                 yield DateField::new('expiryDate');
+                yield DateField::new('useDate');
             }
 
             yield FormField::addFieldset('Nicht modifizierbare Daten')
