@@ -110,6 +110,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add(Crud::PAGE_DETAIL, $addPaymentAction)
                      ->add(Crud::PAGE_INDEX, $addPaymentAction)
                      ->add(Crud::PAGE_DETAIL, $invoiceRegeneration)
+                     ->add(Crud::PAGE_EDIT, $invoiceRegeneration)
         ;
     }
 
