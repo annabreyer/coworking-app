@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\EasyAdmin\InvoicePaymentsField;
 use App\Entity\Invoice;
+use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -100,6 +101,12 @@ class InvoiceCrudController extends AbstractCrudController
                                   })
         ;
 
+        $sendInvoicetoFinomail = Action::new('sendInvoiceToFinom', 'Rechnung an DocumentVault senden')
+                                       ->linkToCrudAction('sendInvoiceToDocumentVault')
+                                       ->setIcon('fa fa-envelope')
+                                       ->setHtmlAttributes(['class' => 'btn btn-primary'])
+        ;
+
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::EDIT)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
@@ -111,6 +118,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add(Crud::PAGE_INDEX, $addPaymentAction)
                      ->add(Crud::PAGE_DETAIL, $invoiceRegeneration)
                      ->add(Crud::PAGE_EDIT, $invoiceRegeneration)
+                     ->add(Crud::PAGE_DETAIL, $sendInvoicetoFinomail)
         ;
     }
 
@@ -226,6 +234,29 @@ class InvoiceCrudController extends AbstractCrudController
             throw new \LogicException('Invoice instance is missing.');
         }
         $this->invoiceManager->generateInvoicePdf($invoice);
+
+        $this->addFlash('success', 'Rechnung wurde neu generiert.');
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl()
+        ;
+
+        return $this->redirect($targetUrl);
+    }
+
+    public function sendInvoiceToDocumentVault(AdminContext $context, AdminUrlGeneratorInterface $adminUrlGenerator, InvoiceMailerManager $invoiceMailerManager): Response
+    {
+        $invoice = $context->getEntity()->getInstance();
+
+        if (null === $invoice) {
+            throw new \LogicException('Invoice instance is missing.');
+        }
+
+        $invoiceMailerManager->sendInvoiceToDocumentVault($invoice);
+
+        $this->addFlash('success', 'Rechnung wurde an DocumentVault gesendet.');
 
         $targetUrl = $adminUrlGenerator
             ->setController(self::class)
