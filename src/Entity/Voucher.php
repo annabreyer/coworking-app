@@ -166,7 +166,10 @@ class Voucher
 
     public function __toString(): string
     {
-        return $this->code ?? '';
+        $code = $this->code                 ?? '';
+        $user = $this->user?->getFullName() ?? '';
+
+        return $code . ' (' . $user . ')';
     }
 
     public function getInvoiceAmount(): ?int

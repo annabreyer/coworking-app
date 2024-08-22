@@ -145,7 +145,7 @@ class BookingCrudController extends AbstractCrudController
             yield FormField::addColumn(6);
             yield FormField::addFieldset('Booking Details');
             yield AssociationField::new('businessDay')
-                                  ->setQueryBuilder(function ($queryBuilder) {
+                                  ->setQueryBuilder(static function ($queryBuilder) {
                                       return $queryBuilder
                                           ->orderBy('entity.date', 'ASC')
                                       ;

@@ -15,6 +15,7 @@ use App\Repository\InvoiceRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use App\Service\InvoiceGenerator;
+use Doctrine\ORM\EntityManagerInterface;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -127,10 +128,11 @@ class InvoiceGeneratorTest extends KernelTestCase
 
     private function getInvoiceGenerator(): InvoiceGenerator
     {
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockFilesystem = $this->createMock(Filesystem::class);
+        $mockTranslator    = $this->createMock(TranslatorInterface::class);
+        $mockFilesystem    = $this->createMock(Filesystem::class);
 
         return new InvoiceGenerator(
+            $this->getContainer()->get(EntityManagerInterface::class),
             $mockTranslator,
             $mockFilesystem,
             'invoiceTemplatePath',

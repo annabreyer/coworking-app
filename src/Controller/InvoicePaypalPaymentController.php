@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
 use App\Manager\PaymentManager;
 use App\Repository\InvoiceRepository;
@@ -23,6 +24,7 @@ class InvoicePaypalPaymentController extends AbstractController
         private readonly PayPalService $payPalService,
         private readonly InvoiceRepository $invoiceRepository,
         private readonly InvoiceManager $invoiceManager,
+        private readonly InvoiceMailerManager $invoiceMailerManager,
         private readonly PaymentManager $paymentManager,
     ) {
     }
@@ -118,12 +120,12 @@ class InvoicePaypalPaymentController extends AbstractController
 
         if ($invoice->isVoucherInvoice()) {
             $this->invoiceManager->generateVoucherInvoicePdf($invoice);
-            $this->invoiceManager->sendVoucherInvoiceToUser($invoice);
+            $this->invoiceMailerManager->sendVoucherInvoiceToUser($invoice);
         }
 
         if ($invoice->isBookingInvoice()) {
             $this->invoiceManager->generateBookingInvoicePdf($invoice);
-            $this->invoiceManager->sendBookingInvoiceToUser($invoice);
+            $this->invoiceMailerManager->sendBookingInvoiceToUser($invoice);
 
             if ($request->getSession()->has(BookingPaymentController::BOOKING_STEP_PAYMENT)) {
                 $request->getSession()->remove(BookingPaymentController::BOOKING_STEP_PAYMENT);
@@ -142,7 +144,7 @@ class InvoicePaypalPaymentController extends AbstractController
             }
         }
 
-        $this->invoiceManager->sendInvoiceToDocumentVault($invoice);
+        $this->invoiceMailerManager->sendInvoiceToDocumentVault($invoice);
 
         return $this->json(
             ['success' => 'Payment has been processed.', 'targetUrl' => $targetUrl],

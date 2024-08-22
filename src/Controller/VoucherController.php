@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Price;
 use App\Entity\User;
+use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
 use App\Manager\VoucherManager;
 use App\Repository\PriceRepository;
@@ -31,7 +32,8 @@ class VoucherController extends AbstractController
         Request $request,
         PriceRepository $priceRepository,
         VoucherManager $voucherManager,
-        InvoiceManager $invoiceManager
+        InvoiceManager $invoiceManager,
+        InvoiceMailerManager $invoiceMailerManager
     ): Response {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
 
@@ -123,8 +125,8 @@ class VoucherController extends AbstractController
 
         if ('invoice' === $paymentMethod) {
             $invoiceManager->generateVoucherInvoicePdf($invoice);
-            $invoiceManager->sendVoucherInvoiceToUser($invoice);
-            $invoiceManager->sendInvoiceToDocumentVault($invoice);
+            $invoiceMailerManager->sendVoucherInvoiceToUser($invoice);
+            $invoiceMailerManager->sendInvoiceToDocumentVault($invoice);
 
             $this->addFlash('success', $this->translator->trans('form.voucher.success', [], 'flash'));
 

@@ -35,11 +35,6 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public const FAKE_UUID = 'hyf-5678-hnbgyu';
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testStepPaymentLogsErrorAndRedirectsWhenBookingIsNotFound(): void
     {
         $client       = static::createClient();
@@ -255,6 +250,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceAddsAmountToBookingAndGeneratesInvoiceAndRedirects(): void
     {
+        $this->mockTime(new \DateTimeImmutable('2024-02-20'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingWithOutAmountFixture::class, PriceFixtures::class]);
@@ -287,6 +283,7 @@ class BookingPaymentControllerTest extends WebTestCase
 
     public function testStepPaymentFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMailAndRedirects(): void
     {
+        $this->mockTime(new \DateTimeImmutable('2024-02-20'));
         $client       = static::createClient();
         $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
         $databaseTool->loadFixtures([BookingWithOutInvoiceFixture::class, PriceFixtures::class]);
@@ -604,7 +601,7 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('section#flash-messages', 'Gutscheincode wurde bereits am 2024-03-14 verwendet.');
+        static::assertSelectorTextContains('section#flash-messages', 'Gutscheincode wurde bereits am 14.03.2024 verwendet.');
     }
 
     public function testPayWithVoucherFormSubmitErrorWhenVoucherHasNotBeenPaidFor(): void
@@ -835,10 +832,5 @@ class BookingPaymentControllerTest extends WebTestCase
         ;
 
         return $booking;
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 }

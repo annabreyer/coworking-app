@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
 use App\Manager\InvoiceManager;
+use Doctrine\ORM\EntityManagerInterface;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -20,6 +21,7 @@ class InvoiceGenerator
     private Fpdi $pdf;
 
     public function __construct(
+        private readonly EntityManagerInterface $entityManager,
         private readonly TranslatorInterface $translator,
         private readonly Filesystem $filesystem,
         private readonly string $invoiceTemplatePath,
@@ -429,6 +431,9 @@ class InvoiceGenerator
         $fileName = $this->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
 
         $this->pdf->Output('F', $fileName, true);
+
+        $invoice->setFilePath($fileName);
+        $this->entityManager->flush();
     }
 
     private function writeValue(float $x, float $y, int $w, int $h, string $value): void

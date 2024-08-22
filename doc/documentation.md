@@ -120,3 +120,11 @@ The user is redirected to PayPal, and after the payment is done, the invoice is 
 
 
 
+# Create Booking via Admin
+
+Create booking via Admin creates the invoice entity to be paid. 
+Consulting the PDF of the invoice creates it. 
+Adding a voucher payment, regenerates the invoice with the voucher payment.
+
+
+

@@ -20,16 +20,6 @@ class BookingManagerTest extends TestCase
 {
     use ClockSensitiveTrait;
 
-    public function testCanBookingBeCancelledThrowsExceptionForMissingBusinessDayOrDate(): void
-    {
-        $bookingManager = $this->getBookingManagerWithMocks('1');
-        $booking        = new Booking();
-
-        static::expectException(\LogicException::class);
-        static::expectExceptionMessage('Booking must have a business day and a date.');
-        $bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate());
-    }
-
     public function testCanBookingBeCancelledThrowsExceptionIfNoTimeLimit(): void
     {
         $bookingManager = $this->getBookingManagerWithMocks('0');

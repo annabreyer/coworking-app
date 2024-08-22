@@ -180,9 +180,7 @@ class InvoiceManagerTest extends KernelTestCase
     {
         $entityManager        = self::getContainer()->get('doctrine')->getManager();
         $mockInvoiceGenerator = $this->createMock(InvoiceGenerator::class);
-        $mockMailer           = $this->createMock(MailerInterface::class);
         $mockTranslator       = $this->createMock(TranslatorInterface::class);
-        $mockUrlGenerator     = $this->createMock(UrlGeneratorInterface::class);
         $invoicePrefix        = self::getContainer()->getParameter('invoice_prefix');
         $invoiceRepository    = self::getContainer()->get(InvoiceRepository::class);
         $mockFilesystem       = $this->createMock(Filesystem::class);
@@ -190,14 +188,10 @@ class InvoiceManagerTest extends KernelTestCase
         return new InvoiceManager(
             $mockInvoiceGenerator,
             $entityManager,
-            $mockMailer,
             $mockTranslator,
-            $mockUrlGenerator,
             $invoiceRepository,
             $mockFilesystem,
             $invoicePrefix,
-            'documentVaultEmail',
-            'test'
         );
     }
 

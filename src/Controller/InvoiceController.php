@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Manager\InvoiceManager;
 use App\Repository\InvoiceRepository;
-use App\Service\InvoiceGenerator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -25,7 +25,7 @@ class InvoiceController extends AbstractController
     #[Route('/invoice/{uuid}/download', name: 'invoice_download')]
     public function downloadInvoice(
         string $uuid,
-        InvoiceGenerator $invoiceGenerator,
+        InvoiceManager $invoiceManager,
         Filesystem $filesystem,
         InvoiceRepository $invoiceRepository,
     ): BinaryFileResponse|RedirectResponse {
@@ -52,18 +52,16 @@ class InvoiceController extends AbstractController
             throw $this->createAccessDeniedException('You are not allowed to download this invoice');
         }
 
-        $invoicePath = $invoiceGenerator->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
-
-        if (false === $filesystem->exists($invoicePath)) {
-            if ($invoice->isBookingInvoice()) {
-                $invoiceGenerator->generateBookingInvoice($invoice);
-            } elseif ($invoice->isVoucherInvoice()) {
-                $invoiceGenerator->generateVoucherInvoice($invoice);
-            } else {
-                $invoiceGenerator->generateGeneralInvoice($invoice);
-            }
+        if (null === $invoice->getFilePath() || false === $filesystem->exists($invoice->getFilePath())) {
+            $invoiceManager->generateInvoicePdf($invoice);
         }
 
-        return new BinaryFileResponse($invoicePath);
+        $filePath = $invoice->getFilePath();
+
+        if (null === $filePath) {
+            throw $this->createNotFoundException('Invoice file not found');
+        }
+
+        return new BinaryFileResponse($filePath);
     }
 }

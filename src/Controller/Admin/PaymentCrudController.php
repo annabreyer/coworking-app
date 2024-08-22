@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Payment;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -34,7 +36,11 @@ class PaymentCrudController extends AbstractCrudController
                              ->setChoices(Payment::getPaymentTypes())
                              ->setRequired(true)
             ;
-            yield AssociationField::new('voucher');
+            yield AssociationField::new('voucher')
+                                  ->setQueryBuilder(
+                                      static fn (QueryBuilder $queryBuilder) => $queryBuilder->addCriteria(Criteria::create()->andWhere(Criteria::expr()->eq('useDate', null)))
+                                  )
+            ;
             yield TextField::new('comment');
         }
 

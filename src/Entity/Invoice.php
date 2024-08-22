@@ -53,6 +53,9 @@ class Invoice
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $filePath = null;
+
     public function __construct()
     {
         $this->uuid     = Uuid::v7();
@@ -338,5 +341,17 @@ class Invoice
         }
 
         return $this->payments->last()->getDate();
+    }
+
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath(?string $filePath): static
+    {
+        $this->filePath = $filePath;
+
+        return $this;
     }
 }
