@@ -73,6 +73,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add('date')
                      ->add('user')
                      ->add('payments')
+                     ->add('amount')
         ;
     }
 
@@ -246,8 +247,11 @@ class InvoiceCrudController extends AbstractCrudController
         return $this->redirect($targetUrl);
     }
 
-    public function sendInvoiceToDocumentVault(AdminContext $context, AdminUrlGeneratorInterface $adminUrlGenerator, InvoiceMailerManager $invoiceMailerManager): Response
-    {
+    public function sendInvoiceToDocumentVault(
+        AdminContext $context,
+        AdminUrlGeneratorInterface $adminUrlGenerator,
+        InvoiceMailerManager $invoiceMailerManager
+    ): Response {
         $invoice = $context->getEntity()->getInstance();
 
         if (null === $invoice) {

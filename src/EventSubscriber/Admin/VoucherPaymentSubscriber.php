@@ -31,6 +31,7 @@ readonly class VoucherPaymentSubscriber implements EventSubscriberInterface
 
         if ($entity instanceof Payment) {
             $this->setVoucherUsed($entity);
+            $this->setInvoiceAmountToZero($entity->getInvoice());
             $this->regenerateInvoice($entity->getInvoice());
         }
 
@@ -39,6 +40,7 @@ readonly class VoucherPaymentSubscriber implements EventSubscriberInterface
                 $this->setVoucherUsed($payment);
             }
 
+            $this->setInvoiceAmountToZero($entity);
             $this->regenerateInvoice($entity);
         }
     }
@@ -53,9 +55,18 @@ readonly class VoucherPaymentSubscriber implements EventSubscriberInterface
         $voucher->setUseDate($payment->getDate());
     }
 
+    private function setInvoiceAmountToZero(Invoice $invoice): void
+    {
+        if (false === $invoice->isFullyPaidByVoucher()) {
+            return;
+        }
+
+        $invoice->setAmount(0);
+    }
+
     private function regenerateInvoice(Invoice $invoice): void
     {
-        if (false === $invoice->isFullyPaidBYVoucher()) {
+        if (false === $invoice->isFullyPaidByVoucher()) {
             return;
         }
 
