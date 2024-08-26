@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Manager;
+namespace App\Service;
 
 use App\Entity\Invoice;
-use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Filesystem\Filesystem;
@@ -16,7 +15,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class InvoiceMailerManager
+class InvoiceMailerService
 {
     use EmailContextTrait;
 

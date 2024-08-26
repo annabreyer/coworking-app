@@ -8,14 +8,11 @@ use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Room;
 use App\Entity\User;
+use App\Service\BookingMailerService;
+use App\Service\InvoiceMailerService;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Clock\ClockAwareTrait;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingManager
 {
@@ -26,9 +23,8 @@ class BookingManager
         private readonly EntityManagerInterface $entityManager,
         private readonly VoucherManager $voucherManager,
         private readonly InvoiceManager $invoiceManager,
-        private readonly MailerInterface $mailer,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly BookingMailerService $bookingMailerService,
+        private readonly InvoiceMailerService $invoiceMailerService,
         private readonly string $timeLimitCancelBooking
     ) {
     }
@@ -54,6 +50,27 @@ class BookingManager
         $this->entityManager->flush();
     }
 
+    public function handleFinalizedBooking(Booking $booking): void
+    {
+        $bookingInvoice = $booking->getInvoice();
+        if (null === $bookingInvoice) {
+            throw new \LogicException('Booking must have an invoice to be finalized.');
+        }
+
+        $this->invoiceManager->generateBookingInvoicePdf($bookingInvoice);
+
+        $userBookings = $booking->getUser()?->getBookings();
+        if (null !== $userBookings && 1 === $userBookings->count()) {
+            $this->bookingMailerService->sendFirstBookingEmail($booking);
+        }
+
+        if ($bookingInvoice->getAmount() > 0) {
+            $this->invoiceMailerService->sendInvoiceToDocumentVault($bookingInvoice);
+        }
+
+        $this->invoiceMailerService->sendBookingInvoiceToUser($bookingInvoice);
+    }
+
     public function cancelBooking(Booking $booking): void
     {
         $booking->setIsCancelled(true);
@@ -70,9 +87,12 @@ class BookingManager
             $this->invoiceManager->cancelUnpaidInvoice($bookingInvoice);
         }
 
-        $this->sendBookingCancelledEmail($booking);
+        $this->bookingMailerService->sendBookingCancelledEmail($booking);
     }
 
+    /**
+     * @throws \DateMalformedStringException
+     */
     public function canBookingBeCancelledByUser(\DateTimeInterface $bookingDate): bool
     {
         $now   = $this->now();
@@ -136,56 +156,5 @@ class BookingManager
         $voucher->setInvoice($bookingInvoice);
 
         $this->entityManager->flush();
-    }
-
-    public function sendBookingCancelledEmail(Booking $booking): void
-    {
-        $user = $booking->getUser();
-        if (null === $user) {
-            throw new \LogicException('Booking must have a user to send the booking cancelled email.');
-        }
-
-        $userEmail = $user->getEmail();
-        if (null === $userEmail) {
-            throw new \LogicException('User must have an email to send the booking cancelled email.');
-        }
-
-        $bookingDate = $booking->getBusinessDay()?->getDate()?->format('d.m.Y');
-        if (null === $bookingDate) {
-            throw new \LogicException('Booking must have a date to send the booking cancelled email.');
-        }
-
-        $bookingRoom = $booking->getRoom()?->getName();
-        if (null === $bookingRoom) {
-            throw new \LogicException('Booking must have a room to send the booking cancelled email.');
-        }
-
-        $link       = $this->urlGenerator->generate('booking_step_date', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        $subject    = $this->translator->trans('booking.cancel.subject', [], 'email');
-        $salutation = $this->translator->trans('booking.cancel.salutation', ['%firstName%' => $user->getFirstName()], 'email');
-
-        $context = [
-            'link'  => $link,
-            'texts' => [
-                self::EMAIL_STANDARD_ELEMENT_SALUTATION   => $salutation,
-                self::EMAIL_STANDARD_ELEMENT_INSTRUCTIONS => $this->translator->trans('booking.cancel.instructions', [
-                    '%date%' => $bookingDate,
-                    '%room%' => $bookingRoom,
-                ], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_EXPLANATION => $this->translator->trans('booking.cancel.explanation', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SIGNATURE   => $this->translator->trans('booking.cancel.signature', [], 'email'),
-                self::EMAIL_STANDARD_ELEMENT_SUBJECT     => $subject,
-                self::EMAIL_STANDARD_ELEMENT_BUTTON_TEXT => $this->translator->trans('booking.cancel.button_text', [], 'email'),
-            ],
-        ];
-
-        $email = (new TemplatedEmail())
-            ->to(new Address($userEmail))
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-        ;
-
-        $this->mailer->send($email);
     }
 }

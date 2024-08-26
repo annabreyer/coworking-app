@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
 use App\EasyAdmin\InvoicePaymentsField;
 use App\Entity\Invoice;
-use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
+use App\Service\InvoiceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -250,7 +250,7 @@ class InvoiceCrudController extends AbstractCrudController
     public function sendInvoiceToDocumentVault(
         AdminContext $context,
         AdminUrlGeneratorInterface $adminUrlGenerator,
-        InvoiceMailerManager $invoiceMailerManager
+        InvoiceMailerService $invoiceMailerManager
     ): Response {
         $invoice = $context->getEntity()->getInstance();
 

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -161,9 +161,9 @@ class Payment
             return '';
         }
 
-        $type = $this->type === self::PAYMENT_TYPE_VOUCHER ? 'Voucher ' . $this->voucher->getCode() : $this->type;
+        $type = self::PAYMENT_TYPE_VOUCHER === $this->type && null !== $this->voucher ? 'Voucher ' . $this->voucher->getCode() : $this->type;
 
-        return $this->amount / 100 . ' € | ' . $this->getDate()->format('d.m.Y') . ' | ' . $type . ' | ' .($this->comment ? ' (' . $this->comment . ')' : '');
+        return $this->amount / 100 . ' € | ' . $this->getDate()->format('d.m.Y') . ' | ' . $type . ' | ' . ($this->comment ? ' (' . $this->comment . ')' : '');
     }
 
     public function getComment(): ?string

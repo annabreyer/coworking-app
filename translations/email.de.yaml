@@ -13,6 +13,17 @@ booking:
     explanation: 'Hast Du die die Buchung bereits bezahlt? Dann wird dir der Betrag als Gutschein gutgeschrieben. Hast Du die Buchung noch nicht bezahlt, wird sie durch eine entsprechende Gutschrift storniert.'
     signature: 'Vielen Dank!'
     button_text: 'Neue Buchung'
+  first:
+    subject: 'Coworking Hahnheim: Deine erste Buchung'
+    salutation: 'Hallo %firstName%!'
+    instructions: 'Vielen Dank für Deine erste Buchung. Wir freuen uns auf Deinen Besuch!<br> Deine Rechnung erhälts Du in einer gesonderten Mail.'
+    explanation: '🕘 Das Coworking ist von 9-18 Uhr geöffnnet. <br>
+    🅿️ Eigene Parklpätze sind keine vorhanden, es sollte aber nicht schwierige sein einen zu finden.<br>
+    ☕️ Unsere Küche ist ausgestattet mit Kaffeemaschine (und Wasserkocher mit Tee-Auswahl für die Tee-Liebhaber), Kühlschrank, Mikrowelle, Backofen und Geschirr. <br>
+    🥗 Du kannst gerne Dein Essen mitbringen.<br>
+    🥛 Es gibt stilles Wasser und einen Sodastream für diejenigen die es gerne bizzelnd haben.<br>
+    🚿 Für die Sportlichen, die mit dem Fahhrad kommen, haben wir auch eine Dusche. <br>'
+    signature: 'Wir freuen uns auf Dich!'
 
 voucher:
   invoice:

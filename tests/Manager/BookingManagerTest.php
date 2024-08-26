@@ -9,12 +9,11 @@ use App\Entity\BusinessDay;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
 use App\Manager\VoucherManager;
+use App\Service\BookingMailerService;
+use App\Service\InvoiceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingManagerTest extends TestCase
 {
@@ -84,9 +83,8 @@ class BookingManagerTest extends TestCase
             $this->createMock(EntityManagerInterface::class),
             $this->createMock(VoucherManager::class),
             $this->createMock(InvoiceManager::class),
-            $this->createMock(MailerInterface::class),
-            $this->createMock(TranslatorInterface::class),
-            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(BookingMailerService::class),
+            $this->createMock(InvoiceMailerService::class),
             $timeLimit
         );
     }

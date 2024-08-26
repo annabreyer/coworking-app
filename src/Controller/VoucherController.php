@@ -6,10 +6,10 @@ namespace App\Controller;
 
 use App\Entity\Price;
 use App\Entity\User;
-use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
 use App\Manager\VoucherManager;
 use App\Repository\PriceRepository;
+use App\Service\InvoiceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +33,7 @@ class VoucherController extends AbstractController
         PriceRepository $priceRepository,
         VoucherManager $voucherManager,
         InvoiceManager $invoiceManager,
-        InvoiceMailerManager $invoiceMailerManager
+        InvoiceMailerService $invoiceMailerManager
     ): Response {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
 

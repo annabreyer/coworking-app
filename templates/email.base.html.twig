@@ -115,7 +115,7 @@
                             <p style="font-family: Helvetica, sans-serif; font-size: 16px; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.salutation }}</p>
                             {% endblock %}
                             {% block instruction %}
-                            <p style="font-family: Helvetica, sans-serif; font-size: 16px; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.instructions }}</p>
+                            <p style="font-family: Helvetica, sans-serif; font-size: 16px; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.instructions|raw }}</p>
                             {% endblock %}
                             {% if link is defined and link is not empty %}
                                 {% block link %}
@@ -141,7 +141,7 @@
                                 {% endblock %}
                             {% endif %}
                             {% block explanation %}
-                            <p style="font-family: Helvetica, sans-serif; font-size: 16px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.explanation }}</p>
+                            <p style="font-family: Helvetica, sans-serif; font-size: 16px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.explanation|raw }}</p>
                             {% endblock %}
                             {% block signature %}
                             <p style="font-family: Helvetica, sans-serif; font-size: 16px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.signature }}</p>

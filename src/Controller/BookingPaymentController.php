@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Entity\Booking;
 use App\Manager\BookingManager;
-use App\Manager\InvoiceMailerManager;
 use App\Manager\InvoiceManager;
 use App\Manager\PaymentManager;
 use App\Repository\BookingRepository;
@@ -31,7 +30,6 @@ class BookingPaymentController extends AbstractController
         private readonly BookingManager $bookingManager,
         private readonly PaymentManager $paymentManager,
         private readonly InvoiceManager $invoiceManager,
-        private readonly InvoiceMailerManager $invoiceMailerManager,
     ) {
     }
 
@@ -99,12 +97,11 @@ class BookingPaymentController extends AbstractController
         $bookingInvoice = $booking->getInvoice();
         if (null === $bookingInvoice) {
             $bookingInvoice = $this->invoiceManager->createInvoiceFromBooking($booking, $bookingAmount);
+            $booking->setInvoice($bookingInvoice);
         }
 
         if ('invoice' === $paymentMethod) {
-            $this->invoiceManager->generateBookingInvoicePdf($bookingInvoice);
-            $this->invoiceMailerManager->sendBookingInvoiceToUser($bookingInvoice);
-            $this->invoiceMailerManager->sendInvoiceToDocumentVault($bookingInvoice);
+            $this->bookingManager->handleFinalizedBooking($booking);
 
             return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
         }
@@ -212,8 +209,9 @@ class BookingPaymentController extends AbstractController
         }
 
         $invoice = $this->paymentManager->handleVoucherPayment($booking->getInvoice(), $voucher);
-        $this->invoiceManager->generateBookingInvoicePdf($invoice);
-        $this->invoiceMailerManager->sendBookingInvoiceToUser($invoice);
+        $booking->setInvoice($invoice);
+
+        $this->bookingManager->handleFinalizedBooking($booking);
 
         return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);
     }
