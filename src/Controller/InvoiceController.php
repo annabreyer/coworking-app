@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -62,6 +63,13 @@ class InvoiceController extends AbstractController
             throw $this->createNotFoundException('Invoice file not found');
         }
 
-        return new BinaryFileResponse($filePath);
+        $file = new BinaryFileResponse($filePath);
+        $file->headers->set('Content-Type', 'application/pdf');
+        $file->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $invoice->getNumber() . '.pdf'
+        );
+
+        return $file;
     }
 }
