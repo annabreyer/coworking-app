@@ -22,7 +22,7 @@ class InactiveUserCrudController extends UserCrudController
         SearchDto $searchDto,
         EntityDto $entityDto,
         FieldCollection $fields,
-        FilterCollection $filters
+        FilterCollection $filters,
     ): QueryBuilder {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
                      ->andWhere('entity.isActive = :isActive')

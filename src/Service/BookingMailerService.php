@@ -6,9 +6,6 @@ namespace App\Service;
 
 use App\Entity\Booking;
 use App\Trait\EmailContextTrait;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -17,9 +14,9 @@ class BookingMailerService
     use EmailContextTrait;
 
     public function __construct(
-        private readonly MailerInterface $mailer,
+        private readonly UserMailerService $userMailer,
         private readonly TranslatorInterface $translator,
-        private readonly UrlGeneratorInterface $urlGenerator
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -64,14 +61,7 @@ class BookingMailerService
             ],
         ];
 
-        $email = (new TemplatedEmail())
-            ->to(new Address($userEmail))
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-        ;
-
-        $this->mailer->send($email);
+        $this->userMailer->sendTemplatedEmail($userEmail, $subject, $context);
     }
 
     public function sendFirstBookingEmail(Booking $booking): void
@@ -99,13 +89,6 @@ class BookingMailerService
             ],
         ];
 
-        $email = (new TemplatedEmail())
-            ->to(new Address($userEmail))
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-        ;
-
-        $this->mailer->send($email);
+        $this->userMailer->sendTemplatedEmail($userEmail, $subject, $context);
     }
 }

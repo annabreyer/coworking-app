@@ -6,12 +6,7 @@ namespace App\Service;
 
 use App\Entity\Invoice;
 use App\Trait\EmailContextTrait;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -21,12 +16,11 @@ class InvoiceMailerService
 
     public function __construct(
         private readonly InvoiceGenerator $invoiceGenerator,
-        private readonly MailerInterface $mailer,
+        private readonly UserMailerService $userMailer,
+        private readonly AdminMailerService $adminMailer,
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly Filesystem $filesystem,
-        private readonly string $documentVaultEmail,
-        private readonly string $env
     ) {
     }
 
@@ -98,7 +92,7 @@ class InvoiceMailerService
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
+        $this->userMailer->sendTemplatedEmail($invoice->getUser()->getEmail(), $subject, $context, null, $invoicePath);
     }
 
     public function sendVoucherInvoiceToUser(Invoice $invoice): void
@@ -161,43 +155,14 @@ class InvoiceMailerService
             $context['texts']['explanation'] = '';
         }
 
-        $this->sendEmailToUser($invoice->getUser()->getEmail(), $subject, $context, $invoicePath);
+        $this->userMailer->sendTemplatedEmail($invoice->getUser()->getEmail(), $subject, $context, null, $invoicePath);
     }
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void
     {
-        if (\in_array($this->env, ['dev', 'staging'], true)) {
-            return;
-        }
-
         $invoicePath = $this->invoiceGenerator->getTargetDirectory($invoice);
         $invoicePath .= '/' . $invoice->getNumber() . '.pdf';
 
-        $email = (new Email())
-            ->to($this->documentVaultEmail)
-            ->subject('Invoice ' . $invoice->getNumber())
-            ->text('Invoice ' . $invoice->getNumber())
-            ->attachFromPath($invoicePath)
-        ;
-
-        $this->mailer->send($email);
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     *
-     * @throws TransportExceptionInterface
-     */
-    private function sendEmailToUser(string $userEmail, string $subject, array $context, string $invoicePath): void
-    {
-        $email = (new TemplatedEmail())
-            ->to(new Address($userEmail))
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-            ->attachFromPath($invoicePath)
-        ;
-
-        $this->mailer->send($email);
+        $this->adminMailer->sendInvoiceToDocumentVault($invoice, $invoicePath);
     }
 }

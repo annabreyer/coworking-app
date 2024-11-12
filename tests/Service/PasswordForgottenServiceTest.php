@@ -6,8 +6,8 @@ namespace App\Tests\Service;
 
 use App\Entity\User;
 use App\Service\PasswordForgottenService;
+use App\Service\UserMailerService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
@@ -16,7 +16,7 @@ class PasswordForgottenServiceTest extends KernelTestCase
 {
     public function testPasswordForgottenEmailThrowsExceptionIfUserHasNoEmail(): void
     {
-        $mailer                   = $this->createMock(MailerInterface::class);
+        $mailer                   = $this->createMock(UserMailerService::class);
         $translator               = $this->createMock(TranslatorInterface::class);
         $urlGenerator             = $this->createMock(UrlGeneratorInterface::class);
         $passwordForgottenService = new PasswordForgottenService($mailer, $translator, $urlGenerator);
@@ -30,7 +30,7 @@ class PasswordForgottenServiceTest extends KernelTestCase
 
     public function testSendPasswordForgottenEmailSendsEmail(): void
     {
-        $mailer                   = static::getContainer()->get(MailerInterface::class);
+        $mailer                   = static::getContainer()->get(UserMailerService::class);
         $translator               = $this->createMock(TranslatorInterface::class);
         $urlGenerator             = $this->createMock(UrlGeneratorInterface::class);
         $passwordForgottenService = new PasswordForgottenService($mailer, $translator, $urlGenerator);

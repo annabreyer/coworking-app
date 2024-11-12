@@ -33,7 +33,7 @@ class VoucherController extends AbstractController
         PriceRepository $priceRepository,
         VoucherManager $voucherManager,
         InvoiceManager $invoiceManager,
-        InvoiceMailerService $invoiceMailerManager
+        InvoiceMailerService $invoiceMailerManager,
     ): Response {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
 

@@ -18,7 +18,7 @@ class AdminActionSubscriber implements EventSubscriberInterface
     public function __construct(
         private EntityManagerInterface $entityManager,
         private Security $security,
-        private NormalizerInterface $normalizer
+        private NormalizerInterface $normalizer,
     ) {
     }
 

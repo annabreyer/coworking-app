@@ -26,7 +26,7 @@ class UserActionSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private Security $security
+        private Security $security,
     ) {
         $this->subscribedMethods = [
             Request::METHOD_POST,

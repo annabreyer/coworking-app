@@ -25,7 +25,7 @@ class PayPalService
         private readonly HttpClientInterface $authClient,
         private readonly HttpClientInterface $orderClient,
         private readonly HttpClientInterface $paymentClient,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         $this->accessToken = null;
     }

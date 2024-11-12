@@ -19,7 +19,7 @@ class VoucherManager
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly VoucherTypeRepository $voucherTypeRepository
+        private readonly VoucherTypeRepository $voucherTypeRepository,
     ) {
     }
 

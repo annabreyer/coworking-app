@@ -14,7 +14,7 @@ class EmailVerifier
 {
     public function __construct(
         private VerifyEmailHelperInterface $verifyEmailHelper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 

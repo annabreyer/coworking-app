@@ -34,7 +34,7 @@ class BookingController extends AbstractController
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
         private readonly PriceRepository $priceRepository,
-        private readonly string $timeLimitCancelBooking
+        private readonly string $timeLimitCancelBooking,
     ) {
     }
 
@@ -102,7 +102,7 @@ class BookingController extends AbstractController
     public function bookingStepRoom(
         Request $request,
         BusinessDay $businessDay,
-        AdminMailerService $adminMailerService
+        AdminMailerService $adminMailerService,
     ): Response {
         if ($businessDay->getDate() < $this->now()) {
             $this->addFlash(

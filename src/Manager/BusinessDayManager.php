@@ -17,7 +17,7 @@ class BusinessDayManager
     public function __construct(
         private EntityManagerInterface $entityManager,
         private BusinessDayRepository $businessDayRepository,
-        private PublicHolidayService $publicHolidayService
+        private PublicHolidayService $publicHolidayService,
     ) {
     }
 

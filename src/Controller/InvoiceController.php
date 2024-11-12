@@ -19,7 +19,7 @@ class InvoiceController extends AbstractController
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

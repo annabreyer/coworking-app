@@ -12,7 +12,7 @@ class UserManager
 {
     public function __construct(
         private UserPasswordHasherInterface $userPasswordHasher,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 

@@ -10,11 +10,11 @@ use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
 use App\Service\RegistrationService;
 use App\Service\Security\EmailVerifier;
+use App\Service\UserMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationServiceTest extends KernelTestCase
@@ -99,7 +99,7 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testSendRegistrationEmailSendsEmail(): void
     {
-        $mailer        = static::getContainer()->get(MailerInterface::class);
+        $mailer        = static::getContainer()->get(UserMailerService::class);
         $emailVerifier = $this->createConfiguredMock(
             EmailVerifier::class,
             ['getEmailConfirmationContext' => [
@@ -130,7 +130,7 @@ class RegistrationServiceTest extends KernelTestCase
 
     private function getRegistrationServiceWithEntityManager(): RegistrationService
     {
-        $mailer            = $this->createMock(MailerInterface::class);
+        $mailer            = $this->createMock(UserMailerService::class);
         $emailVerifier     = $this->createMock(EmailVerifier::class);
         $translator        = $this->createMock(TranslatorInterface::class);
         $userManager       = $this->createMock(UserManager::class);

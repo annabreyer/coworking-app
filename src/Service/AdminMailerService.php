@@ -11,14 +11,18 @@ use App\Entity\Invoice;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class AdminMailerService
 {
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly string $supportEmail
+        private readonly string $supportEmail,
+        private readonly string $documentVaultEmail,
+        private readonly string $env,
     ) {
     }
 
@@ -44,7 +48,7 @@ class AdminMailerService
             'link' => $link,
         ];
 
-        $this->sendEmail($subject, $context);
+        $this->sendEmailToSupport($subject, $context);
     }
 
     public function notifyAdminAboutBookingCancellation(\DateTimeInterface $bookingDate): void
@@ -57,7 +61,7 @@ class AdminMailerService
             ),
         ];
 
-        $this->sendEmail($subject, $context);
+        $this->sendEmailToSupport($subject, $context);
     }
 
     public function notifyAdminAboutNegativeInvoice(Invoice $invoice): void
@@ -78,19 +82,45 @@ class AdminMailerService
             'link' => $link,
         ];
 
-        $this->sendEmail($subject, $context);
+        $this->sendEmailToSupport($subject, $context);
     }
 
     /**
-     * @param array <string, mixed> $context
+     * @param array<string, mixed> $context
+     *
+     * @throws TransportExceptionInterface
      */
-    private function sendEmail(string $subject, array $context): void
+    private function sendEmailToSupport(string $subject, array $context, ?string $attachmentPath = null): void
     {
+        if (\in_array($this->env, ['dev', 'staging', 'test'], true)) {
+            $subject = '[' . strtoupper($this->env) . '] ' . $subject;
+        }
+
         $email = (new TemplatedEmail())
             ->to($this->supportEmail)
             ->subject($subject)
             ->htmlTemplate('admin/email/admin_notification.html.twig')
             ->context($context)
+        ;
+
+        if (null !== $attachmentPath) {
+            $email->attachFromPath($attachmentPath);
+        }
+
+        $this->mailer->send($email);
+    }
+
+    public function sendInvoiceToDocumentVault(Invoice $invoice, string $invoicePath): void
+    {
+        if (\in_array($this->env, ['dev', 'staging'], true)) {
+            return;
+        }
+
+        $email = (new Email())
+            ->to($this->documentVaultEmail)
+            ->subject('Invoice ' . $invoice->getNumber())
+            ->text('Invoice ' . $invoice->getNumber())
+            ->attachFromPath($invoicePath)
         ;
 
         $this->mailer->send($email);

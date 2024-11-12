@@ -25,7 +25,7 @@ class BookingManager
         private readonly InvoiceManager $invoiceManager,
         private readonly BookingMailerService $bookingMailerService,
         private readonly InvoiceMailerService $invoiceMailerService,
-        private readonly string $timeLimitCancelBooking
+        private readonly string $timeLimitCancelBooking,
     ) {
     }
 

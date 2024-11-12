@@ -26,7 +26,7 @@ class InvoiceGenerator
         private readonly Filesystem $filesystem,
         private readonly string $invoiceTemplatePath,
         private readonly string $invoiceDirectory,
-        private readonly string $invoiceClientNumberPrefix
+        private readonly string $invoiceClientNumberPrefix,
     ) {
         $this->pdf = new Fpdi();
     }

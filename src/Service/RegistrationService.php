@@ -10,9 +10,6 @@ use App\Manager\UserTermsOfUseManager;
 use App\Service\Security\EmailVerifier;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationService
@@ -20,12 +17,12 @@ class RegistrationService
     use EmailContextTrait;
 
     public function __construct(
-        private UserManager $userManager,
-        private EmailVerifier $emailVerifier,
-        private EntityManagerInterface $entityManager,
-        private TranslatorInterface $translator,
-        private MailerInterface $mailer,
-        private UserTermsOfUseManager $userTermsOfUseManager
+        private readonly UserManager $userManager,
+        private readonly EmailVerifier $emailVerifier,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TranslatorInterface $translator,
+        private readonly UserMailerService $userMailer,
+        private readonly UserTermsOfUseManager $userTermsOfUseManager,
     ) {
     }
 
@@ -76,14 +73,8 @@ class RegistrationService
         ];
 
         $context = array_merge($specificContext, $standardContext);
-        $email   = (new TemplatedEmail())
-            ->to(new Address($email))
-            ->subject($subject)
-            ->context($context)
-            ->htmlTemplate('registration/email_confirmation.html.twig')
-        ;
 
-        $this->mailer->send($email);
+        $this->userMailer->sendTemplatedEmail($email, $subject, $context, 'registration/email_confirmation.html.twig');
     }
 
     private function saveCodeOfConductAcceptance(User $user): void

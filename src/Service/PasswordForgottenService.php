@@ -6,9 +6,6 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Trait\EmailContextTrait;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
@@ -18,7 +15,7 @@ class PasswordForgottenService
     use EmailContextTrait;
 
     public function __construct(
-        private readonly MailerInterface $mailer,
+        private readonly UserMailerService $userMailer,
         private readonly TranslatorInterface $translator,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
@@ -50,13 +47,6 @@ class PasswordForgottenService
             ],
         ];
 
-        $email = (new TemplatedEmail())
-            ->to(new Address($user->getEmail()))
-            ->subject($subject)
-            ->htmlTemplate('email.base.html.twig')
-            ->context($context)
-        ;
-
-        $this->mailer->send($email);
+        $this->userMailer->sendTemplatedEmail($user->getEmail(), $subject, $context);
     }
 }

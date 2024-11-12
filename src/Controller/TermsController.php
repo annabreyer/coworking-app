@@ -15,7 +15,7 @@ class TermsController extends AbstractController
 {
     public function __construct(
         private readonly Filesystem $filesystem,
-        private readonly string $legalDirectory
+        private readonly string $legalDirectory,
     ) {
     }
 

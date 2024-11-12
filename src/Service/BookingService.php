@@ -13,7 +13,7 @@ class BookingService
 {
     public function __construct(
         private RoomRepository $roomRepository,
-        private BookingRepository $bookingRepository
+        private BookingRepository $bookingRepository,
     ) {
     }
 

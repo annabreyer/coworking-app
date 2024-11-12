@@ -42,6 +42,8 @@ This choice should allow me to be more flexible with the use of the forms, makin
 
 ## Code Quality Tools
 PHPStan & PHPCsFixer
+vendor/bin/php-cs-fixer fix src --allow-risky=yes
+vendor/bin/phpstan analyse src --memory-limit 256M
 
 ## Testing
 I have written some tests for the most critical parts of the app.

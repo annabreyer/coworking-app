@@ -35,7 +35,7 @@ class BookingCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly InvoiceManager $invoiceManager,
-        private readonly BookingManager $bookingManager
+        private readonly BookingManager $bookingManager,
     ) {
     }
 
@@ -48,7 +48,7 @@ class BookingCrudController extends AbstractCrudController
         SearchDto $searchDto,
         EntityDto $entityDto,
         FieldCollection $fields,
-        FilterCollection $filters
+        FilterCollection $filters,
     ): QueryBuilder {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
                      ->andWhere('entity.isCancelled = :isCancelled')
