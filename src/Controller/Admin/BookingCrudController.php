@@ -9,6 +9,7 @@ use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -173,15 +174,11 @@ class BookingCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
+    #[AdminAction(routePath: '/booking/{entityId}/cancel', routeName: 'cancel', methods: ['POST'])]
     public function cancelBooking(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
-        $targetUrl = $adminUrlGenerator
-            ->setController(self::class)
-            ->setAction(Crud::PAGE_INDEX)
-            ->generateUrl()
-        ;
-
-        $booking = $context->getEntity()->getInstance();
+        $targetUrl = $adminUrlGenerator->setRoute('admin_booking_index')->generateUrl();
+        $booking   = $context->getEntity()->getInstance();
 
         if (!$booking instanceof Booking) {
             $this->addFlash('danger', 'Booking not found.');

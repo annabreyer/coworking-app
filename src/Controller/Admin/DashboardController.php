@@ -68,9 +68,9 @@ class DashboardController extends AbstractDashboardController
                       ->setController(InactiveUserCrudController::class);
         yield MenuItem::section();
         yield MenuItem::linkToCrud('Buchungen', 'fas fa-file-contract', Booking::class)
-        ->setController(BookingCrudController::class);
+                        ->setController(BookingCrudController::class);
         yield MenuItem::linkToCrud('Stornierte Buchungen', 'far fa-file-contract', Booking::class)
-        ->setController(CanceledBookingCrudController::class);
+                        ->setController(CanceledBookingCrudController::class);
 
         yield MenuItem::section('Configuration');
 

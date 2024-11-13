@@ -15,14 +15,14 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-class AdminMailerService
+readonly class AdminMailerService
 {
     public function __construct(
-        private readonly MailerInterface $mailer,
-        private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly string $supportEmail,
-        private readonly string $documentVaultEmail,
-        private readonly string $env,
+        private MailerInterface $mailer,
+        private AdminUrlGenerator $adminUrlGenerator,
+        private string $supportEmail,
+        private string $documentVaultEmail,
+        private string $env,
     ) {
     }
 
