@@ -249,7 +249,7 @@ class InvoiceCrudController extends AbstractCrudController
 
     public function sendInvoiceToDocumentVault(
         AdminContext $context,
-        AdminUrlGeneratorInterface $adminUrlGenerator,
+        AdminUrlGenerator $adminUrlGenerator,
         InvoiceMailerService $invoiceMailerManager,
     ): Response {
         $invoice = $context->getEntity()->getInstance();
