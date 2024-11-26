@@ -108,10 +108,6 @@ class BookingManager
             return false;
         }
 
-        if ($interval->days < $this->timeLimitCancelBooking) {
-            return false;
-        }
-
         return true;
     }
 
@@ -126,7 +122,7 @@ class BookingManager
             throw new \LogicException('Booking must have an invoice to be refunded.');
         }
 
-        if (false === $bookingInvoice->isFullyPaid()) {
+        if (false === $booking->isFullyPaid()) {
             throw new \LogicException('Booking invoice must be fully paid to be refunded.');
         }
 
@@ -137,7 +133,7 @@ class BookingManager
 
         $expiryDate = null;
 
-        if ($bookingInvoice->isFullyPaidByVoucher()) {
+        if ($booking->isFullyPaid()) {
             $payment = $bookingInvoice->getPayments()->first();
 
             if (false === $payment) {

@@ -20,6 +20,8 @@ use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InvoicePayPalPaymentControllerTest extends WebTestCase
 {

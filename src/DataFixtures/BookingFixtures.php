@@ -22,6 +22,8 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
     public const BOOKING_STANDARD_DATE                            = '2024-04-01';
     public const BOOKING_WITH_INVOICE_NO_PAYMENT_INVOICE_NUMBER   = 'CO202400328';
     public const BOOKING_WITH_INVOICE_WITH_PAYMENT_INVOICE_NUMBER = 'CO202400325';
+    public const FIRST_BOOKING_DATE = '2024-04-30';
+    public const FIRST_BOOKING_INVOICE_NUMBER = 'CO202400400';
 
     public function getDependencies()
     {

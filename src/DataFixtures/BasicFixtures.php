@@ -108,6 +108,20 @@ class BasicFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('admin', $user);
+
+        $birthDate = new \DateTime('1978-05-30');
+
+        $user = new User();
+        $user->setEmail('first.booking@annabreyer.dev');
+        $user->setMobilePhone($this->faker->mobileNumber());
+        $user->setFirstName($this->faker->firstName());
+        $user->setLastName($this->faker->lastName());
+        $user->setBirthdate($birthDate);
+
+        $manager->persist($user);
+        $manager->flush();
+
+        $this->addReference('firstBookingUser', $user);
     }
 
     private function loadTermsOfUse(ObjectManager $manager): void

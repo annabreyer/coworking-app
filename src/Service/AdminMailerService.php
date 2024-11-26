@@ -15,7 +15,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-readonly class AdminMailerService
+class AdminMailerService
 {
     public function __construct(
         private MailerInterface $mailer,
