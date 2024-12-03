@@ -121,7 +121,7 @@ class InvoicePaypalPaymentController extends AbstractController
         $this->paymentManager->finalizePaypalPayment($invoice);
 
         if ($invoice->isVoucherInvoice()) {
-            $this->invoiceManager->generateVoucherInvoicePdf($invoice);
+            $this->invoiceManager->generateInvoicePdf($invoice);
             $this->invoiceMailerManager->sendVoucherInvoiceToUser($invoice);
         }
 

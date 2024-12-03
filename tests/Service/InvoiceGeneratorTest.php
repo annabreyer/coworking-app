@@ -128,8 +128,8 @@ class InvoiceGeneratorTest extends KernelTestCase
 
     private function getInvoiceGenerator(): InvoiceGenerator
     {
-        $mockTranslator    = $this->createMock(TranslatorInterface::class);
-        $mockFilesystem    = $this->createMock(Filesystem::class);
+        $mockTranslator = $this->createMock(TranslatorInterface::class);
+        $mockFilesystem = $this->createMock(Filesystem::class);
 
         return new InvoiceGenerator(
             $this->getContainer()->get(EntityManagerInterface::class),

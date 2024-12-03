@@ -36,9 +36,10 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(20);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(20)
                 ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
         ;
 
         $voucher->setInvoice($invoice);
@@ -51,9 +52,11 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(20);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(10)
                 ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+
         ;
 
         $invoice->addPayment($payment);
@@ -109,9 +112,11 @@ class VoucherTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(50)
                 ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+
         ;
 
         $voucher = new Voucher();
@@ -129,9 +134,11 @@ class VoucherTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(20);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(20)
                 ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+
         ;
 
         $voucher->setInvoice($invoice);

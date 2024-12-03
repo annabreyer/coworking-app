@@ -58,10 +58,11 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         ;
         $manager->persist($invoice);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setInvoice($invoice);
         $payment->setAmount($voucherPrice->getAmount());
         $payment->setDate($invoice->getDate());
+        $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
 
         $manager->persist($payment);
 
@@ -165,10 +166,11 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($voucherInvoice);
         $manager->flush();
 
-        $voucherInvoicePayment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $voucherInvoicePayment = new Payment();
         $voucherInvoicePayment->setInvoice($voucherInvoice);
         $voucherInvoicePayment->setAmount(0);
         $voucherInvoicePayment->setDate($voucherPaymentDate);
+        $voucherInvoicePayment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
         $manager->persist($voucherInvoicePayment);
         $manager->flush();
 
@@ -202,11 +204,13 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($bookingInvoice);
         $manager->flush();
 
-        $bookingVoucherPayment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
-        $bookingVoucherPayment->setInvoice($bookingInvoice);
-        $bookingVoucherPayment->setAmount($voucher->getValue());
-        $bookingVoucherPayment->setVoucher($voucher);
-        $bookingVoucherPayment->setDate($bookingInvoiceDate);
+        $bookingVoucherPayment = new Payment();
+        $bookingVoucherPayment->setType(Payment::PAYMENT_TYPE_VOUCHER)
+                              ->setInvoice($bookingInvoice)
+                              ->setAmount($voucher->getValue())
+                              ->setVoucher($voucher)
+                              ->setDate($bookingInvoiceDate)
+        ;
 
         $manager->persist($bookingVoucherPayment);
         $manager->flush();

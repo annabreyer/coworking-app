@@ -110,6 +110,7 @@ class VoucherController extends AbstractController
         $this->entityManager->getConnection()->beginTransaction();
         try {
             $invoice = $invoiceManager->createInvoice($user, $invoiceAmount);
+            $invoiceManager->saveInvoice($invoice);
             $voucherManager->createVouchersForInvoice($user, $voucherType, $invoice);
 
             $this->entityManager->getConnection()->commit();
@@ -124,7 +125,7 @@ class VoucherController extends AbstractController
         }
 
         if ('invoice' === $paymentMethod) {
-            $invoiceManager->generateVoucherInvoicePdf($invoice);
+            $invoiceManager->generateInvoicePdf($invoice);
             $invoiceMailerManager->sendVoucherInvoiceToUser($invoice);
             $invoiceMailerManager->sendInvoiceToDocumentVault($invoice);
 

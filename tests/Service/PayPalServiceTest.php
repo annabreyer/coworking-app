@@ -438,7 +438,7 @@ class PayPalServiceTest extends WebTestCase
         int $orderHttpCode,
         int $paymentHttpCode,
         string $orderResponseBody,
-        string $paymentResponseBody
+        string $paymentResponseBody,
     ): PayPalService {
         $clientId = '987654321';
         $debug    = 'true';
@@ -486,7 +486,7 @@ class PayPalServiceTest extends WebTestCase
         string $intent = PayPalService::INTENT_CAPTURE,
         string $status = PayPalService::STATUS_APPROVED,
         string $amount = '15.00',
-        string $currency = 'EUR'
+        string $currency = 'EUR',
     ): string {
         return json_encode(
             [

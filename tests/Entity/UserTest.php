@@ -19,9 +19,10 @@ class UserTest extends TestCase
         $invoice->setUser($user);
         $invoice->setAmount(100);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
+            ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_VOUCHER);
 
         $voucher1 = new Voucher();
         $voucher1->setExpiryDate(new \DateTimeImmutable('tomorrow'));

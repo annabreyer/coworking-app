@@ -55,21 +55,6 @@ class Payment
         ];
     }
 
-    public function __construct(?string $type = null)
-    {
-        if (null === $type) {
-            $this->type = '';
-
-            return;
-        }
-
-        if (false === \in_array($type, self::getPaymentTypes(), true)) {
-            throw new \InvalidArgumentException('Invalid payment type');
-        }
-
-        $this->type = $type;
-    }
-
     public function getId(): ?int
     {
         return $this->id;

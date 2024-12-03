@@ -169,7 +169,7 @@ class BookingCrudController extends AbstractCrudController
             return;
         }
 
-        $this->invoiceManager->createInvoiceFromBooking($entityInstance, $entityInstance->getAmount(), true);
+        $this->invoiceManager->createAndSaveInvoiceFromBooking($entityInstance, $entityInstance->getAmount());
 
         parent::persistEntity($entityManager, $entityInstance);
     }

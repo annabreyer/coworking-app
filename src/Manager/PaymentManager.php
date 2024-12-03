@@ -7,7 +7,6 @@ namespace App\Manager;
 use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Entity\Voucher;
-use App\Service\AdminMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -17,41 +16,56 @@ class PaymentManager
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly AdminMailerService $adminMailer,
+        private readonly InvoiceManager $invoiceManager,
+        private readonly VoucherManager $voucherManager,
     ) {
     }
 
-    public function handleVoucherPayment(Invoice $invoice, Voucher $voucher): Invoice
+    public function createVoucherPayment(Voucher $voucher): Payment
     {
-        if (null === $invoice->getAmount()) {
-            throw new \InvalidArgumentException('Invoice must have an amount.');
+        if (null === $voucher->getValue() || 0 >= $voucher->getValue()) {
+            throw new \LogicException('Voucher must have a positive value to be used as payment.');
         }
 
-        if (null === $voucher->getValue()) {
-            throw new \InvalidArgumentException('Voucher must have a value.');
-        }
-
-        $invoiceAmount = $invoice->getAmount() - $voucher->getValue();
-        $payment       = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment
-            ->setInvoice($invoice)
             ->setAmount($voucher->getValue())
             ->setDate($this->now())
             ->setVoucher($voucher)
+            ->setType(Payment::PAYMENT_TYPE_VOUCHER)
         ;
 
-        $voucher->setUseDate($this->now());
-        $invoice->setAmount($invoiceAmount);
-        $invoice->addPayment($payment);
+        return $payment;
+    }
 
-        $this->entityManager->persist($payment);
-        $this->entityManager->flush();
-
-        if (0 > $invoiceAmount) {
-            $this->adminMailer->notifyAdminAboutNegativeInvoice($invoice);
+    public function savePayment(Payment $payment): void
+    {
+        if (null === $payment->getid()) {
+            $this->entityManager->persist($payment);
         }
 
-        return $invoice;
+        $this->entityManager->flush();
+    }
+
+    public function handleInvoicePaymentWithVoucher(Invoice $invoice, Voucher $voucher): void
+    {
+        if (null === $invoice->getAmount() || 0 >= $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Invoice must have a positive amount to be paid.');
+        }
+
+        if (null === $voucher->getValue() || 0 >= $voucher->getValue()) {
+            throw new \InvalidArgumentException('Voucher must have a positive value in order to be used as payment.');
+        }
+
+        $payment = $this->createVoucherPayment($voucher);
+        $this->savePayment($payment);
+
+        $invoice->addPayment($payment);
+
+        $this->voucherManager->useVoucher($voucher);
+        $this->invoiceManager->reduceInvoiceAmount($invoice, $voucher->getValue());
+
+        $this->entityManager->flush();
     }
 
     public function finalizePaypalPayment(Invoice $invoice): void
@@ -61,11 +75,12 @@ class PaymentManager
             throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_PAYPAL);
+        $payment = new Payment();
         $payment
             ->setInvoice($invoice)
             ->setAmount($invoiceAmount)
-            ->setDate($this->now());
+            ->setDate($this->now())
+            ->setType(Payment::PAYMENT_TYPE_PAYPAL);
 
         $this->entityManager->persist($payment);
         $this->entityManager->flush();

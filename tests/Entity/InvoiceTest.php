@@ -6,7 +6,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\Invoice;
 use App\Entity\Payment;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class InvoiceTest extends TestCase
 {
@@ -22,10 +22,12 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment
             ->setAmount(50)
-            ->setInvoice($invoice);
+            ->setInvoice($invoice)
+            ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertFalse($invoice->isFullyPaid());
     }
@@ -34,9 +36,11 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
         $invoice->addPayment($payment);
 
         self::assertTrue($invoice->isFullyPaid());
@@ -47,12 +51,16 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
-        $payment2 = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
+        $payment2 = new Payment();
         $payment2->setAmount(50)
-            ->setInvoice($invoice);
+                 ->setInvoice($invoice)
+                 ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertTrue($invoice->isFullyPaid());
     }
@@ -69,9 +77,11 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByVoucher());
     }
@@ -80,13 +90,17 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $transactionPayment = new Payment(Payment::PAYMENT_TYPE_PAYPAL);
+        $transactionPayment = new Payment();
         $transactionPayment->setAmount(50)
-            ->setInvoice($invoice);
+                           ->setInvoice($invoice)
+                           ->setType(Payment::PAYMENT_TYPE_PAYPAL)
+        ;
 
-        $voucherPayment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $voucherPayment = new Payment();
         $voucherPayment->setAmount(50)
-            ->setInvoice($invoice);
+                       ->setInvoice($invoice)
+                       ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByVoucher());
     }
@@ -96,9 +110,11 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertTrue($invoice->isFullyPaidByVoucher());
     }
@@ -115,9 +131,11 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-            ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByTransaction());
     }
@@ -127,13 +145,17 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $transactionPayment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $transactionPayment = new Payment();
         $transactionPayment->setAmount(50)
-        ->setInvoice($invoice);
+                           ->setInvoice($invoice)
+                           ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+        ;
 
-        $voucherPayment = new Payment(Payment::PAYMENT_TYPE_PAYPAL);
+        $voucherPayment = new Payment();
         $voucherPayment->setAmount(50)
-        ->setInvoice($invoice);
+                       ->setInvoice($invoice)
+                       ->setType(Payment::PAYMENT_TYPE_PAYPAL)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByTransaction());
     }
@@ -143,9 +165,11 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $payment = new Payment();
         $payment->setAmount(100)
-        ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+        ;
 
         self::assertTrue($invoice->isFullyPaidByTransaction());
     }
@@ -162,9 +186,11 @@ class InvoiceTest extends TestCase
     {
         $invoice = new Invoice();
         $invoice->setAmount(100);
-        $payment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $payment = new Payment();
         $payment->setAmount(100)
-        ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_VOUCHER)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByPayPal());
     }
@@ -174,13 +200,16 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $transactionPayment = new Payment(Payment::PAYMENT_TYPE_TRANSACTION);
+        $transactionPayment = new Payment();
         $transactionPayment->setAmount(50)
-        ->setInvoice($invoice);
+                           ->setInvoice($invoice)
+                           ->setType(Payment::PAYMENT_TYPE_TRANSACTION)
+        ;
 
-        $voucherPayment = new Payment(Payment::PAYMENT_TYPE_VOUCHER);
+        $voucherPayment = new Payment();
         $voucherPayment->setAmount(50)
-        ->setInvoice($invoice);
+                       ->setInvoice($invoice)
+        ;
 
         self::assertFalse($invoice->isFullyPaidByPayPal());
     }
@@ -190,10 +219,54 @@ class InvoiceTest extends TestCase
         $invoice = new Invoice();
         $invoice->setAmount(100);
 
-        $payment = new Payment(Payment::PAYMENT_TYPE_PAYPAL);
+        $payment = new Payment();
         $payment->setAmount(100)
-        ->setInvoice($invoice);
+                ->setInvoice($invoice)
+                ->setType(Payment::PAYMENT_TYPE_PAYPAL)
+        ;
 
         self::assertTrue($invoice->isFullyPaidByPayPal());
+    }
+
+    public function testGetPaidAmountReturnsZeroWhenThereIsNoPayment(): void
+    {
+        $invoice = new Invoice();
+        self::assertSame(0, $invoice->getPaidAmount());
+    }
+
+    public function testGetPaidAmountReturnsSumOfPayments(): void
+    {
+        $invoice = new Invoice();
+        $payment = new Payment();
+        $payment->setAmount(100);
+        $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
+
+        $invoice->addPayment($payment);
+        $secondPayment = new Payment();
+        $secondPayment->setAmount(200);
+        $secondPayment->setType(Payment::PAYMENT_TYPE_VOUCHER);
+
+        $invoice->addPayment($secondPayment);
+
+        self::assertSame(300, $invoice->getPaidAmount());
+    }
+
+    public function testGetRemainingAmountReturnsZeroWhenThereIsNoPayment(): void
+    {
+        $invoice = new Invoice();
+        self::assertSame(0, $invoice->getRemainingAmount());
+    }
+
+    public function testGetRemainingAmountReturnsAmountMinusSumOfPayments(): void
+    {
+        $invoice = new Invoice();
+        $payment = new Payment();
+        $payment->setAmount(100);
+        $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION);
+
+        $invoice->addPayment($payment);
+        $invoice->setAmount(200);
+
+        self::assertSame(100, $invoice->getRemainingAmount());
     }
 }

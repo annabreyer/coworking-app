@@ -1,23 +1,22 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Tests\Manager;
 
 use App\Entity\Booking;
 use App\Entity\BusinessDay;
 use App\Entity\Invoice;
+use App\Entity\Payment;
 use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
+use App\Manager\RefundManager;
 use App\Manager\VoucherManager;
 use App\Service\BookingMailerService;
 use App\Service\InvoiceMailerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockClass;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
@@ -52,7 +51,7 @@ class BookingManagerTest extends KernelTestCase
         ;
 
         $mailerMock = $this->createMock(BookingMailerService::class);
-        $mailerMock->expects($this->once())
+        $mailerMock->expects(self::once())
                    ->method('sendFirstBookingEmail')
         ;
 
@@ -63,7 +62,7 @@ class BookingManagerTest extends KernelTestCase
     public function testHandleFinalizedBookingDoNotSendEmailIfMultipleBookings()
     {
         $mailerMock = $this->createMock(BookingMailerService::class);
-        $mailerMock->expects($this->never())
+        $mailerMock->expects(self::never())
                    ->method('sendFirstBookingEmail')
         ;
 
@@ -85,107 +84,70 @@ class BookingManagerTest extends KernelTestCase
         $bookingManager->handleFinalizedBooking($bookingMock);
     }
 
-    public function testCancelBookingRefundsFullyPaidBooking(): void
+    public function testCancelBookingOnlyCancelsBookingIfBookingHasNoInvoice(): void
     {
-        $bookingMock = $this->createMock(Booking::class);
-        $bookingMock->method('isFullyPaid')
-                    ->willReturn(true)
-        ;
-        $bookingMock->method('getInvoice')
-                    ->willReturn($this->createMock(Invoice::class))
-        ;
-
-        $invoiceManagerMock = $this->createMock(InvoiceManager::class);
-        $invoiceManagerMock
-            ->expects($this->never())
-            ->method('cancelUnpaidInvoice')
-        ;
+        $booking = new Booking();
 
         $bookingMailerMock = $this->createMock(BookingMailerService::class);
         $bookingMailerMock
-            ->expects($this->once())
+            ->expects(self::never())
             ->method('sendBookingCancelledEmail')
-            ->with($bookingMock)
-        ;
-
-        $bookingManagerMock = $this->getMockBuilder(BookingManager::class)
-                                   ->onlyMethods(['refundBooking'])
-                                   ->setConstructorArgs([
-                                       $this->createMock(EntityManagerInterface::class),
-                                       $this->createMock(VoucherManager::class),
-                                       $invoiceManagerMock,
-                                       $bookingMailerMock,
-                                       $this->createMock(InvoiceMailerService::class),
-                                       '1',
-                                   ])
-                                   ->getMock()
-        ;
-
-        $bookingManagerMock->expects($this->once())
-                           ->method('refundBooking')
-                           ->with($bookingMock)
-        ;
-
-        $bookingManagerMock->cancelBooking($bookingMock);
-    }
-
-    public function testCancelBookingCancelsUnpaidInvoice(): void
-    {
-        $bookingMock = $this->createMock(Booking::class);
-        $bookingMock->method('isFullyPaid')
-                    ->willReturn(false)
-        ;
-        $bookingMock->method('getInvoice')
-                    ->willReturn($this->createMock(Invoice::class))
-        ;
-
-        $invoiceManagerMock = $this->createMock(InvoiceManager::class);
-        $invoiceManagerMock
-            ->expects($this->once())
-            ->method('cancelUnpaidInvoice')
-        ;
-
-        $bookingMailerMock = $this->createMock(BookingMailerService::class);
-        $bookingMailerMock
-            ->expects($this->once())
-            ->method('sendBookingCancelledEmail')
-            ->with($bookingMock)
-        ;
-
-        $bookingManagerMock = $this->getMockBuilder(BookingManager::class)
-                                   ->onlyMethods(['refundBooking'])
-                                   ->setConstructorArgs([
-                                       $this->createMock(EntityManagerInterface::class),
-                                       $this->createMock(VoucherManager::class),
-                                       $invoiceManagerMock,
-                                       $bookingMailerMock,
-                                       $this->createMock(InvoiceMailerService::class),
-                                       '1',
-                                   ])
-                                   ->getMock()
-        ;
-
-        $bookingManagerMock->expects($this->never())
-                           ->method('refundBooking')
-                           ->with($bookingMock)
-        ;
-
-        $bookingManagerMock->cancelBooking($bookingMock);
-    }
-
-    public function testCancelBookingDoesNothingIfBookingHasNoInvoice(): void
-    {
-        $bookingMock = $this->createMock(Booking::class);
-
-        $bookingMailerMock = $this->createMock(BookingMailerService::class);
-        $bookingMailerMock
-            ->expects($this->never())
-            ->method('sendBookingCancelledEmail')
-            ->with($bookingMock)
+            ->with($booking)
         ;
 
         $bookingManager = $this->getBookingManagerWithMocks('1', $bookingMailerMock);
-        $bookingManager->cancelBooking($bookingMock);
+        $bookingManager->cancelBooking($booking);
+    }
+
+    public function testCancelBookingSendsBookingCancelledEmailWhenBookingHasInvoice(): void
+    {
+        $booking = new Booking();
+        $invoice = new Invoice();
+        $booking->setInvoice($invoice);
+
+        $bookingMailerMock = $this->createMock(BookingMailerService::class);
+        $bookingMailerMock
+            ->expects(self::once())
+            ->method('sendBookingCancelledEmail')
+            ->with($booking)
+        ;
+
+        $bookingManager = $this->getBookingManagerWithMocks('1', $bookingMailerMock);
+        $bookingManager->cancelBooking($booking);
+    }
+
+    public function testCancelBookingSendsBookingCallsRefundBookingWhenBookingHasInvoice(): void
+    {
+        $bookingMock = $this->createMock(Booking::class);
+        $invoiceMock = $this->createMock(Invoice::class);
+        $bookingMock->method('getInvoice')
+                    ->willReturn($invoiceMock);
+
+        $bookingMailerMock = $this->createMock(BookingMailerService::class);
+        $bookingMailerMock
+            ->expects(self::once())
+            ->method('sendBookingCancelledEmail')
+            ->with($bookingMock);
+
+        $bookingManagerMock = $this->getMockBuilder(BookingManager::class)
+                                   ->onlyMethods(['refundBooking'])
+                                   ->setConstructorArgs([
+                                       $this->createMock(EntityManagerInterface::class),
+                                       $this->createMock(VoucherManager::class),
+                                       $this->createMock(InvoiceManager::class),
+                                       $bookingMailerMock,
+                                       $this->createMock(InvoiceMailerService::class),
+                                       $this->createMock(RefundManager::class),
+                                       '1',
+                                   ])
+                                   ->getMock()
+        ;
+
+        $bookingManagerMock->expects(self::once())
+                           ->method('refundBooking')
+                           ->with($bookingMock);
+
+        $bookingManagerMock->cancelBooking($bookingMock);
     }
 
     public function testCanBookingBeCancelledByUserThrowsExceptionIfNoTimeLimit(): void
@@ -246,80 +208,81 @@ class BookingManagerTest extends KernelTestCase
         self::assertFalse($bookingManager->canBookingBeCancelledByUser($booking->getBusinessDay()->getDate()));
     }
 
-    public function testRefundBookingThrowsExceptionWhenBookingHasNoAmount(): void
-    {
-        $booking = new Booking();
-
-        $bookingManager = $this->getBookingManagerWithMocks('1');
-        self::expectException(\LogicException::class);
-        self::expectExceptionMessage('Booking must have an amount to be refunded.');
-
-        $bookingManager->refundBooking($booking);
-    }
-
     public function testRefundBookingThrowsExceptionWhenBookingHasNoInvoice(): void
     {
-        $booking = (new Booking())->setAmount(100);
-
-        $bookingManager = $this->getBookingManagerWithMocks('1');
-        self::expectException(\LogicException::class);
-        self::expectExceptionMessage('Booking must have an invoice to be refunded.');
-
-        $bookingManager->refundBooking($booking);
-    }
-
-    public function testRefundBookingThrowsExceptionWhenBookingIsNotFullyPaid(): void
-    {
         $bookingMock = $this->createMock(Booking::class);
-        $bookingMock->method('isFullyPaid')
-                    ->willReturn(false)
-        ;
-        $bookingMock->method('getInvoice')
-                    ->willReturn($this->createMock(Invoice::class))
-        ;
-        $bookingMock->method('getAmount')
-            ->willReturn(1100);
-
-        $bookingManager = $this->getBookingManagerWithMocks('1');
-        self::expectException(\LogicException::class);
-        self::expectExceptionMessage('Booking invoice must be fully paid to be refunded.');
-
-        $bookingManager->refundBooking($bookingMock);
-    }
-
-    public function testRefundBookingThrowsExceptionWhenBookingHasNoUser(): void
-    {
-        $bookingMock = $this->createMock(Booking::class);
-        $bookingMock->method('isFullyPaid')
-                    ->willReturn(true)
-        ;
-        $bookingMock->method('getInvoice')
-                    ->willReturn($this->createMock(Invoice::class))
-        ;
         $bookingMock->method('getAmount')
                     ->willReturn(1100);
 
         $bookingManager = $this->getBookingManagerWithMocks('1');
         self::expectException(\LogicException::class);
-        self::expectExceptionMessage('Booking must have a user to be refunded.');
+        self::expectExceptionMessage('Booking must have an invoice to be refunded.');
+
+        $bookingManager->refundBooking($bookingMock);
+    }
+
+    public function testRefundBookingCallsCancelUnpaidInvoiceIfInvoiceHasNoPayments(): void
+    {
+        $invoiceMock = $this->createMock(Invoice::class);
+        $invoiceMock->method('getPayments')
+                    ->willReturn(new ArrayCollection([]));
+
+        $bookingMock = $this->createMock(Booking::class);
+        $bookingMock->method('getInvoice')
+                    ->willReturn($invoiceMock);
+
+        $refundManagerMock = $this->createMock(RefundManager::class);
+        $refundManagerMock->expects(self::once())
+                           ->method('refundInvoiceWithReversalInvoice')
+                           ->with($invoiceMock);
+
+        $bookingManager = $this->getBookingManagerWithMocks('1', null, null, $refundManagerMock);
+
+        $bookingManager->refundBooking($bookingMock);
+    }
+
+    public function testRefundBookingCallsRefundInvoice(): void
+    {
+        $invoiceMock = $this->createMock(Invoice::class);
+        $invoiceMock->method('getPayments')
+                    ->willReturn(new ArrayCollection([(new Payment())->setType(Payment::PAYMENT_TYPE_TRANSACTION)]));
+
+        $bookingMock = $this->createMock(Booking::class);
+        $bookingMock->method('getInvoice')
+                    ->willReturn($invoiceMock);
+
+        $refundManagerMock = $this->createMock(RefundManager::class);
+        $refundManagerMock->expects(self::once())
+                         ->method('refundInvoiceWithVoucher')
+                         ->with($invoiceMock);
+
+        $bookingManager = $this->getBookingManagerWithMocks('1', null, null, $refundManagerMock);
 
         $bookingManager->refundBooking($bookingMock);
     }
 
     private function getBookingManagerWithMocks(
-        string $timeLimit,
-        BookingMailerService|null $bookingMailerService = null
+        string $timeLimit, ?BookingMailerService $bookingMailerService = null, ?InvoiceManager $invoiceManagerMock = null, ?RefundManager $refundManagerMock = null,
     ): BookingManager {
         if (null === $bookingMailerService) {
             $bookingMailerService = $this->createMock(BookingMailerService::class);
         }
 
+        if (null === $invoiceManagerMock) {
+            $invoiceManagerMock = $this->createMock(InvoiceManager::class);
+        }
+
+        if (null === $refundManagerMock) {
+            $refundManagerMock = $this->createMock(RefundManager::class);
+        }
+
         return new BookingManager(
             $this->createMock(EntityManagerInterface::class),
             $this->createMock(VoucherManager::class),
-            $this->createMock(InvoiceManager::class),
+            $invoiceManagerMock,
             $bookingMailerService,
             $this->createMock(InvoiceMailerService::class),
+            $refundManagerMock,
             $timeLimit
         );
     }

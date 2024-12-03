@@ -354,4 +354,20 @@ class Invoice
 
         return $this;
     }
+
+    public function getPaidAmount(): int
+    {
+        $paidAmount = 0;
+
+        foreach ($this->payments as $payment) {
+            $paidAmount += $payment->getAmount();
+        }
+
+        return $paidAmount;
+    }
+
+    public function getRemainingAmount(): int
+    {
+        return $this->getAmount() - $this->getPaidAmount();
+    }
 }

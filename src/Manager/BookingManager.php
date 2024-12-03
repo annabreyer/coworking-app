@@ -10,14 +10,12 @@ use App\Entity\Room;
 use App\Entity\User;
 use App\Service\BookingMailerService;
 use App\Service\InvoiceMailerService;
-use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 class BookingManager
 {
     use ClockAwareTrait;
-    use EmailContextTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -25,6 +23,7 @@ class BookingManager
         private readonly InvoiceManager $invoiceManager,
         private readonly BookingMailerService $bookingMailerService,
         private readonly InvoiceMailerService $invoiceMailerService,
+        private readonly RefundManager $refundManager,
         private readonly string $timeLimitCancelBooking,
     ) {
     }
@@ -57,7 +56,7 @@ class BookingManager
             throw new \LogicException('Booking must have an invoice to be finalized.');
         }
 
-        $this->invoiceManager->generateBookingInvoicePdf($bookingInvoice);
+        $this->invoiceManager->generateInvoicePdf($bookingInvoice);
 
         $userBookings = $booking->getUser()?->getBookings();
         if (null !== $userBookings && 1 === $userBookings->count()) {
@@ -81,13 +80,8 @@ class BookingManager
             return;
         }
 
-        if ($booking->isFullyPaid()) {
-            $this->refundBooking($booking);
-        } else {
-            $this->invoiceManager->cancelUnpaidInvoice($bookingInvoice);
-        }
-
         $this->bookingMailerService->sendBookingCancelledEmail($booking);
+        $this->refundBooking($booking);
     }
 
     /**
@@ -113,44 +107,17 @@ class BookingManager
 
     public function refundBooking(Booking $booking): void
     {
-        if (null === $booking->getAmount()) {
-            throw new \LogicException('Booking must have an amount to be refunded.');
-        }
-
         $bookingInvoice = $booking->getInvoice();
         if (null === $bookingInvoice) {
             throw new \LogicException('Booking must have an invoice to be refunded.');
         }
 
-        if (false === $booking->isFullyPaid()) {
-            throw new \LogicException('Booking invoice must be fully paid to be refunded.');
+        if (0 === $bookingInvoice->getPayments()->count()) {
+            $this->refundManager->refundInvoiceWithReversalInvoice($bookingInvoice);
+
+            return;
         }
 
-        $user = $booking->getUser();
-        if (null === $user) {
-            throw new \LogicException('Booking must have a user to be refunded.');
-        }
-
-        $expiryDate = null;
-
-        if ($booking->isFullyPaid()) {
-            $payment = $bookingInvoice->getPayments()->first();
-
-            if (false === $payment) {
-                throw new \LogicException('Fully paid invoice must have a payment.');
-            }
-
-            $paymentVoucher = $payment->getVoucher();
-            if (null === $paymentVoucher) {
-                throw new \LogicException('Invoice fully paid by voucher must have a voucher.');
-            }
-
-            $expiryDate = $paymentVoucher->getExpiryDate();
-        }
-
-        $voucher = $this->voucherManager->createRefundVoucher($user, $booking->getAmount(), $expiryDate);
-        $voucher->setInvoice($bookingInvoice);
-
-        $this->entityManager->flush();
+        $this->refundManager->refundInvoiceWithVoucher($bookingInvoice);
     }
 }

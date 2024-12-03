@@ -30,7 +30,7 @@ class BusinessDayManager
                 continue;
             }
 
-            $businessDay = $this->createBusinessDay($date, false);
+            $businessDay = $this->createBusinessDay($date);
 
             if (
                 $this->publicHolidayService->isGermanPublicHoliday($date)
@@ -38,25 +38,29 @@ class BusinessDayManager
             ) {
                 $businessDay->setIsOpen(false);
             }
+            $this->saveBusinessDay($businessDay, false);
         }
 
         $this->entityManager->flush();
     }
 
-    public function createBusinessDay(\DateTimeInterface $date, bool $flush = true): BusinessDay
+    public function createBusinessDay(\DateTimeInterface $date): BusinessDay
     {
         $businessDay = new BusinessDay($date);
 
+        return $businessDay;
+    }
+
+    public function saveBusinessDay(BusinessDay $businessDay, bool $flush = true): void
+    {
         $this->entityManager->persist($businessDay);
 
         if ($flush) {
             $this->entityManager->flush();
         }
-
-        return $businessDay;
     }
 
-    private function getDateRange(\DateTimeInterface $endDate): \DatePeriod
+    public function getDateRange(\DateTimeInterface $endDate): \DatePeriod
     {
         $lastBusinessDay = $this->businessDayRepository->findLastBusinessDay();
         $endDate         = new \DateTimeImmutable($endDate->format('Y-m-d') . '+ 1 day');

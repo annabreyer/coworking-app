@@ -96,8 +96,7 @@ class BookingPaymentController extends AbstractController
 
         $bookingInvoice = $booking->getInvoice();
         if (null === $bookingInvoice) {
-            $bookingInvoice = $this->invoiceManager->createInvoiceFromBooking($booking, $bookingAmount);
-            $booking->setInvoice($bookingInvoice);
+            $bookingInvoice = $this->invoiceManager->createAndSaveInvoiceFromBooking($booking, $bookingAmount);
         }
 
         if ('invoice' === $paymentMethod) {
@@ -208,9 +207,7 @@ class BookingPaymentController extends AbstractController
             return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);
         }
 
-        $invoice = $this->paymentManager->handleVoucherPayment($booking->getInvoice(), $voucher);
-        $booking->setInvoice($invoice);
-
+        $this->paymentManager->handleInvoicePaymentWithVoucher($booking->getInvoice(), $voucher);
         $this->bookingManager->handleFinalizedBooking($booking);
 
         return $this->redirectToRoute('booking_payment_confirmation', ['uuid' => $booking->getUuid()]);

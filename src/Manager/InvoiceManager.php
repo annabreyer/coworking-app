@@ -9,6 +9,7 @@ use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Entity\User;
 use App\Repository\InvoiceRepository;
+use App\Service\AdminMailerService;
 use App\Service\InvoiceGenerator;
 use App\Trait\EmailContextTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,6 +31,7 @@ class InvoiceManager
         private readonly TranslatorInterface $translator,
         private readonly InvoiceRepository $invoiceRepository,
         private readonly Filesystem $filesystem,
+        private readonly AdminMailerService $adminMailer,
         private readonly string $invoicePrefix,
     ) {
     }
@@ -57,7 +59,7 @@ class InvoiceManager
         return $this->invoicePrefix . $newNumber;
     }
 
-    public function createInvoice(User $user, int $amount, bool $save = true): Invoice
+    public function createInvoice(User $user, int $amount): Invoice
     {
         $invoiceNumber = $this->getInvoiceNumber();
 
@@ -67,10 +69,6 @@ class InvoiceManager
                 ->setNumber($invoiceNumber)
                 ->setDate($this->now())
         ;
-
-        if (true === $save) {
-            $this->saveInvoice($invoice);
-        }
 
         return $invoice;
     }
@@ -84,86 +82,76 @@ class InvoiceManager
         $this->entityManager->flush();
     }
 
-    public function cancelUnpaidInvoice(Invoice $invoice): void
+    public function reduceInvoiceAmount(Invoice $invoice, int $amount): void
     {
-        if (true === $invoice->isFullyPaid()) {
-            throw new \InvalidArgumentException('Invoice is already fully paid.');
+        $invoice->setAmount($invoice->getAmount() - $amount);
+        $this->saveInvoice($invoice);
+
+        if (0 > $invoice->getAmount()) {
+            $this->adminMailer->notifyAdminAboutNegativeInvoice($invoice);
         }
-
-        $user = $invoice->getUser();
-        if (null === $user) {
-            throw new \InvalidArgumentException('Invoice must have a user.');
-        }
-
-        $description = $this->translator->trans('invoice.description.cancel', ['%invoiceNumber%' => $invoice->getNumber()], 'invoice');
-
-        $originalInvoicePayment = new Payment(Payment::PAYMENT_TYPE_REFUND);
-        $originalInvoicePayment->setAmount((int) $invoice->getAmount())
-                               ->setDate($this->now())
-                               ->setInvoice($invoice)
-                               ->setComment($description);
-        $invoice->addPayment($originalInvoicePayment);
-        $this->entityManager->flush();
-
-        $cancelledAmount = $invoice->getAmount() * -1;
-        $refundInvoice   = $this->createInvoice($user, $cancelledAmount, false);
-        $refundInvoice->setDescription($description);
-
-        $this->saveInvoice($refundInvoice);
-        $this->generateGeneralInvoicePdf($refundInvoice);
     }
 
-    public function createInvoiceFromBooking(Booking $booking, int $amount, bool $save = true): Invoice
+    public function createAndSaveInvoiceFromBooking(Booking $booking, int $amount): Invoice
     {
         if (null === $booking->getUser()) {
             throw new \InvalidArgumentException('Booking must have a user.');
         }
 
         if (null !== $booking->getInvoice()) {
-            return $booking->getInvoice();
+            throw new \LogicException('Booking already has an invoice.');
         }
 
-        $invoiceNumber = $this->getInvoiceNumber();
-        $invoice       = new Invoice();
-        $invoice
-            ->addBooking($booking)
-            ->setUser($booking->getUser())
-            ->setAmount($amount)
-            ->setNumber($invoiceNumber)
-            ->setDate($this->now())
-        ;
+        $invoice = $this->createInvoice($booking->getUser(), $amount);
+        $invoice->addBooking($booking);
 
-        if (true === $save) {
-            $this->saveInvoice($invoice);
-        }
+        $this->saveInvoice($invoice);
 
         return $invoice;
+    }
+
+    public function createReversalInvoice(Invoice $invoice): Invoice
+    {
+        $user = $invoice->getUser();
+        if (null === $user) {
+            throw new \LogicException('Invoice must have a user.');
+        }
+
+        if (0 >= $invoice->getAmount()) {
+            throw new \LogicException('Invoice must have a positive amount to generate a reversal invoice.');
+        }
+
+        $refundPayments = $invoice->getPayments()->filter(static function (Payment $payment) {
+            return Payment::PAYMENT_TYPE_REFUND === $payment->getType();
+        });
+
+        if (1 !== \count($refundPayments)) {
+            throw new \LogicException('Invoice must have exactly one refund payment to generate a reversal invoice.');
+        }
+
+        $cancelledAmount = -1 * $invoice->getAmount();
+        $refundInvoice   = $this->createInvoice($user, $cancelledAmount);
+        $refundInvoice->setDescription($invoice->getPayments()->first()->getComment());
+
+        return $refundInvoice;
+    }
+
+    public function processReversalInvoice(Invoice $invoice): void
+    {
+        $refundInvoice = $this->createReversalInvoice($invoice);
+        $this->saveInvoice($refundInvoice);
+        $this->generateInvoicePdf($refundInvoice);
     }
 
     public function generateInvoicePdf(Invoice $invoice): void
     {
         if ($invoice->isBookingInvoice()) {
-            $this->generateBookingInvoicePdf($invoice);
+            $this->invoiceGenerator->generateBookingInvoice($invoice);
         } elseif ($invoice->isVoucherInvoice()) {
-            $this->generateVoucherInvoicePdf($invoice);
+            $this->invoiceGenerator->generateVoucherInvoice($invoice);
         } else {
-            $this->generateGeneralInvoicePdf($invoice);
+            $this->invoiceGenerator->generateGeneralInvoice($invoice);
         }
-    }
-
-    public function generateBookingInvoicePdf(Invoice $invoice): void
-    {
-        $this->invoiceGenerator->generateBookingInvoice($invoice);
-    }
-
-    public function generateVoucherInvoicePdf(Invoice $invoice): void
-    {
-        $this->invoiceGenerator->generateVoucherInvoice($invoice);
-    }
-
-    public function generateGeneralInvoicePdf(Invoice $invoice): void
-    {
-        $this->invoiceGenerator->generateGeneralInvoice($invoice);
     }
 
     public function regenerateInvoicePdf(Invoice $invoice): void

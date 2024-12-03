@@ -36,5 +36,14 @@ class VoucherTypeFixtures extends Fixture
         $manager->flush();
 
         $this->addReference('single-use-voucher-type', $voucherType);
+
+        $voucherTypeRefund = new VoucherType();
+        $voucherTypeRefund->setUnits(1);
+        $voucherTypeRefund->setValidityMonths(12);
+        $voucherTypeRefund->setUnitaryValue(0);
+        $voucherTypeRefund->setName(VoucherType::NAME_REFUND);
+
+        $manager->persist($voucherTypeRefund);
+        $manager->flush();
     }
 }
