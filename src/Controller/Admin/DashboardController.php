@@ -80,7 +80,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('All BusinessDays', 'fas fa-calendar', BusinessDay::class)
                       ->setController(BusinessDayCrudController::class)
         ;
-        yield MenuItem::linkToCrud('Future BusinessDays', 'fas fa-file-calendar', Booking::class)
+        yield MenuItem::linkToCrud('Future BusinessDays', 'fas fa-calendar', Booking::class)
                       ->setController(FutureBusinessDayCrudController::class)
         ;
         yield MenuItem::linkToCrud('PastBusinessDays', 'fas fa-calendar', BusinessDay::class)
