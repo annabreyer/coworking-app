@@ -60,20 +60,7 @@ class InvoiceGenerator
         $this->addClientData($user);
         $this->writeBookingLine($invoiceBooking);
 
-        if ($invoice->isFullyPaidByVoucher()) {
-            $this->addVoucherPayment($invoice);
-            $this->writeTotalAmount(0);
-        }
-
-        if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount() / 100);
-            $this->addAlreadyPaidMention($invoice);
-        }
-
-        if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount() / 100);
-            $this->addDueMention($invoice);
-        }
+        $this->handlePaymentSpecifics($invoice);
 
         $this->saveInvoice($invoice);
     }
@@ -389,7 +376,7 @@ class InvoiceGenerator
 
     private function addDueMention(Invoice $invoice): void
     {
-        if ($invoice->isFullyPaid()) {
+        if ($invoice->isFullyPaidByVoucher() || $invoice->isFullyPaidByPayPal()) {
             return;
         }
 
@@ -455,5 +442,25 @@ class InvoiceGenerator
     private function setTitleFont(): void
     {
         $this->pdf->SetFont('Helvetica', 'b', 24);
+    }
+
+    private function handlePaymentSpecifics(Invoice $invoice): void
+    {
+        if ($invoice->isFullyPaidByVoucher()) {
+            $this->addVoucherPayment($invoice);
+            $this->writeTotalAmount(0);
+
+            return;
+        }
+
+        if ($invoice->isFullyPaidByPayPal()) {
+            $this->writeTotalAmount($invoice->getAmount() / 100);
+            $this->addAlreadyPaidMention($invoice);
+
+            return;
+        }
+
+        $this->writeTotalAmount($invoice->getAmount() / 100);
+        $this->addDueMention($invoice);
     }
 }

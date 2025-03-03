@@ -256,7 +256,7 @@ class Invoice
         }
 
         foreach ($this->payments as $payment) {
-            if (\in_array($payment->getType(), [Payment::PAYMENT_TYPE_PAYPAL, Payment::PAYMENT_TYPE_TRANSACTION], true)) {
+            if (\in_array($payment->getType(), [Payment::PAYMENT_TYPE_PAYPAL, Payment::PAYMENT_TYPE_TRANSACTION, Payment::PAYMENT_TYPE_REFUND], true)) {
                 return false;
             }
         }
@@ -275,7 +275,7 @@ class Invoice
         }
 
         foreach ($this->payments as $payment) {
-            if (\in_array($payment->getType(), [Payment::PAYMENT_TYPE_VOUCHER, Payment::PAYMENT_TYPE_TRANSACTION], true)) {
+            if (\in_array($payment->getType(), [Payment::PAYMENT_TYPE_VOUCHER, Payment::PAYMENT_TYPE_TRANSACTION, Payment::PAYMENT_TYPE_REFUND], true)) {
                 return false;
             }
         }
