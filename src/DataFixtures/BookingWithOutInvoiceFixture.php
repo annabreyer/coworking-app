@@ -11,7 +11,7 @@ class BookingWithOutInvoiceFixture extends BookingFixtures
 {
     public const BUSINESS_DAY_DATE = self::BOOKING_WITHOUT_INVOICE_DATE;
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         parent::load($manager);
 

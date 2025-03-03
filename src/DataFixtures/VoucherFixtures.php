@@ -25,7 +25,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
     public const VOUCHER_INVOICE_NUMBER       = 'CO20240002';
     public const ALREADY_USED_VOUCHER_CODE    = 'VO20240044';
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             BasicFixtures::class,
@@ -33,7 +33,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         ];
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $user        = $this->getReference('user1', User::class);
         $voucherType = $this->getReference('single-use-voucher-type', VoucherType::class);

@@ -25,14 +25,14 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
     public const FIRST_BOOKING_DATE                               = '2024-04-30';
     public const FIRST_BOOKING_INVOICE_NUMBER                     = 'CO202400400';
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             BasicFixtures::class,
         ];
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $user = $this->getReference('user1', User::class);
 

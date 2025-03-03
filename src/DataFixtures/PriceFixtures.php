@@ -14,14 +14,14 @@ class PriceFixtures extends Fixture implements DependentFixtureInterface
 {
     public const SINGLE_PRICE_AMOUNT = 1500;
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             VoucherTypeFixtures::class,
         ];
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->loadPrices($manager);
     }

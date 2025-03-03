@@ -14,14 +14,14 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
     public const STANDARD_BOOKING_INVOICE_NUMBER = 'CO20240001';
     public const VOUCHER_INVOICE_NUMBER          = 'CO20242000';
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             BasicFixtures::class,
         ];
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->loadInvoiceFromLastYear($manager);
         $this->loadStandardBookingInvoice($manager);

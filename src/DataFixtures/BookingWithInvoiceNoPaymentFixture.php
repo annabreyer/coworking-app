@@ -13,7 +13,7 @@ class BookingWithInvoiceNoPaymentFixture extends BookingFixtures
     public const INVOICE_NUMBER    = self::BOOKING_WITH_INVOICE_NO_PAYMENT_INVOICE_NUMBER;
     public const BUSINESS_DAY_DATE = self::BOOKING_WITH_INVOICE_NO_PAYMENT_DATE;
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         parent::load($manager);
         $this->loadBookingWithInvoiceNoPayment($manager);
