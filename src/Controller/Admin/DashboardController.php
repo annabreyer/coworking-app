@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\AdminAction;
 use App\Entity\Booking;
+use App\Entity\BookingType;
 use App\Entity\BusinessDay;
 use App\Entity\Invoice;
 use App\Entity\Price;
@@ -93,6 +94,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Voucher', 'fas fa-vote-yea', Voucher::class);
         yield MenuItem::linkToCrud('VoucherType', 'fas fa-vote-yea', VoucherType::class);
         yield MenuItem::linkToCrud('Price', 'fas fa-euro-sign', Price::class);
+        yield MenuItem::linkToCrud('BookingType', 'fas fa-contract', BookingType::class);
+
 
         yield MenuItem::section('Action Log');
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);

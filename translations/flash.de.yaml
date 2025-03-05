@@ -7,6 +7,9 @@ form:
       no_date: 'Bitte ein Datum auswählen.'
       invalid_date_format: 'Ungültiges Datumsformat.'
       date_in_past: 'Datum kann nicht in der Vergangenheit liegen.'
+    step_type:
+      no_type: 'Bitte eine Buchungsoption auswählen'
+      invalid_type: 'Unbekannte Buchungsoption'
     step_room:
       date_not_possible: 'Dieses Datum ist nicht möglich.'
       date_no_longer_available: 'Dieses Datum ist nicht mehr verfügbar.'

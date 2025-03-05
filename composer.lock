@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f5011318079466606574d345260d75b",
+    "content-hash": "974f732d309cb4a7c5816353026b3650",
     "packages": [
         {
             "name": "azuyalabs/yasumi",
@@ -10172,16 +10172,16 @@
         },
         {
             "name": "symfonycasts/tailwind-bundle",
-            "version": "v0.5.3",
+            "version": "v0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SymfonyCasts/tailwind-bundle.git",
-                "reference": "61d6d35c860f61e0d17adbee2f21c0f95ba9172d"
+                "reference": "81c9e6ff2bb1a95e67fc6af04ca87fccdcf55aa4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SymfonyCasts/tailwind-bundle/zipball/61d6d35c860f61e0d17adbee2f21c0f95ba9172d",
-                "reference": "61d6d35c860f61e0d17adbee2f21c0f95ba9172d",
+                "url": "https://api.github.com/repos/SymfonyCasts/tailwind-bundle/zipball/81c9e6ff2bb1a95e67fc6af04ca87fccdcf55aa4",
+                "reference": "81c9e6ff2bb1a95e67fc6af04ca87fccdcf55aa4",
                 "shasum": ""
             },
             "require": {
@@ -10193,10 +10193,10 @@
                 "symfony/process": "^5.4|^6.3|^7.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "1.11.x-dev",
+                "phpunit/phpunit": "^9.6",
                 "symfony/filesystem": "^6.3|^7.0",
                 "symfony/framework-bundle": "^6.3|^7.0",
-                "symfony/phpunit-bridge": "^6.3|^7.0"
+                "symfony/phpunit-bridge": "^6.3.9|^7.0"
             },
             "type": "library",
             "autoload": {
@@ -10221,9 +10221,9 @@
             ],
             "support": {
                 "issues": "https://github.com/SymfonyCasts/tailwind-bundle/issues",
-                "source": "https://github.com/SymfonyCasts/tailwind-bundle/tree/v0.5.3"
+                "source": "https://github.com/SymfonyCasts/tailwind-bundle/tree/v0.7.1"
             },
-            "time": "2024-05-24T13:08:53+00:00"
+            "time": "2025-01-23T14:54:07+00:00"
         },
         {
             "name": "symfonycasts/verify-email-bundle",

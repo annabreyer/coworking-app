@@ -3,45 +3,106 @@
 {% block title %}{{ 'booking.page.title'|trans }}{% endblock %}
 {% block header %}{{ 'booking.page.title'|trans }}{% endblock %}
 
-{% block content  %}
-    <section class="self-center grid grid-cols-1 md:grid-cols-2 ">
-        <form id="form-date" method="post" action="{{ path('booking_step_date') }}" >
-            <div class="grid grid-cols-1 mx-4">
-                <label for="date">{{ 'booking.page.form.date.label'|trans }}</label>
-                <input type="date" id="date" name="date"
-                       max="{{ lastDay }}"
-                       min="{{ firstDay }}"
-                       value="{{ date }}"
-                       class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica"
-                >
-            </div>
-            <input type="hidden" name="token_date" value="{{ csrf_token('date') }}">
-        </form>
+{% block content %}
+    <section class="self-center max-w-xl mx-auto">
+        {# Step 1: Date Selection #}
+        <div class="mb-6 p-4 bg-white rounded-lg shadow">
+            <h3 class="text-xl mb-3 font-medium text-gray-800">{{ 'booking.page.form.date.label'|trans }}</h3>
 
-    {% if step == 2 %}
-        <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
-            <div class="grid grid-cols-1 mx-4">
-                <label for="room">{{ 'booking.page.form.room.label'|trans }}</label>
-                <select id="room" name="room" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
-                    {% for option in bookingOption %}
-                        <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }} >
-                            {{ option.roomName }} ({{ 'booking.page.form.room.capacity'|trans({'%capacity%': option.capacity, '%bookings%': option.bookingCount}) }})
-                        </option>
-                    {% endfor %}
-                </select>
-                <input type="hidden" name="token" value="{{ csrf_token('room') }}">
+            {% if step == 1 %}
+                <form id="form-date" method="post" action="{{ path('booking_step_date') }}">
+                    <div class="grid grid-cols-1">
+                        <input type="date" id="date" name="date"
+                               max="{{ lastDay }}"
+                               min="{{ firstDay }}"
+                               value="{{ date }}"
+                               class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica"
+                        >
+                    </div>
+                    <input type="hidden" name="token_date" value="{{ csrf_token('date') }}">
+                </form>
+            {% else %}
+                <div class="grid grid-cols-1">
+                    <div class="flex items-center">
+                        <div class="text-gray-900 bg-gray-100 rounded-lg block w-full p-2.5 border border-gray-300 text-lg font-Helvetica">
+                            {{ date|date('d.m.Y') }}
+                        </div>
+                        <a href="{{ path('booking_step_date') }}" class="ml-2 text-blue-600 hover:underline">
+                            {{ 'booking.page.form.change'|trans }}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Step 2: Booking Type Selection #}
+        {% if step >= 2 %}
+            <div class="mb-6 p-4 bg-white rounded-lg shadow">
+                {% if step == 2 %}
+                    <form id="form-type" method="post" action="{{ path('booking_step_type', {'businessDay': businessDay.id}) }}">
+                        <div class="space-y-3">
+                            {% for type in bookingTypes %}
+                                <div class="flex items-center mb-2">
+                                    <input type="radio" id="booking-type-{{ loop.index }}" name="booking_type" value="{{ type.id }}"
+                                           class="text-yellow focus:ring-yellow focus:border-yellow w-5 h-5 mr-2"
+                                           {% if bookingType is defined and bookingType.id == type.id %}checked{% endif %}>
+                                    <label for="booking-type-{{ loop.index }}" class="text-lg font-normal cursor-pointer">
+                                        {{ type.name|trans }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="token_type" value="{{ csrf_token('type') }}">
+                    </form>
+                {% else %}
+                    <div class="grid grid-cols-1">
+                        <div class="flex items-center">
+                            <div class="text-gray-900 bg-gray-100 rounded-lg block w-full p-2.5 border border-gray-300 text-lg font-Helvetica">
+                                {% for type in bookingTypes %}
+                                    {% if type.id == bookingType.id %}
+                                        {{ type.name }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <a href="{{ path('booking_step_type', {'businessDay': businessDay.id}) }}" class="ml-2 text-blue-600 hover:underline">
+                                {{ 'booking.page.form.change'|trans }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-            <button type="submit" class="mx-4 md:-mx-10 text-lg">{{ 'booking.page.form.action'|trans }}</button>
-        </form>
-    {% endif %}
+        {% endif %}
+
+        {# Step 3: Room Selection #}
+        {% if step == 3 %}
+            <div class="mb-6 p-4 bg-white rounded-lg shadow">
+                <h3 class="text-xl mb-3 font-medium text-gray-800">{{ 'booking.page.form.room.label'|trans }}</h3>
+                <form id="form-room" method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id, 'bookingType': bookingType.id}) }}">
+                    <div class="grid grid-cols-1">
+                        <select id="room" name="room" class="text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica">
+                            {% for option in bookingOption %}
+                                <option value="{{ option.roomId }}" {{ option.isAvailable ? '': 'disabled' }} >
+                                    {{ option.roomName }} ({{ 'booking.page.form.room.capacity'|trans({'%capacity%': option.capacity, '%bookings%': option.bookingCount}) }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="token" value="{{ csrf_token('room') }}">
+                        <input type="hidden" name="booking_type" value="{{ bookingType }}">
+                    </div>
+                    <button type="submit" class="mt-4 w-full text-lg px-4 py-2 bg-yellow text-red-darkest rounded-lg hover:bg-yellow-light focus:ring-4 focus:outline-none focus:ring-yellow">
+                        {{ 'booking.page.form.action'|trans }}
+                    </button>
+                </form>
+            </div>
+        {% endif %}
     </section>
 
     <section class="mt-20">
         <h2 class="text-center">{{ 'booking.page.prices.title'|trans }}</h2>
-        <div class="self-center grid grid-cols-1 md:grid-cols-3 space-x-4 space-y-4">
-        {% for price in prices %}
-            {%  if price.isVoucher %}
-                <div class="block self-auto max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+        <div class="self-center grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for price in prices %}
+                {%  if price.isVoucher %}
+                    <div class="block self-auto max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
                         <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }}</h3>
                         <h3 class="mt-1 mb-2 font-normal text-yellow-lightest "> {{ price.amount/100 }} €</h3>
                         <a href="{{ path('voucher_index') }}">
@@ -52,25 +113,38 @@
                                 </svg>
                             </span>
                         </a>
-                </div>
-            {%  elseif price.isUnitary %}
-                <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
-                    <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
-                    <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.unitary.explanation'|trans }}</p>
-                </div>
-            {% elseif price.isSubscription %}
-                <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
-                    <h3 class="my-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
-                    <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.subscription.explanation'|trans }}</p>
-
-                </div>
-            {%  endif %}
-        {% endfor %}
-    </div>
+                    </div>
+                {%  elseif price.isUnitary %}
+                    <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                        <h3 class="my-2 font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
+                        <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.unitary.explanation'|trans }}</p>
+                    </div>
+                {% elseif price.isSubscription %}
+                    <div class="block max-w-sm p-6 rounded-lg shadow bg-red border border-red-dark">
+                        <h3 class="my-2 text-2xl font-bold tracking-tight text-yellow-lightest">{{ price.name }} {{ price.amount/100 }} €</h3>
+                        <p class="font-normal text-yellow-lightest">{{ 'booking.page.prices.subscription.explanation'|trans }}</p>
+                    </div>
+                {%  endif %}
+            {% endfor %}
+        </div>
     </section>
+
     <script>
+        // Auto-submit when date changes
+        {% if step == 1 %}
         document.getElementById('date').addEventListener('change', function () {
-            this.form.submit();
+            document.getElementById('form-date').submit();
         });
+        {% endif %}
+
+        // Auto-submit when booking type changes
+        {% if step == 2 %}
+        const bookingTypeInputs = document.querySelectorAll('input[name="booking_type"]');
+        bookingTypeInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                document.getElementById('form-type').submit();
+            });
+        });
+        {% endif %}
     </script>
 {% endblock %}

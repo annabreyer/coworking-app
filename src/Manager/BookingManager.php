@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Manager;
 
 use App\Entity\Booking;
+use App\Entity\BookingType;
 use App\Entity\BusinessDay;
 use App\Entity\Room;
 use App\Entity\User;
@@ -28,13 +29,14 @@ class BookingManager
     ) {
     }
 
-    public function saveBooking(User $user, BusinessDay $businessDay, Room $room): Booking
+    public function saveBooking(User $user, BusinessDay $businessDay, Room $room, BookingType $bookingType): Booking
     {
         $booking = new Booking();
         $booking
             ->setUser($user)
             ->setBusinessDay($businessDay)
             ->setRoom($room)
+            ->setType($bookingType)
         ;
 
         $this->entityManager->persist($booking);

@@ -99,6 +99,7 @@ booking:
   page:
     title: 'Buchung'
     form:
+      change: 'Ändern'
       date.label: 'Datum'
       room.label: 'Raum'
       room.capacity: '%bookings% von %capacity% Plätzen gebucht.'

@@ -57,6 +57,9 @@ class Booking
     #[ORM\Column()]
     private bool $isCancelled = false;
 
+    #[ORM\ManyToOne]
+    private ?BookingType $type = null;
+
     public function __construct()
     {
         $this->uuid = Uuid::v7();
@@ -176,6 +179,18 @@ class Booking
     public function setIsCancelled(bool $isCancelled): static
     {
         $this->isCancelled = $isCancelled;
+
+        return $this;
+    }
+
+    public function getType(): ?BookingType
+    {
+        return $this->type;
+    }
+
+    public function setType(?BookingType $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
