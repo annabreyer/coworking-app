@@ -8,7 +8,6 @@ parameters:
   document_vault_email: 'ensembleitcoa1db@finom.me'
   time_limit_cancel_booking_days: '1'
   invoice_directory: '%kernel.project_dir%/private/invoice'
-  invoice_template_path: '%invoice_directory%/template.pdf'
   invoice_prefix: 'CO'
   client_number_prefix: 'CO'
   legal_directory: '%kernel.project_dir%/private/legal'
@@ -21,7 +20,6 @@ services:
         bind:
           $timeLimitCancelBooking: '%time_limit_cancel_booking_days%'
           $supportEmail: '%support_email%'
-          $invoiceTemplatePath: '%invoice_template_path%'
           $invoicePrefix: '%invoice_prefix%'
           $invoiceDirectory: '%invoice_directory%'
           $invoiceClientNumberPrefix: '%client_number_prefix%'
