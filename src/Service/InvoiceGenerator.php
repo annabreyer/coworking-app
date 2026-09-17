@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\Invoice\BookingPaymentSpecifics;
+use App\Dto\Invoice\InvoiceLineItem;
+use App\Dto\Invoice\InvoicePdfDocument;
 use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Payment;
@@ -55,17 +58,15 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Booking must have a user.');
         }
 
-        $context = $this->buildBaseContext($invoice, $user);
+        $document = $this->buildBaseDocument($invoice, $user);
+        $document->addItem($this->buildBookingItem($invoiceBooking));
 
-        $context['items'][] = $this->buildBookingItem($invoiceBooking);
+        $paymentSpecifics = $this->buildBookingPaymentSpecifics($invoice);
+        $document->addItems($paymentSpecifics->extraItems);
+        $document->setTotal($this->formatAmount($paymentSpecifics->totalAmount));
+        $document->setPaymentMessage($paymentSpecifics->paymentMessage);
 
-        $paymentSpecifics          = $this->buildBookingPaymentSpecifics($invoice);
-        $context['items']          = array_merge($context['items'], $paymentSpecifics['extraItems']);
-        $context['showTotal']      = true;
-        $context['totalAmount']    = $this->formatAmount($paymentSpecifics['totalAmount']);
-        $context['paymentMessage'] = $paymentSpecifics['paymentMessage'];
-
-        $this->render($invoice, $context);
+        $this->render($invoice, $document);
     }
 
     public function generateVoucherInvoice(Invoice $invoice): void
@@ -98,32 +99,28 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Voucher must have a user.');
         }
 
-        $context = $this->buildBaseContext($invoice, $user);
-
-        $context['items'][] = [
-            'position'    => 1,
-            'description' => $this->translator->trans('invoice.description.voucher', [
+        $document = $this->buildBaseDocument($invoice, $user);
+        $document->addItem(new InvoiceLineItem(
+            position: 1,
+            description: $this->translator->trans('invoice.description.voucher', [
                 '%name%'           => $voucherType->getName(),
                 '%validityMonths%' => $voucherType->getValidityMonths(),
             ], 'invoice'),
-            'codes'  => $this->getVoucherCodes($invoice),
-            'amount' => $this->formatAmount($invoiceAmount / 100),
-        ];
-
-        $context['showTotal']   = false;
-        $context['totalAmount'] = $this->formatAmount($invoiceAmount / 100);
+            amount: $this->formatAmount($invoiceAmount / 100),
+            codes: $this->getVoucherCodes($invoice),
+        ));
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $context['showTotal']      = true;
-            $context['paymentMessage'] = $this->getAlreadyPaidMessage($invoice);
+            $document->setTotal($this->formatAmount($invoiceAmount / 100));
+            $document->setPaymentMessage($this->getAlreadyPaidMessage($invoice));
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $context['showTotal']      = true;
-            $context['paymentMessage'] = $this->getDueMessage($invoice);
+            $document->setTotal($this->formatAmount($invoiceAmount / 100));
+            $document->setPaymentMessage($this->getDueMessage($invoice));
         }
 
-        $this->render($invoice, $context);
+        $this->render($invoice, $document);
     }
 
     public function generateGeneralInvoice(Invoice $invoice): void
@@ -142,20 +139,16 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must have a user.');
         }
 
-        $context = $this->buildBaseContext($invoice, $user);
+        $document = $this->buildBaseDocument($invoice, $user);
+        $document->addItem(new InvoiceLineItem(
+            position: 1,
+            description: (string) $invoice->getDescription(),
+            amount: $this->formatAmount($invoiceAmount / 100),
+        ));
+        $document->setTotal($this->formatAmount($invoiceAmount / 100));
+        $document->setPaymentMessage($this->getDueMessage($invoice));
 
-        $context['items'][] = [
-            'position'    => 1,
-            'description' => (string) $invoice->getDescription(),
-            'codes'       => null,
-            'amount'      => $this->formatAmount($invoiceAmount / 100),
-        ];
-
-        $context['showTotal']      = true;
-        $context['totalAmount']    = $this->formatAmount($invoiceAmount / 100);
-        $context['paymentMessage'] = $this->getDueMessage($invoice);
-
-        $this->render($invoice, $context);
+        $this->render($invoice, $document);
     }
 
     public function getTargetDirectory(Invoice $invoice): string
@@ -175,10 +168,7 @@ class InvoiceGenerator
         return $targetDirectory;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildBaseContext(Invoice $invoice, User $user): array
+    private function buildBaseDocument(Invoice $invoice, User $user): InvoicePdfDocument
     {
         if (null === $invoice->getNumber()) {
             throw new \InvalidArgumentException('Invoice must have a number.');
@@ -192,46 +182,32 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('User must be persisted.');
         }
 
-        $context = [
-            'headerLogo'    => $this->getAssetDataUri('header_logo.png'),
-            'vielenDank'    => $this->getAssetDataUri('vielen_dank.png'),
-            'invoiceNumber' => $invoice->getNumber(),
-            'invoiceDate'   => $invoice->getDate()->format('d.m.Y'),
-            'clientNumber'  => $this->invoiceClientNumberPrefix . InvoiceManager::getClientNumber($user->getId()),
-            'clientName'    => $user->getFullName(),
-            'invoiceType'   => $this->translator->trans(
+        $hasAddress = $user->hasAddress();
+
+        return new InvoicePdfDocument(
+            headerLogo: $this->getAssetDataUri('header_logo.png'),
+            vielenDank: $this->getAssetDataUri('vielen_dank.png'),
+            invoiceNumber: $invoice->getNumber(),
+            invoiceDate: $invoice->getDate()->format('d.m.Y'),
+            clientNumber: $this->invoiceClientNumberPrefix . InvoiceManager::getClientNumber($user->getId()),
+            clientName: $user->getFullName(),
+            invoiceType: $this->translator->trans(
                 $invoice->isRefund() ? 'invoice.type.refund' : 'invoice.type.invoice',
                 [],
                 'invoice'
             ),
-            'introText' => $this->translator->trans(
+            introText: $this->translator->trans(
                 $invoice->isRefund() ? 'invoice.intro.refund' : 'invoice.intro.invoice',
                 [],
                 'invoice'
             ),
-            'items'          => [],
-            'showTotal'      => false,
-            'totalAmount'    => null,
-            'paymentMessage' => null,
-        ];
-
-        if ($user->hasAddress()) {
-            $context['clientStreet']          = $user->getStreet();
-            $context['clientPostCodeAndCity'] = $user->getPostCode() . ' ' . $user->getCity();
-            $context['clientEmail']           = null;
-        } else {
-            $context['clientStreet']          = null;
-            $context['clientPostCodeAndCity'] = null;
-            $context['clientEmail']           = $user->getEmail() ?? '';
-        }
-
-        return $context;
+            clientStreet: $hasAddress ? $user->getStreet() : null,
+            clientPostCodeAndCity: $hasAddress ? $user->getPostCode() . ' ' . $user->getCity() : null,
+            clientEmail: $hasAddress ? null : ($user->getEmail() ?? ''),
+        );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildBookingItem(Booking $booking): array
+    private function buildBookingItem(Booking $booking): InvoiceLineItem
     {
         $bookingAmount = $booking->getAmount();
         if (null === $bookingAmount) {
@@ -248,47 +224,43 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Booking must have a room.');
         }
 
-        return [
-            'position'    => 1,
-            'description' => $this->translator->trans('invoice.description.booking', [
+        return new InvoiceLineItem(
+            position: 1,
+            description: $this->translator->trans('invoice.description.booking', [
                 '%date%' => $bookingDate->format('d.m.Y'),
                 '%room%' => $bookingRoom->getName(),
             ], 'invoice'),
-            'codes'  => null,
-            'amount' => $this->formatAmount($bookingAmount / 100),
-        ];
+            amount: $this->formatAmount($bookingAmount / 100),
+        );
     }
 
-    /**
-     * @return array{extraItems: array<int, array<string, mixed>>, totalAmount: float, paymentMessage: string|null}
-     */
-    private function buildBookingPaymentSpecifics(Invoice $invoice): array
+    private function buildBookingPaymentSpecifics(Invoice $invoice): BookingPaymentSpecifics
     {
         if ($invoice->isFullyPaidByVoucher()) {
-            return [
-                'extraItems'     => $this->buildVoucherPaymentItems($invoice),
-                'totalAmount'    => 0.0,
-                'paymentMessage' => null,
-            ];
+            return new BookingPaymentSpecifics(
+                extraItems: $this->buildVoucherPaymentItems($invoice),
+                totalAmount: 0.0,
+                paymentMessage: null,
+            );
         }
 
         if ($invoice->isFullyPaidByPayPal()) {
-            return [
-                'extraItems'     => [],
-                'totalAmount'    => $invoice->getAmount() / 100,
-                'paymentMessage' => $this->getAlreadyPaidMessage($invoice),
-            ];
+            return new BookingPaymentSpecifics(
+                extraItems: [],
+                totalAmount: $invoice->getAmount() / 100,
+                paymentMessage: $this->getAlreadyPaidMessage($invoice),
+            );
         }
 
-        return [
-            'extraItems'     => [],
-            'totalAmount'    => $invoice->getAmount() / 100,
-            'paymentMessage' => $this->getDueMessage($invoice),
-        ];
+        return new BookingPaymentSpecifics(
+            extraItems: [],
+            totalAmount: $invoice->getAmount() / 100,
+            paymentMessage: $this->getDueMessage($invoice),
+        );
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return InvoiceLineItem[]
      */
     private function buildVoucherPaymentItems(Invoice $invoice): array
     {
@@ -308,14 +280,13 @@ class InvoiceGenerator
                 throw new \InvalidArgumentException('Payment must have a voucher and a voucher code.');
             }
 
-            $items[] = [
-                'position'    => $position,
-                'description' => $this->translator->trans('invoice.payment.voucher', [
+            $items[] = new InvoiceLineItem(
+                position: $position,
+                description: $this->translator->trans('invoice.payment.voucher', [
                     '%voucherCode%' => $paymentVoucher->getCode(),
                 ], 'invoice'),
-                'codes'  => null,
-                'amount' => '-' . $this->formatAmount($payment->getAmount() / 100),
-            ];
+                amount: '-' . $this->formatAmount($payment->getAmount() / 100),
+            );
             ++$position;
         }
 
@@ -375,12 +346,9 @@ class InvoiceGenerator
         return 'data:image/png;base64,' . base64_encode($data);
     }
 
-    /**
-     * @param array<string, mixed> $context
-     */
-    private function render(Invoice $invoice, array $context): void
+    private function render(Invoice $invoice, InvoicePdfDocument $document): void
     {
-        $html = $this->twig->render('invoice/pdf/invoice.html.twig', $context);
+        $html = $this->twig->render('invoice/pdf/invoice.html.twig', $document->toArray());
 
         $options = new Options();
         $options->set('isRemoteEnabled', false);
