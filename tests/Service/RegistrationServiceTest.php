@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\Test\AbstractUserFixture;
+use App\DataFixtures\Test\JustRegisteredUserFixture;
 use App\Entity\User;
 use App\Manager\UserManager;
 use App\Manager\UserTermsOfUseManager;
@@ -47,11 +49,12 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserSavesAcceptedDataProtectionAndCodeOfConduct(): void
     {
-        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+        // Loads a single user who has just registered (no accepted terms)
+        $this->databaseTool->loadFixtures([JustRegisteredUserFixture::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
-        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
-        $plainPassword       = 'Passw0rd';
+        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => JustRegisteredUserFixture::JUST_REGISTERED_EMAIL]);
+        $plainPassword       = JustRegisteredUserFixture::PASSWORD;
 
         $registrationService->registerUser($user, $plainPassword);
 
@@ -61,11 +64,11 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserChecksIfDataProtectionIsAlreadyAccepted(): void
     {
-        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+        $this->databaseTool->loadFixtures([JustRegisteredUserFixture::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
-        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
-        $plainPassword       = 'Passw0rd';
+        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => JustRegisteredUserFixture::JUST_REGISTERED_EMAIL]);
+        $plainPassword       = JustRegisteredUserFixture::PASSWORD;
         $user->setAcceptedDataProtection(new \DateTime());
 
         $this->expectException(\LogicException::class);
@@ -75,11 +78,11 @@ class RegistrationServiceTest extends KernelTestCase
 
     public function testRegisterUserChecksIfCodeOfConductIsAlreadyAccepted(): void
     {
-        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+        $this->databaseTool->loadFixtures([JustRegisteredUserFixture::class]);
 
         $registrationService = $this->getRegistrationServiceWithEntityManager();
-        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'just.registered@annabreyer.dev']);
-        $plainPassword       = 'Passw0rd';
+        $user                = $this->entityManager->getRepository(User::class)->findOneBy(['email' => JustRegisteredUserFixture::JUST_REGISTERED_EMAIL]);
+        $plainPassword       = JustRegisteredUserFixture::PASSWORD;
         $user->setAcceptedCodeOfConduct(new \DateTime());
 
         $this->expectException(\LogicException::class);
@@ -122,7 +125,7 @@ class RegistrationServiceTest extends KernelTestCase
             $termsOfUseManager
         );
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => JustRegisteredUserFixture::JUST_REGISTERED_EMAIL]);
         $registrationService->sendRegistrationEmail($user);
 
         static::assertEmailCount(1);

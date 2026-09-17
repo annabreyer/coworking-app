@@ -15,9 +15,9 @@ class BookingWithOutInvoiceFixture extends BookingFixtures
     {
         parent::load($manager);
 
-        $user        = $this->getReference('user1');
-        $room        = $this->getReference('room3');
-        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE);
+        $user        = $this->getReference('user1', \App\Entity\User::class);
+        $room        = $this->getReference('room3', \App\Entity\Room::class);
+        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE, \App\Entity\BusinessDay::class);
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay);

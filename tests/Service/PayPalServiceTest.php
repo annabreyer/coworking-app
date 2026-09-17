@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
-use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
+use App\DataFixtures\Test\BookingWithInvoiceFixture;
 use App\Repository\InvoiceRepository;
 use App\Service\PayPalService;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
@@ -44,9 +44,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentLogsErrorForMissingPayPalOrderId(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $container     = static::getContainer();
@@ -72,9 +72,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenHttpStatusCodeIsNot200(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId     = '123456789';
@@ -108,9 +108,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenResponseBodyIsEmpty(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
@@ -143,9 +143,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenIntentIsNotCapture(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
@@ -179,9 +179,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenStatusIsNotApproved(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
@@ -219,9 +219,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenCurrencyIsWrong(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
@@ -262,9 +262,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenAmountIsWrong(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';
@@ -300,9 +300,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenCapturePaymentHttpStatusCodeIsNot200(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId       = '123456789';
@@ -339,9 +339,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenCapturePaymentResponseBodyIsEmpty(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId     = '123456789';
@@ -377,9 +377,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsFalseWhenCapturePaymentStatusIsNotCompleted(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId       = '123456789';
@@ -416,9 +416,9 @@ class PayPalServiceTest extends WebTestCase
     public function testHandlePaymentReturnsTrueWhenCapturePaymentIsSuccessful(): void
     {
         self::bootKernel();
-        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceFixture::class]);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => BookingWithInvoiceFixture::INVOICE_NUMBER]);
         self::assertNotNull($invoice);
 
         $payPalOrderId = '123456789';

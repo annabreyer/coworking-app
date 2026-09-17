@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            margin: 30mm 15mm 45mm 15mm;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 11pt;
+            color: #000000;
+        }
+
+        .header {
+            position: fixed;
+            top: -24mm;
+            left: 0;
+            height: 20mm;
+        }
+
+        .header img {
+            height: 20mm;
+        }
+
+        .meta {
+            position: fixed;
+            top: -18mm;
+            right: 0;
+            text-align: right;
+        }
+
+        .invoice-type {
+            font-size: 22pt;
+            font-weight: bold;
+            margin: 0 0 4mm 0;
+        }
+
+        .meta table {
+            margin-left: auto;
+        }
+
+        .meta td {
+            padding: 0 0 1mm 4mm;
+        }
+
+        .meta td.label {
+            padding-left: 0;
+        }
+
+        .client {
+            margin-top: 6mm;
+        }
+
+        .client .name {
+            border-bottom: 1px solid #000000;
+            display: inline-block;
+            padding-bottom: 1mm;
+        }
+
+        .intro {
+            margin-top: 14mm;
+        }
+
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10mm;
+        }
+
+        .items th {
+            text-align: left;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 2mm;
+        }
+
+        .items th.amount,
+        .items td.amount {
+            text-align: right;
+        }
+
+        .items td {
+            padding-top: 3mm;
+            vertical-align: top;
+        }
+
+        .items .codes {
+            font-size: 9pt;
+            color: #444444;
+            margin-top: 1mm;
+        }
+
+        .total-row td {
+            border-top: 1px solid #000000;
+            padding-top: 3mm;
+            font-weight: bold;
+        }
+
+        .footnote {
+            margin-top: 4mm;
+            font-size: 9pt;
+        }
+
+        .payment-message {
+            margin-top: 8mm;
+            font-weight: bold;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: -37mm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        .footer .signature {
+            height: 12mm;
+            margin-bottom: 4mm;
+        }
+
+        .footer p {
+            margin: 0 0 1mm 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ headerLogo }}" alt="Ensemble by Anna Breyer">
+    </div>
+
+    <div class="meta">
+        <table>
+            <tr>
+                <td class="label">Rechnungsnr.:</td>
+                <td>{{ invoiceNumber }}</td>
+            </tr>
+            <tr>
+                <td class="label">Kundennr.:</td>
+                <td>{{ clientNumber }}</td>
+            </tr>
+            <tr>
+                <td class="label">Datum:</td>
+                <td>{{ invoiceDate }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <p class="invoice-type">{{ invoiceType }}</p>
+
+    <div class="client">
+        <div class="name">
+            {{ clientName }}<br>
+            {% if clientStreet is not null %}
+                {{ clientStreet }}, {{ clientPostCodeAndCity }}
+            {% else %}
+                {{ clientEmail }}
+            {% endif %}
+        </div>
+    </div>
+
+    <p class="intro">{{ introText }}</p>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th style="width: 10%">Pos.</th>
+                <th style="width: 65%">Beschreibung</th>
+                <th class="amount" style="width: 25%">Gesamtpreis</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.position }}</td>
+                    <td>
+                        {{ item.description }}
+                        {% if item.codes is not null %}
+                            <div class="codes">{{ item.codes }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="amount">{{ item.amount }}</td>
+                </tr>
+            {% endfor %}
+            {% if showTotal %}
+                <tr class="total-row">
+                    <td></td>
+                    <td>Gesamtbetrag *</td>
+                    <td class="amount">{{ totalAmount }}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <p class="footnote">* Im ausgewiesenen Gesamtbetrag ist gem. § 19 Abs. 1 UStG keine Umsatzsteuer enthalten.</p>
+
+    {% if paymentMessage is not null %}
+        <p class="payment-message">{{ paymentMessage }}</p>
+    {% endif %}
+
+    <div class="footer">
+        <img class="signature" src="{{ vielenDank }}" alt="Vielen Dank">
+        <p>Ensemble by Anna Breyer, Bahnhofstr.9, 55278 Hahnheim</p>
+        <p>Tel.: 0174 512 4442 | office@coworking-hahnheim.de | www.coworking-hahnheim.de</p>
+        <p>Finom Payments - IBAN: DE83100180000089755565 - BIC: FNOMDEB2</p>
+    </div>
+</body>
+</html>

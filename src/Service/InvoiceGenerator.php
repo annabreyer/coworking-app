@@ -9,26 +9,26 @@ use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Entity\User;
 use App\Entity\Voucher;
-use App\Entity\VoucherType;
 use App\Manager\InvoiceManager;
 use Doctrine\ORM\EntityManagerInterface;
-use setasign\Fpdi\Tfpdf\Fpdi;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class InvoiceGenerator
 {
-    private Fpdi $pdf;
+    private const ASSETS_DIRECTORY = __DIR__ . '/../../templates/invoice/pdf/assets';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly TranslatorInterface $translator,
+        private readonly Environment $twig,
         private readonly Filesystem $filesystem,
-        private readonly string $invoiceTemplatePath,
         private readonly string $invoiceDirectory,
         private readonly string $invoiceClientNumberPrefix,
     ) {
-        $this->pdf = new Fpdi();
     }
 
     public function generateBookingInvoice(Invoice $invoice): void
@@ -55,14 +55,17 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Booking must have a user.');
         }
 
-        $this->setupInvoiceTemplate();
-        $this->addInvoiceData($invoice);
-        $this->addClientData($user);
-        $this->writeBookingLine($invoiceBooking);
+        $context = $this->buildBaseContext($invoice, $user);
 
-        $this->handlePaymentSpecifics($invoice);
+        $context['items'][] = $this->buildBookingItem($invoiceBooking);
 
-        $this->saveInvoice($invoice);
+        $paymentSpecifics          = $this->buildBookingPaymentSpecifics($invoice);
+        $context['items']          = array_merge($context['items'], $paymentSpecifics['extraItems']);
+        $context['showTotal']      = true;
+        $context['totalAmount']    = $this->formatAmount($paymentSpecifics['totalAmount']);
+        $context['paymentMessage'] = $paymentSpecifics['paymentMessage'];
+
+        $this->render($invoice, $context);
     }
 
     public function generateVoucherInvoice(Invoice $invoice): void
@@ -95,25 +98,32 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Voucher must have a user.');
         }
 
-        $this->setupInvoiceTemplate();
-        $this->addInvoiceData($invoice);
-        $this->addClientData($user);
-        $this->writeFirstPositionNumber();
-        $this->writeVoucherDescription($voucherType);
-        $this->writeVoucherCodes($invoice);
-        $this->writeAmount($invoiceAmount / 100);
+        $context = $this->buildBaseContext($invoice, $user);
+
+        $context['items'][] = [
+            'position'    => 1,
+            'description' => $this->translator->trans('invoice.description.voucher', [
+                '%name%'           => $voucherType->getName(),
+                '%validityMonths%' => $voucherType->getValidityMonths(),
+            ], 'invoice'),
+            'codes'  => $this->getVoucherCodes($invoice),
+            'amount' => $this->formatAmount($invoiceAmount / 100),
+        ];
+
+        $context['showTotal']   = false;
+        $context['totalAmount'] = $this->formatAmount($invoiceAmount / 100);
 
         if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount() / 100);
-            $this->addAlreadyPaidMention($invoice);
+            $context['showTotal']      = true;
+            $context['paymentMessage'] = $this->getAlreadyPaidMessage($invoice);
         }
 
         if (false === $invoice->isFullyPaid()) {
-            $this->writeTotalAmount($invoice->getAmount() / 100);
-            $this->addDueMention($invoice);
+            $context['showTotal']      = true;
+            $context['paymentMessage'] = $this->getDueMessage($invoice);
         }
 
-        $this->saveInvoice($invoice);
+        $this->render($invoice, $context);
     }
 
     public function generateGeneralInvoice(Invoice $invoice): void
@@ -122,7 +132,8 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must be persisted.');
         }
 
-        if (0 === $invoice->getAmount()) {
+        $invoiceAmount = $invoice->getAmount();
+        if (null === $invoiceAmount) {
             throw new \InvalidArgumentException('Invoice must have an amount.');
         }
 
@@ -131,21 +142,20 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Invoice must have a user.');
         }
 
-        $invoiceAmount = $invoice->getAmount();
-        if (null === $invoiceAmount) {
-            throw new \InvalidArgumentException('Invoice must have an amount.');
-        }
+        $context = $this->buildBaseContext($invoice, $user);
 
-        $this->setupInvoiceTemplate();
-        $this->addInvoiceData($invoice);
-        $this->addClientData($user);
-        $this->writeFirstPositionNumber();
-        $this->writeValue(30, 145, 140, 8, (string) $invoice->getDescription());
-        $this->writeAmount($invoiceAmount / 100);
-        $this->writeTotalAmount($invoiceAmount / 100);
-        $this->addDueMention($invoice);
+        $context['items'][] = [
+            'position'    => 1,
+            'description' => (string) $invoice->getDescription(),
+            'codes'       => null,
+            'amount'      => $this->formatAmount($invoiceAmount / 100),
+        ];
 
-        $this->saveInvoice($invoice);
+        $context['showTotal']      = true;
+        $context['totalAmount']    = $this->formatAmount($invoiceAmount / 100);
+        $context['paymentMessage'] = $this->getDueMessage($invoice);
+
+        $this->render($invoice, $context);
     }
 
     public function getTargetDirectory(Invoice $invoice): string
@@ -165,137 +175,69 @@ class InvoiceGenerator
         return $targetDirectory;
     }
 
-    private function setupInvoiceTemplate(): void
-    {
-        $this->setStandardFont();
-        $this->pdf->AddPage();
-        $this->pdf->setSourceFile($this->invoiceTemplatePath);
-
-        $template = $this->pdf->importPage(1);
-
-        $this->pdf->useTemplate($template, ['adjustPageSize' => true]);
-    }
-
-    private function addInvoiceData(Invoice $invoice): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildBaseContext(Invoice $invoice, User $user): array
     {
         if (null === $invoice->getNumber()) {
             throw new \InvalidArgumentException('Invoice must have a number.');
         }
 
-        $this->writeInvoiceNumber($invoice);
-        $this->writeInvoiceDate($invoice);
-        $this->writeInvoiceType($invoice->isRefund());
-        $this->writeIntro($invoice->isRefund());
-    }
-
-    private function addClientData(User $user): void
-    {
-        $this->writeClientNumber($user);
-        $this->writeClientFullName($user);
-
-        if ($user->hasAddress()) {
-            $this->writeClientStreet($user);
-            $this->writeClientCity($user);
-        } else {
-            $this->writeEmailAddress($user);
-        }
-    }
-
-    private function writeInvoiceType(bool $isRefund): void
-    {
-        if ($isRefund) {
-            $type = $this->translator->trans('invoice.type.refund', [], 'invoice');
-        } else {
-            $type = $this->translator->trans('invoice.type.invoice', [], 'invoice');
-        }
-        $this->setTitleFont();
-        $this->writeValue(13, 45.5, 50, 24, $type);
-        $this->setStandardFont();
-    }
-
-    private function writeIntro(bool $isRefund): void
-    {
-        if ($isRefund) {
-            $intro = $this->translator->trans('invoice.intro.refund', [], 'invoice');
-        } else {
-            $intro = $this->translator->trans('invoice.intro.invoice', [], 'invoice');
-        }
-
-        $this->writeValue(13, 126, 200, 8, $intro);
-    }
-
-    private function writeInvoiceNumber(Invoice $invoice): void
-    {
-        if (null === $invoice->getNumber()) {
-            throw new \InvalidArgumentException('Invoice must have a number.');
-        }
-
-        $this->writeValue(160, 45.5, 30, 8, $invoice->getNumber());
-    }
-
-    private function writeClientNumber(User $user): void
-    {
-        if (null === $user->getId()) {
-            throw new \InvalidArgumentException('User must be persisted.');
-        }
-
-        $number       = InvoiceManager::getClientNumber($user->getId());
-        $clientNumber = $this->invoiceClientNumberPrefix . $number;
-
-        $this->writeValue(160, 51, 30, 8, $clientNumber);
-    }
-
-    private function writeInvoiceDate(Invoice $invoice): void
-    {
         if (null === $invoice->getDate()) {
             throw new \InvalidArgumentException('Invoice must have a date.');
         }
 
-        $this->writeValue(160, 56.25, 30, 8, $invoice->getDate()->format('d.m.Y'));
+        if (null === $user->getId()) {
+            throw new \InvalidArgumentException('User must be persisted.');
+        }
+
+        $context = [
+            'headerLogo'    => $this->getAssetDataUri('header_logo.png'),
+            'vielenDank'    => $this->getAssetDataUri('vielen_dank.png'),
+            'invoiceNumber' => $invoice->getNumber(),
+            'invoiceDate'   => $invoice->getDate()->format('d.m.Y'),
+            'clientNumber'  => $this->invoiceClientNumberPrefix . InvoiceManager::getClientNumber($user->getId()),
+            'clientName'    => $user->getFullName(),
+            'invoiceType'   => $this->translator->trans(
+                $invoice->isRefund() ? 'invoice.type.refund' : 'invoice.type.invoice',
+                [],
+                'invoice'
+            ),
+            'introText' => $this->translator->trans(
+                $invoice->isRefund() ? 'invoice.intro.refund' : 'invoice.intro.invoice',
+                [],
+                'invoice'
+            ),
+            'items'          => [],
+            'showTotal'      => false,
+            'totalAmount'    => null,
+            'paymentMessage' => null,
+        ];
+
+        if ($user->hasAddress()) {
+            $context['clientStreet']          = $user->getStreet();
+            $context['clientPostCodeAndCity'] = $user->getPostCode() . ' ' . $user->getCity();
+            $context['clientEmail']           = null;
+        } else {
+            $context['clientStreet']          = null;
+            $context['clientPostCodeAndCity'] = null;
+            $context['clientEmail']           = $user->getEmail() ?? '';
+        }
+
+        return $context;
     }
 
-    private function writeClientFullName(User $user): void
-    {
-        $this->writeValue(13, 85, 100, 8, $user->getFullName());
-    }
-
-    private function writeClientStreet(User $user): void
-    {
-        $this->writeValue(13, 90, 100, 8, $user->getStreet());
-    }
-
-    private function writeClientCity(User $user): void
-    {
-        $postCodeAndCity = $user->getPostCode() . ' ' . $user->getCity();
-        $this->writeValue(13, 95, 100, 8, $postCodeAndCity);
-    }
-
-    private function writeEmailAddress(User $user): void
-    {
-        $email = $user->getEmail() ?? '';
-
-        $this->writeValue(13, 90, 100, 8, $email);
-    }
-
-    private function writeBookingLine(Booking $booking): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildBookingItem(Booking $booking): array
     {
         $bookingAmount = $booking->getAmount();
         if (null === $bookingAmount) {
             throw new \InvalidArgumentException('Booking must have an amount.');
         }
 
-        $this->writeFirstPositionNumber();
-        $this->writeBookingDescription($booking);
-        $this->writeAmount($bookingAmount / 100);
-    }
-
-    private function writeFirstPositionNumber(): void
-    {
-        $this->writeValue(15, 145, 10, 8, '1');
-    }
-
-    private function writeBookingDescription(Booking $booking): void
-    {
         $bookingDate = $booking->getBusinessDay()?->getDate();
         if (null === $bookingDate) {
             throw new \InvalidArgumentException('Booking must have a business day with a date.');
@@ -306,54 +248,59 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Booking must have a room.');
         }
 
-        $description = $this->translator->trans('invoice.description.booking', [
-            '%date%' => $bookingDate->format('d.m.Y'),
-            '%room%' => $bookingRoom->getName(),
-        ], 'invoice');
-        $this->writeValue(30, 145, 140, 8, $description);
+        return [
+            'position'    => 1,
+            'description' => $this->translator->trans('invoice.description.booking', [
+                '%date%' => $bookingDate->format('d.m.Y'),
+                '%room%' => $bookingRoom->getName(),
+            ], 'invoice'),
+            'codes'  => null,
+            'amount' => $this->formatAmount($bookingAmount / 100),
+        ];
     }
 
-    private function writeVoucherDescription(VoucherType $voucherType): void
+    /**
+     * @return array{extraItems: array<int, array<string, mixed>>, totalAmount: float, paymentMessage: string|null}
+     */
+    private function buildBookingPaymentSpecifics(Invoice $invoice): array
     {
-        $description = $this->translator->trans('invoice.description.voucher', [
-            '%name%'           => $voucherType->getName(),
-            '%validityMonths%' => $voucherType->getValidityMonths(),
-        ], 'invoice');
+        if ($invoice->isFullyPaidByVoucher()) {
+            return [
+                'extraItems'     => $this->buildVoucherPaymentItems($invoice),
+                'totalAmount'    => 0.0,
+                'paymentMessage' => null,
+            ];
+        }
 
-        $this->writeValue(30, 145, 140, 8, $description);
+        if ($invoice->isFullyPaidByPayPal()) {
+            return [
+                'extraItems'     => [],
+                'totalAmount'    => $invoice->getAmount() / 100,
+                'paymentMessage' => $this->getAlreadyPaidMessage($invoice),
+            ];
+        }
+
+        return [
+            'extraItems'     => [],
+            'totalAmount'    => $invoice->getAmount() / 100,
+            'paymentMessage' => $this->getDueMessage($invoice),
+        ];
     }
 
-    private function writeVoucherCodes(Invoice $invoice): void
-    {
-        $codes = implode(', ', $invoice->getVouchers()->map(static fn (Voucher $voucher) => $voucher->getCode())->toArray());
-        $this->writeValue(30, 155, 120, 5, $codes);
-    }
-
-    private function writeAmount(float $amount): void
-    {
-        $invoiceAmount = number_format($amount, 2, ',', '');
-
-        $this->writeValue(180, 145, 30, 8, $invoiceAmount . ' €');
-    }
-
-    private function writeTotalAmount(float $amount): void
-    {
-        $invoiceAmount = number_format($amount, 2, ',', '');
-
-        $this->writeValue(180, 182, 30, 8, $invoiceAmount . ' €');
-    }
-
-    private function addVoucherPayment(Invoice $invoice): void
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildVoucherPaymentItems(Invoice $invoice): array
     {
         if ($invoice->getPayments()->isEmpty()) {
-            return;
+            return [];
         }
 
         if (false === $invoice->isFullyPaidByVoucher()) {
-            return;
+            return [];
         }
 
-        $y        = 155;
+        $items    = [];
         $position = 2;
         foreach ($invoice->getPayments() as $payment) {
             $paymentVoucher = $payment->getVoucher();
@@ -361,40 +308,42 @@ class InvoiceGenerator
                 throw new \InvalidArgumentException('Payment must have a voucher and a voucher code.');
             }
 
-            $paymentMethodMessage = $this->translator->trans('invoice.payment.voucher', [
-                '%voucherCode%' => $paymentVoucher->getCode(),
-            ], 'invoice');
-            $amount = $payment->getAmount() / 100;
-
-            $this->writeValue(15, $y, 10, 8, (string) $position);
-            $this->writeValue(30, $y, 140, 8, $paymentMethodMessage);
-            $this->writeValue(180, $y, 30, 8, '-' . $amount . ',00 €');
-            $y += 12;
+            $items[] = [
+                'position'    => $position,
+                'description' => $this->translator->trans('invoice.payment.voucher', [
+                    '%voucherCode%' => $paymentVoucher->getCode(),
+                ], 'invoice'),
+                'codes'  => null,
+                'amount' => '-' . $this->formatAmount($payment->getAmount() / 100),
+            ];
             ++$position;
         }
+
+        return $items;
     }
 
-    private function addDueMention(Invoice $invoice): void
+    private function getVoucherCodes(Invoice $invoice): string
+    {
+        return implode(', ', $invoice->getVouchers()->map(static fn (Voucher $voucher) => $voucher->getCode())->toArray());
+    }
+
+    private function getDueMessage(Invoice $invoice): ?string
     {
         if ($invoice->isFullyPaidByVoucher() || $invoice->isFullyPaidByPayPal()) {
-            return;
+            return null;
         }
 
         if ($invoice->isBookingInvoice()) {
-            $dueMessage = $this->translator->trans('invoice.due.booking', [], 'invoice');
-        } else {
-            $dueMessage = $this->translator->trans('invoice.due.general', [], 'invoice');
+            return $this->translator->trans('invoice.due.booking', [], 'invoice');
         }
 
-        $this->setBoldFont();
-        $this->writeValue(15, 210, 200, 8, $dueMessage);
-        $this->setStandardFont();
+        return $this->translator->trans('invoice.due.general', [], 'invoice');
     }
 
-    private function addAlreadyPaidMention(Invoice $invoice): void
+    private function getAlreadyPaidMessage(Invoice $invoice): string
     {
         if (false === $invoice->isFullyPaidByPayPal()) {
-            return;
+            throw new \InvalidArgumentException('Invoice must be fully paid by PayPal.');
         }
 
         $payPalPayment = $invoice->getPayments()->first();
@@ -407,60 +356,51 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('Already paid invoice must have a payment date.');
         }
 
-        $dueMessage = $this->translator->trans('invoice.payment.paid', ['%date%' => $paymentDate->format('d.m.Y')], 'invoice');
-        $this->setBoldFont();
-        $this->writeValue(15, 210, 200, 8, $dueMessage);
-        $this->setStandardFont();
+        return $this->translator->trans('invoice.payment.paid', ['%date%' => $paymentDate->format('d.m.Y')], 'invoice');
     }
 
-    private function saveInvoice(Invoice $invoice): void
+    private function formatAmount(float $amount): string
+    {
+        return number_format($amount, 2, ',', '') . ' €';
+    }
+
+    private function getAssetDataUri(string $fileName): string
+    {
+        $path = self::ASSETS_DIRECTORY . '/' . $fileName;
+        $data = file_get_contents($path);
+        if (false === $data) {
+            throw new \RuntimeException(\sprintf('Could not read invoice asset "%s".', $path));
+        }
+
+        return 'data:image/png;base64,' . base64_encode($data);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function render(Invoice $invoice, array $context): void
+    {
+        $html = $this->twig->render('invoice/pdf/invoice.html.twig', $context);
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'Helvetica');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        $this->saveInvoice($invoice, $dompdf);
+    }
+
+    private function saveInvoice(Invoice $invoice, Dompdf $dompdf): void
     {
         $fileName = $this->getTargetDirectory($invoice) . '/' . $invoice->getNumber() . '.pdf';
 
-        $this->pdf->Output('F', $fileName, true);
+        $this->filesystem->dumpFile($fileName, $dompdf->output());
 
         $invoice->setFilePath($fileName);
         $this->entityManager->flush();
-    }
-
-    private function writeValue(float $x, float $y, int $w, int $h, string $value): void
-    {
-        $this->pdf->SetXY($x, $y);
-        $this->pdf->multiCell($w, $h, mb_convert_encoding($value, 'windows-1252', 'UTF-8'));
-    }
-
-    private function setStandardFont(): void
-    {
-        $this->pdf->SetFont('Helvetica', '', 12);
-    }
-
-    private function setBoldFont(): void
-    {
-        $this->pdf->SetFont('Helvetica', 'b', 12);
-    }
-
-    private function setTitleFont(): void
-    {
-        $this->pdf->SetFont('Helvetica', 'b', 24);
-    }
-
-    private function handlePaymentSpecifics(Invoice $invoice): void
-    {
-        if ($invoice->isFullyPaidByVoucher()) {
-            $this->addVoucherPayment($invoice);
-            $this->writeTotalAmount(0);
-
-            return;
-        }
-
-        if ($invoice->isFullyPaidByPayPal()) {
-            $this->writeTotalAmount($invoice->getAmount() / 100);
-            $this->addAlreadyPaidMention($invoice);
-
-            return;
-        }
-
-        $this->writeTotalAmount($invoice->getAmount() / 100);
-        $this->addDueMention($invoice);
     }
 }
