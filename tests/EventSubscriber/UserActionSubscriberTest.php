@@ -6,6 +6,7 @@ namespace App\Tests\EventSubscriber;
 
 use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\PriceFixtures;
+use App\DataFixtures\Test\UserAndAdminFixture;
 use App\Repository\BusinessDayRepository;
 use App\Repository\UserActionsRepository;
 use App\Repository\UserRepository;
@@ -21,10 +22,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::USER_EMAIL]);
         $client->loginUser($user);
         $client->request('GET', '/user/edit');
 
@@ -52,10 +53,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::ADMIN_EMAIL]);
         $client->loginUser($user);
         $client->request('POST', '/user/edit', ['testdata' => 'testdata']);
 
@@ -70,10 +71,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::USER_EMAIL]);
         $testdata = ['testdata' => 'testdata'];
         $client->loginUser($user);
         $client->request('POST', '/user/edit', $testdata);
@@ -90,10 +91,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::USER_EMAIL]);
         $testdata = ['testdata' => 'testdata'];
 
         $client->loginUser($user);
@@ -111,10 +112,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::USER_EMAIL]);
         $testdata = ['testdata' => 'testdata'];
 
         $client->loginUser($user);
@@ -132,10 +133,10 @@ class UserActionSubscriberTest extends WebTestCase
     {
         $client = static::createClient();
         static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([
-            BasicFixtures::class,
+            UserAndAdminFixture::class,
         ]);
 
-        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $user     = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserAndAdminFixture::USER_EMAIL]);
         $testdata = ['testdata' => 'testdata'];
 
         $client->loginUser($user);

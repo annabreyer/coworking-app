@@ -22,9 +22,9 @@ class BookingWithInvoiceNoPaymentFixture extends BookingFixtures
 
     private function loadBookingWithInvoiceNoPayment(ObjectManager $manager): void
     {
-        $user        = $this->getReference('user1');
-        $room        = $this->getReference('room3');
-        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE);
+        $user        = $this->getReference('user1', \App\Entity\User::class);
+        $room        = $this->getReference('room3', \App\Entity\Room::class);
+        $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE, \App\Entity\BusinessDay::class);
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay)
@@ -52,9 +52,9 @@ class BookingWithInvoiceNoPaymentFixture extends BookingFixtures
 
     private function loadFirstBookingFixture(ObjectManager $manager): void
     {
-        $user        = $this->getReference('firstBookingUser');
-        $room        = $this->getReference('room3');
-        $businessDay = $this->getReference('businessDay-' . self::FIRST_BOOKING_DATE);
+        $user        = $this->getReference('firstBookingUser', \App\Entity\User::class);
+        $room        = $this->getReference('room3', \App\Entity\Room::class);
+        $businessDay = $this->getReference('businessDay-' . self::FIRST_BOOKING_DATE, \App\Entity\BusinessDay::class);
 
         $booking = new Booking();
         $booking->setBusinessDay($businessDay)

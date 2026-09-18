@@ -86,7 +86,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
 
     private function loadVoucherForAdmin(ObjectManager $manager, VoucherType $voucherType): void
     {
-        $user    = $this->getReference('admin');
+        $user    = $this->getReference('admin', \App\Entity\User::class);
         $voucher = new Voucher();
         $voucher->setUser($user)
                 ->setCode(self::ADMIN_VOUCHER_CODE)
@@ -191,7 +191,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $booking->setUser($user)
                 ->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
                 ->setBusinessDay($businessDay)
-                ->setRoom($this->getReference('room3'))
+                ->setRoom($this->getReference('room3', \App\Entity\Room::class))
                 ->setUser($user)
         ;
 

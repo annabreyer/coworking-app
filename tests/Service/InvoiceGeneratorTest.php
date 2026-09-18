@@ -22,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class InvoiceGeneratorTest extends KernelTestCase
 {
@@ -134,8 +135,8 @@ class InvoiceGeneratorTest extends KernelTestCase
         return new InvoiceGenerator(
             $this->getContainer()->get(EntityManagerInterface::class),
             $mockTranslator,
+            $this->getContainer()->get(Environment::class),
             $mockFilesystem,
-            'invoiceTemplatePath',
             'invoiceDirectory',
             'invoiceClientNumberPrefix'
         );

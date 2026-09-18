@@ -30,7 +30,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 
     private function loadInvoiceFromLastYear(ObjectManager $manager): void
     {
-        $user    = $this->getReference('user1');
+        $user    = $this->getReference('user1', \App\Entity\User::class);
         $invoice = new Invoice();
         $invoice->setUser($user)
                 ->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
@@ -44,7 +44,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 
     private function loadStandardBookingInvoice(ObjectManager $manager): void
     {
-        $user    = $this->getReference('user1');
+        $user    = $this->getReference('user1', \App\Entity\User::class);
         $invoice = new Invoice();
         $invoice->setUser($user)
                 ->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
@@ -58,7 +58,7 @@ class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 
     private function loadVoucherInvoiceWithoutVouchers(ObjectManager $manager): void
     {
-        $user    = $this->getReference('user1');
+        $user    = $this->getReference('user1', \App\Entity\User::class);
         $invoice = new Invoice();
         $invoice->setUser($user)
                 ->setAmount(13500)
