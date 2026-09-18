@@ -75,7 +75,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManager = $this->getInvoiceManager();
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
         $prefix         = self::getContainer()->getParameter('invoice_prefix');
-        $expectedNumber = $prefix . date('Y') . '0001';
+        $expectedNumber = $prefix . '2024' . '0001';
 
         self::assertSame($expectedNumber, $invoiceNumber);
     }
@@ -100,7 +100,7 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceNumber  = $invoiceManager->getInvoiceNumber();
 
         $prefix         = self::getContainer()->getParameter('invoice_prefix');
-        $expectedNumber = $prefix . date('Y') . '1001';
+        $expectedNumber = $prefix . '2024' . '1001';
 
         self::assertSame($expectedNumber, $invoiceNumber);
     }

@@ -32,3 +32,6 @@ phpstan.neon
 
 /drivers
 node_modules
+
+.DS_Store
+/tests/coverageReport/
