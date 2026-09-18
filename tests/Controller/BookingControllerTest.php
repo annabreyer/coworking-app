@@ -305,6 +305,28 @@ class BookingControllerTest extends WebTestCase
         static::assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
     }
 
+    public function testStepDateFormSubmitSuccessfullWithTodayAsDateAndRedirect(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-10 23:59:59'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-05-10');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+
+        $crawler = $client->request('GET', '/booking');
+        $form    = $crawler->filter('#form-date')->form();
+        $form->setValues(['date' => '2024-05-10']);
+        $client->submit($form);
+
+        static::assertResponseRedirects('/booking/' . $businessDay->getId() . '/room');
+    }
+
     public function testStepRoomLogsErrorRedirectsWhenNoPricesAreDefined(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-04-30'));
@@ -355,6 +377,24 @@ class BookingControllerTest extends WebTestCase
         /** @var Session $session */
         $session = $client->getRequest()->getSession();
         self::assertContains('Dieses Datum ist nicht mehr verfügbar.', $session->getFlashBag()->get('error'));
+    }
+
+    public function testStepRoomRendersTemplateWhenBusinessDayIsToday(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-10 23:59:59'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $date        = new \DateTimeImmutable('2024-05-10');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+
+        $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
+        static::assertResponseIsSuccessful();
     }
 
     public function testStepRoomRedirectsWithClosedBusinessDay(): void

@@ -79,7 +79,7 @@ class BookingController extends AbstractController
             return $this->renderStepDate($response, $this->now());
         }
 
-        if ($dateTime < $this->now()) {
+        if ($dateTime->setTime(0, 0, 0) < $this->now()->setTime(0, 0, 0)) {
             $this->addFlash('error', $this->translator->trans('form.booking.step_date.date_in_past', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
@@ -104,7 +104,7 @@ class BookingController extends AbstractController
         BusinessDay $businessDay,
         AdminMailerService $adminMailerService,
     ): Response {
-        if ($businessDay->getDate() < $this->now()) {
+        if ($businessDay->getDate() < $this->now()->setTime(0, 0, 0)) {
             $this->addFlash(
                 'error',
                 $this->translator->trans('form.booking.step_room.date_no_longer_available', [], 'flash')
