@@ -43,6 +43,10 @@ class VoucherType
     #[ORM\OneToMany(mappedBy: 'voucherType', targetEntity: Price::class)]
     private Collection $prices;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?BookingType $bookingType = null;
+
     public function __construct()
     {
         $this->vouchers = new ArrayCollection();
@@ -137,5 +141,17 @@ class VoucherType
     public function setPrices(Collection $prices): void
     {
         $this->prices = $prices;
+    }
+
+    public function getBookingType(): ?BookingType
+    {
+        return $this->bookingType;
+    }
+
+    public function setBookingType(?BookingType $bookingType): static
+    {
+        $this->bookingType = $bookingType;
+
+        return $this;
     }
 }
