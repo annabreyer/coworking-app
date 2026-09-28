@@ -162,4 +162,46 @@ class InvoiceManager
 
         $this->generateInvoicePdf($invoice);
     }
+
+    /**
+     * Bundles the PDFs of the given invoices into a temporary ZIP archive and returns its path.
+     * Missing PDFs are generated on the fly. The caller is responsible for removing the archive.
+     *
+     * @param iterable<Invoice> $invoices
+     */
+    public function createInvoiceArchive(iterable $invoices): string
+    {
+        $archivePath = $this->filesystem->tempnam(sys_get_temp_dir(), 'invoices_', '.zip');
+
+        $zip = new \ZipArchive();
+        if (true !== $zip->open($archivePath, \ZipArchive::OVERWRITE)) {
+            throw new \RuntimeException('Could not create invoice archive.');
+        }
+
+        $addedFiles = 0;
+        foreach ($invoices as $invoice) {
+            if (null === $invoice->getFilePath() || false === $this->filesystem->exists($invoice->getFilePath())) {
+                $this->generateInvoicePdf($invoice);
+            }
+
+            $filePath = $invoice->getFilePath();
+            if (null === $filePath) {
+                throw new \RuntimeException(\sprintf('Invoice file for invoice %s not found.', $invoice->getNumber()));
+            }
+
+            $zip->addFile($filePath, $invoice->getNumber() . '.pdf');
+            ++$addedFiles;
+        }
+
+        if (0 === $addedFiles) {
+            $zip->close();
+            $this->filesystem->remove($archivePath);
+
+            throw new \InvalidArgumentException('No invoices given for the archive.');
+        }
+
+        $zip->close();
+
+        return $archivePath;
+    }
 }
