@@ -70,6 +70,8 @@ class InvoiceCrudController extends AbstractCrudController
                      ->hideNullValues()
                      ->showEntityActionsInlined()
                      ->setDefaultSort(['number' => 'DESC'])
+                     // the only batch action is the ZIP download, which needs no confirmation
+                     ->askConfirmationOnBatchActions(false)
         ;
     }
 
