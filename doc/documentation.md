@@ -160,6 +160,7 @@ Adding a voucher payment, regenerates the invoice with the voucher payment.
 ## Development data
 `bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures`, which only ties together the fixtures for a running app:
 - the combinable test fixtures (`BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture`),
+- `HalfDayPriceFixtures`: the Halbtag prices next to the Ganztag prices of `PriceFixtures`, 12 € for a single half day and 100 € for ten.
 - `UpcomingBusinessDayFixtures`: business days from today for the next 6 months. Weekends and public holidays are closed, like with the `app:business-days` command.
 - `CoworkingRoomFixtures`: a room "Coworking-Raum" with 4 places, like the real space. The test rooms are closed, so that like in production only one room can be booked.
 - `UpcomingBookingFixtures`: one booking on the second open day, the fourth open day is fully booked, so the occupancy on the booking page can be checked.

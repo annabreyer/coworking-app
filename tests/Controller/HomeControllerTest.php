@@ -6,7 +6,9 @@ namespace App\Tests\Controller;
 
 use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\PriceFixtures;
+use App\Entity\BookingType;
 use App\Entity\Price;
+use App\Repository\BookingTypeRepository;
 use App\Repository\PriceRepository;
 use App\Repository\VoucherTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,6 +63,7 @@ class HomeControllerTest extends BaseTestController
         $halfDayPrice->setVoucherType($voucherType)
                      ->setAmount(8000)
                      ->setIsActive(true)
+                     ->setBookingType($this->getRepository(BookingTypeRepository::class)->findOneBy(['name' => BookingType::NAME_HALF_DAY]))
                      ->setName('10er-Ticket halbe Tage');
 
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
