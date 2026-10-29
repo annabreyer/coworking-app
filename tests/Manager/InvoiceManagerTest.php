@@ -454,6 +454,69 @@ class InvoiceManagerTest extends KernelTestCase
         $invoiceManagerMock->regenerateInvoicePdf($invoiceMock);
     }
 
+    public function testCreateInvoiceArchiveBundlesExistingPdfs(): void
+    {
+        $filesystem = new Filesystem();
+        $pdfOne     = $filesystem->tempnam(sys_get_temp_dir(), 'invoice_test_');
+        $pdfTwo     = $filesystem->tempnam(sys_get_temp_dir(), 'invoice_test_');
+        $filesystem->dumpFile($pdfOne, 'first');
+        $filesystem->dumpFile($pdfTwo, 'second');
+
+        $invoiceOne = (new Invoice())->setNumber('CO20240001')->setFilePath($pdfOne);
+        $invoiceTwo = (new Invoice())->setNumber('CO20240002')->setFilePath($pdfTwo);
+
+        $mockInvoiceGenerator = $this->createMock(InvoiceGenerator::class);
+        $mockInvoiceGenerator->expects(self::never())->method(self::anything());
+
+        $invoiceManager = $this->getInvoiceManager($mockInvoiceGenerator, $filesystem);
+        $archivePath    = $invoiceManager->createInvoiceArchive([$invoiceOne, $invoiceTwo]);
+
+        $zip = new \ZipArchive();
+        self::assertTrue($zip->open($archivePath));
+        self::assertSame(2, $zip->numFiles);
+        self::assertSame('first', $zip->getFromName('CO20240001.pdf'));
+        self::assertSame('second', $zip->getFromName('CO20240002.pdf'));
+        $zip->close();
+
+        $filesystem->remove([$archivePath, $pdfOne, $pdfTwo]);
+    }
+
+    public function testCreateInvoiceArchiveGeneratesMissingPdfs(): void
+    {
+        $filesystem = new Filesystem();
+        $pdf        = $filesystem->tempnam(sys_get_temp_dir(), 'invoice_test_');
+        $filesystem->dumpFile($pdf, 'generated');
+
+        $invoice = (new Invoice())->setNumber('CO20240003')->setFilePath('/does/not/exist.pdf');
+
+        $mockInvoiceGenerator = $this->createMock(InvoiceGenerator::class);
+        $mockInvoiceGenerator->expects(self::once())
+                             ->method('generateGeneralInvoice')
+                             ->with($invoice)
+                             ->willReturnCallback(static function (Invoice $invoice) use ($pdf): void {
+                                 $invoice->setFilePath($pdf);
+                             })
+        ;
+
+        $invoiceManager = $this->getInvoiceManager($mockInvoiceGenerator, $filesystem);
+        $archivePath    = $invoiceManager->createInvoiceArchive([$invoice]);
+
+        $zip = new \ZipArchive();
+        self::assertTrue($zip->open($archivePath));
+        self::assertSame('generated', $zip->getFromName('CO20240003.pdf'));
+        $zip->close();
+
+        $filesystem->remove([$archivePath, $pdf]);
+    }
+
+    public function testCreateInvoiceArchiveThrowsExceptionWithoutInvoices(): void
+    {
+        $invoiceManager = $this->getInvoiceManager(null, new Filesystem());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $invoiceManager->createInvoiceArchive([]);
+    }
+
     private function persistInvoice(string $number, \DateTimeImmutable $date, ?\DateTime $createdAt = null): void
     {
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
