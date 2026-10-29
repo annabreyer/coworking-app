@@ -149,6 +149,8 @@ The second open day gets one booking, the fourth open day is fully booked, so th
 The tests don't use these fixtures, as they rely on fixed dates in 2024.
 
 Loading all fixtures without a group fails, because the fixtures in `DataFixtures/Test` use the same references as the basic fixtures.
+The booking fixtures extend `BookingFixtures` and load its bookings again, so only `BookingWithInvoiceNoPaymentFixture` is a dependency of `DevFixtures`.
+All fixture users have the password `Passw0rd`. `admin@annabreyer.dev` is a super admin, `user.one@annabreyer.dev` a regular user.
 
 ## Tailwind
 The project (`tailwind.config.js`, `@tailwind` directives in `app.css`) is set up for Tailwind v3.
