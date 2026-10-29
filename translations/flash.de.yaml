@@ -13,6 +13,7 @@ form:
       no_room: 'Bitte ein Zimmer auswählen.'
       unknown_room: 'Unbekanntes Zimmer ausgewählt.'
       room_full: 'Dieses Zimmer ist ausgebucht.'
+      no_booking_type: 'Bitte Ganztag oder Halbtag auswählen.'
     cancel:
       impossible: 'Diese Buchung kann nicht storniert werden.'
       time_limit_exceeded: 'Buchungen können nur %d% Tag(e) vorher storniert werden.'

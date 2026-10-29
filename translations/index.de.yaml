@@ -8,8 +8,7 @@ content:
       <p class="text-lg">Unsere Preise sind fair und transparent. Wir bieten verschiedene Tarife an, um Deinen Bedürfnissen gerecht zu werden. Ob Du nur gelegentlich einen Arbeitsplatz benötigst oder regelmäßig einen festen Platz, wir haben das passende Angebot für Dich.
       Und solltest du wider Erwarten doch nicht fündig werden, sprich uns einfach an. Per E-Mail oder am besten vor Ort. Wir finden eine Lösung.</p>'
     unitary:
-      title: 'Einzelbuchungen: %unitaryPrice% €'
-      text: 'Einzelbuchungen gibt es jeweils nur für einen vollen Tag.'
+      title: 'Einzelbuchung %type%: %unitaryPrice% €'
     voucher:
       title: '%voucherName% : %voucherPrice% €'
       text: '

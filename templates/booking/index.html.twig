@@ -50,7 +50,7 @@
                                 <form method="post" action="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
                                     <input type="hidden" name="room" value="{{ day.singleRoomId }}">
                                     <input type="hidden" name="token" value="{{ csrf_token('room') }}">
-                                    <button type="submit" class="!my-0 text-lg">{{ 'booking.page.form.action'|trans }}</button>
+                                    {% include 'booking/partials/booking_type_buttons.html.twig' %}
                                 </form>
                             {% else %}
                                 <a href="{{ path('booking_step_room', {'businessDay': businessDay.id}) }}">
@@ -117,7 +117,9 @@
                 {% endif %}
                 <input type="hidden" name="token" value="{{ csrf_token('room') }}">
                 {% if bookingOption|length > 1 or (bookingOption|first).isAvailable %}
-                    <button type="submit" class="text-lg">{{ 'booking.page.form.action'|trans }}</button>
+                    <div class="mt-4">
+                        {% include 'booking/partials/booking_type_buttons.html.twig' %}
+                    </div>
                 {% endif %}
             </form>
         </section>

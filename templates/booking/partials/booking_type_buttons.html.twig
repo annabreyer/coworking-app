@@ -1,0 +1,7 @@
+<div class="flex flex-col sm:flex-row gap-2">
+    {% for unitaryPrice in unitaryPrices %}
+        <button type="submit" name="bookingType" value="{{ unitaryPrice.bookingType.id }}" class="!my-0 text-lg whitespace-nowrap">
+            {{ 'booking.page.form.book_type'|trans({'%type%': unitaryPrice.bookingType.name, '%amount%': unitaryPrice.amount/100}) }}
+        </button>
+    {% endfor %}
+</div>

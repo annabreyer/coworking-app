@@ -6,6 +6,9 @@
         <h5 class="mb-2 text-2xl font-bold tracking-tight">
             {{ booking.businessDay.date|date('d.m.Y') }}
         </h5>
+        {% if booking.type %}
+            <p class="mb-3 font-normal text-xl">{{ booking.type.name }}</p>
+        {% endif %}
         <p class="mb-3 font-normal text-xl">
             {{ booking.room.name }}</p>
         <p class="mb-3 font-normal text-xl font-MiamoRegular">
