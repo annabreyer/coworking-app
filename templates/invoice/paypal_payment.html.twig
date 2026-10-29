@@ -7,6 +7,9 @@
 {% endblock %}
 {% block header %}{{ 'invoice.payment.page.title'|trans }}{% endblock %}
 {% block content %}
+    {% if invoice.isBookingInvoice %}
+        {% include 'booking/partials/step_bar.html.twig' with {'currentStep': 2} %}
+    {% endif %}
     <section class="self-center">
         <div id="payment-container">
             {% if invoice.isBookingInvoice %}

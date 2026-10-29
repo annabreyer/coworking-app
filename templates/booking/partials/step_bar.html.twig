@@ -1,0 +1,33 @@
+{% set steps = [
+    'booking.steps.choose_day'|trans,
+    'booking.steps.pay'|trans,
+    'booking.steps.confirmation'|trans,
+] %}
+<nav aria-label="{{ 'booking.steps.sr.label'|trans }}" class="w-full max-w-2xl mx-auto mt-2 mb-6">
+    <ol class="flex items-center justify-between gap-2">
+        {% for step in steps %}
+            {% set number = loop.index %}
+            <li class="flex items-center gap-2 {{ not loop.last ? 'flex-1' }}"
+                {% if number == currentStep %}aria-current="step"{% endif %}>
+                <span class="flex items-center justify-center shrink-0 w-9 h-9 rounded-full border-2 font-bold
+                    {% if number < currentStep %}bg-red border-red text-yellow
+                    {% elseif number == currentStep %}bg-yellow border-red text-red-darkest
+                    {% else %}border-silverpink text-silverpink-dark{% endif %}">
+                    {% if number < currentStep %}
+                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                        </svg>
+                    {% else %}
+                        {{ number }}
+                    {% endif %}
+                </span>
+                <span class="text-sm sm:text-lg font-MiamoRegular {{ number == currentStep ? 'text-red-darkest' : 'text-silverpink-dark' }}">
+                    {{ step }}
+                </span>
+                {% if not loop.last %}
+                    <span class="hidden sm:block flex-1 h-0.5 {{ number < currentStep ? 'bg-red' : 'bg-silverpink' }}" aria-hidden="true"></span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</nav>

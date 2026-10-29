@@ -88,6 +88,30 @@ class HomeControllerTest extends BaseTestController
         static::assertSelectorTextContains('h4', '10er-Ticket : 135 €');
     }
 
+    public function testIndexShowsHowToBookAndAuthButtonsWhenLoggedOut(): void
+    {
+        $client = $this->setupTestClient('2024-03-01', [PriceFixtures::class]);
+
+        $crawler = $client->request('GET', '/');
+
+        static::assertResponseIsSuccessful();
+        static::assertCount(1, $crawler->filter('#how-to-book'));
+        static::assertCount(3, $crawler->filter('#how-to-book ol li'));
+        static::assertCount(1, $crawler->filter('header a[href="/register"]'));
+        static::assertCount(1, $crawler->filter('header a[href="/login"]'));
+    }
+
+    public function testIndexHidesHowToBookWhenLoggedIn(): void
+    {
+        $client = $this->setupTestClientAndLogin('2024-03-01', [BasicFixtures::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+
+        $crawler = $client->request('GET', '/');
+
+        static::assertResponseIsSuccessful();
+        static::assertCount(0, $crawler->filter('#how-to-book'));
+        static::assertCount(0, $crawler->filter('header a[href="/register"]'));
+    }
+
     private function setPriceInactive(string $name): void
     {
         $price = $this->getEntity(PriceRepository::class, ['name' => $name]);
