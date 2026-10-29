@@ -52,6 +52,42 @@ class BookingService
     }
 
     /**
+     * @param BusinessDay[] $businessDays
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws \Exception
+     */
+    public function generateDayOverview(array $businessDays): array
+    {
+        $dayOverview = [];
+
+        foreach ($businessDays as $businessDay) {
+            if (false === $businessDay->isOpen()) {
+                continue;
+            }
+
+            $bookableOptions = array_values(array_filter(
+                $this->generateAvailableBookingOptionsForDay($businessDay, false),
+                static fn (array $option) => $option['capacity'] > 0
+            ));
+
+            $capacity     = array_sum(array_column($bookableOptions, 'capacity'));
+            $bookingCount = array_sum(array_column($bookableOptions, 'bookingCount'));
+
+            $dayOverview[] = [
+                'businessDay'  => $businessDay,
+                'capacity'     => $capacity,
+                'bookingCount' => $bookingCount,
+                'isAvailable'  => \in_array(true, array_column($bookableOptions, 'isAvailable'), true),
+                'singleRoomId' => 1 === \count($bookableOptions) ? $bookableOptions[0]['roomId'] : null,
+            ];
+        }
+
+        return $dayOverview;
+    }
+
+    /**
      * @return array<mixed, mixed>
      */
     private function getWorkStations(Room $room): array

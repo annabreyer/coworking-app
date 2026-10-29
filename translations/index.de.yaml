@@ -42,3 +42,12 @@ content: '
 actions:
   booking: Zur Buchung
   user_dashboard: Zum Benutzerkonto
+
+how_to_book:
+  title: 'So buchst Du Deinen Platz'
+  steps:
+    register: 'Kostenlos registrieren'
+    choose_day: 'Tag auswählen'
+    pay: 'Bezahlen – fertig!'
+  register: 'Jetzt registrieren'
+  login: 'Du hast schon ein Konto? Hier einloggen'

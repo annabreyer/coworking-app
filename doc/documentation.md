@@ -55,12 +55,20 @@ If rooms or workstations are used, it will be configurable in the future.
 The entity exists but is not used in the code yet. 
 
 ## Process
+A step bar on top of the booking pages shows the three steps for the user: choose day, pay, confirmation.
+
 ### Step Day
-The First user selects a business day.
-At this point, no changes in the database are made. 
+The user selects a business day. At this point, no changes in the database are made.
+The open business days of the next 14 days are listed as cards (`BookingController::DAY_LIST_LENGTH`), 
+each showing how many places are already booked, so users can see whether someone else will be there.
+Rooms without capacity are not counted.
+If only one room can be booked, the card's "Buchen" button directly submits the room step for this room,
+so the booking is created in one click. With several rooms, the card leads to the room step.
+Days further in the future can be chosen with the date field below the list. It starts empty, so that today can be chosen as well.
 
 ### Step Room
 User selects a room. Which creates a booking.
+With only one bookable room, there is no room selection: the page shows the date, the occupancy and a "Buchen" button.
 If the user does finalize the booking, it will be removed from the database after one day. 
 
 ### Step Payment
@@ -132,5 +140,16 @@ Create booking via Admin creates the invoice entity to be paid.
 Consulting the PDF of the invoice creates it. 
 Adding a voucher payment, regenerates the invoice with the voucher payment.
 
+# Development
+## Development data
+`bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures` and all fixtures it depends on.
+It generates business days for the next 6 months and adds a room "Coworking-Raum" with 4 places, like the real space.
+The test rooms are closed, so that like in production only one room can be booked.
+The second open day gets one booking, the fourth open day is fully booked, so the occupancy on the booking page can be checked.
+The tests don't use these fixtures, as they rely on fixed dates in 2024.
 
+Loading all fixtures without a group fails, because the fixtures in `DataFixtures/Test` use the same references as the basic fixtures.
 
+## Tailwind
+The project (`tailwind.config.js`, `@tailwind` directives in `app.css`) is set up for Tailwind v3.
+The version is pinned in `config/packages/symfonycasts_tailwind.yaml`, because without it the bundle downloads the latest release (v4), which fails to build.

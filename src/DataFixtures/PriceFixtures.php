@@ -55,5 +55,16 @@ class PriceFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
 
         $this->addReference('price-voucher', $priceVoucher);
+
+        $priceVoucher5 = new Price();
+        $priceVoucher5->setVoucherType($this->getReference('voucherType5Units', VoucherType::class))
+                      ->setAmount(7000)
+                      ->setIsActive(true)
+                      ->setName('5er-Ticket');
+
+        $manager->persist($priceVoucher5);
+        $manager->flush();
+
+        $this->addReference('price-voucher-5', $priceVoucher5);
     }
 }

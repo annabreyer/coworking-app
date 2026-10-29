@@ -43,3 +43,12 @@ content: '<h2>Buchungsmodalitäten</h2>
 actions:
   booking: Zur Buchung
   user_dashboard: Zum Benutzerkonto
+
+how_to_book:
+  title: 'How to book your desk'
+  steps:
+    register: 'Register for free'
+    choose_day: 'Choose a day'
+    pay: 'Pay – done!'
+  register: 'Register now'
+  login: 'Already have an account? Log in here'

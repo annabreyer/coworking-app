@@ -4,6 +4,7 @@
 
 {% block header %}{{ 'booking.payment.title'|trans }}{% endblock %}
 {% block content %}
+    {% include 'booking/partials/step_bar.html.twig' with {'currentStep': 2} %}
 <section class="self-center">
     {% include 'booking/partials/booking_recap_card.html.twig' with {'booking': booking, 'amount': booking.amount} %}
 

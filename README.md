@@ -25,10 +25,10 @@ Clone the project
 
 `bin/console doctrine:database:create`
 `bin/console doctrine:migrations:migrate`
-`bin/console doctrine:fixtures:load`
+`bin/console doctrine:fixtures:load --group=dev`
+loads the test data plus upcoming business days (see Development data in doc/documentation.md). It purges the database first.
 
-`bin/console app:business-days`
-to generate the business days in the future, as fixtures might be outdated. 
+`bin/console tailwind:build` (or `--watch`) to build the CSS.
 
 You now have a running application with some test data.
 

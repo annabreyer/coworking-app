@@ -4,6 +4,7 @@
 {% block header %}{{ 'booking.confirmation.page.title'|trans }}{% endblock %}
 
 {% block content %}
+    {% include 'booking/partials/step_bar.html.twig' with {'currentStep': 3} %}
     <section class="self-center">
         <p>{{ 'booking.confirmation.page.text'|trans }}</p>
         <button>
