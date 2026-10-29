@@ -30,7 +30,7 @@ Clone the project
 You now have a running application with some test data.
 
 ## Development data
-The `dev` fixture group (`DevFixtures`) loads the test fixtures that can be combined: `BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures` and `BookingWithInvoiceNoPaymentFixture`. Loading it purges the database first.
+The `dev` fixture group (`DevFixtures`) loads the test fixtures that can be combined: `BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture` and `InvoiceBulkDownloadFixtures`. Loading it purges the database first.
 
 On top of the test fixtures, it adds what the test fixtures leave out for a running app:
 - Business days from the end of the fixture data up to six months ahead, so bookings can be made. Weekends and public holidays are closed.

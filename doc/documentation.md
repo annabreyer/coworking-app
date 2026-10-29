@@ -156,4 +156,6 @@ Loading the fixture also loads its dependencies, so the database is purged first
 php bin/console doctrine:fixtures:load --group=InvoiceBulkDownloadFixtures
 ```
 
-The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` cannot be called for each invoice, because it finds the latest invoice by `createdAt`, which is only precise to the second. Invoices created within the same second would get the same number.
+The fixture is also part of the `dev` group (see the README).
+
+The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` only sees invoices that are already saved, and the fixture saves all its invoices at once.

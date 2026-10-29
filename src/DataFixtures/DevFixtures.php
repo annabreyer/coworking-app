@@ -38,6 +38,7 @@ class DevFixtures extends Fixture implements DependentFixtureInterface, FixtureG
             VoucherFixtures::class,
             InvoiceFixtures::class,
             BookingWithInvoiceNoPaymentFixture::class,
+            InvoiceBulkDownloadFixtures::class,
         ];
     }
 
