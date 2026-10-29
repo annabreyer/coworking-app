@@ -142,10 +142,12 @@ Adding a voucher payment, regenerates the invoice with the voucher payment.
 
 # Development
 ## Development data
-`bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures` and all fixtures it depends on.
-It generates business days for the next 6 months and adds a room "Coworking-Raum" with 4 places, like the real space.
-The test rooms are closed, so that like in production only one room can be booked.
-The second open day gets one booking, the fourth open day is fully booked, so the occupancy on the booking page can be checked.
+`bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures`, which only ties together the fixtures for a running app:
+- the combinable test fixtures (`BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture`),
+- `UpcomingBusinessDayFixtures`: business days from today for the next 6 months. Weekends are closed, public holidays are not (unlike the `app:business-days` command).
+- `CoworkingRoomFixtures`: a room "Coworking-Raum" with 4 places, like the real space. The test rooms are closed, so that like in production only one room can be booked.
+- `UpcomingBookingFixtures`: one booking on the second open day, the fourth open day is fully booked, so the occupancy on the booking page can be checked.
+
 The tests don't use these fixtures, as they rely on fixed dates in 2024.
 
 Loading all fixtures without a group fails, because the fixtures in `DataFixtures/Test` use the same references as the basic fixtures.

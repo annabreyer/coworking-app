@@ -52,6 +52,19 @@ class BookingService
     }
 
     /**
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws \Exception
+     */
+    public function generateBookingOptionsForRoomsWithCapacity(BusinessDay $businessDay): array
+    {
+        return array_values(array_filter(
+            $this->generateAvailableBookingOptionsForDay($businessDay, false),
+            static fn (array $option) => $option['capacity'] > 0
+        ));
+    }
+
+    /**
      * @param BusinessDay[] $businessDays
      *
      * @return array<int, array<string, mixed>>
@@ -67,10 +80,7 @@ class BookingService
                 continue;
             }
 
-            $bookableOptions = array_values(array_filter(
-                $this->generateAvailableBookingOptionsForDay($businessDay, false),
-                static fn (array $option) => $option['capacity'] > 0
-            ));
+            $bookableOptions = $this->generateBookingOptionsForRoomsWithCapacity($businessDay);
 
             $capacity     = array_sum(array_column($bookableOptions, 'capacity'));
             $bookingCount = array_sum(array_column($bookableOptions, 'bookingCount'));

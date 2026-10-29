@@ -296,10 +296,7 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        $bookingOption = array_values(array_filter(
-            $this->bookingService->generateAvailableBookingOptionsForDay($businessDay, false),
-            static fn (array $option) => $option['capacity'] > 0
-        ));
+        $bookingOption = $this->bookingService->generateBookingOptionsForRoomsWithCapacity($businessDay);
 
         return $this->render('booking/index.html.twig', [
             'step'          => 2,
