@@ -104,6 +104,12 @@ For voucher purchase, voucher is of course not applicable.
 For bookings, invoice is only available when the booking could theoretically be canceled. This should avoid bookings to be paid by invoice at the last minute. 
 The user can select among their valid (paid for, not expired, not used) vouchers to pay for a booking.
 
+### Invoice numbers
+Invoice numbers are the prefix `CO`, the current year and a running number with four digits, e.g. `CO20240001`.
+The next number is the highest existing number starting with `CO` + current year, plus one. The invoice date and `createdAt` are not used: invoices can be backdated, and several invoices can share the same `createdAt` (e.g. imported data).
+The highest number is sorted by length first, so `CO202410000` counts as higher than `CO20249999` once a year passes 9999 invoices.
+Fixtures use the same format, numbered in date order without duplicates across fixtures that are loaded together.
+
 ### Payment by invoice
 The amount due is the voucher or booking price. The invoice contains a mention when its due.
 

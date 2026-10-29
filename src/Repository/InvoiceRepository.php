@@ -24,12 +24,14 @@ class InvoiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Invoice::class);
     }
 
-    public function findLatestInvoiceForYear(string $year): ?Invoice
+    public function findInvoiceWithHighestNumber(string $numberPrefix): ?Invoice
     {
         return $this->createQueryBuilder('i')
-            ->andWhere('YEAR(i.date) = :year')
-            ->setParameter('year', $year)
-            ->orderBy('i.createdAt', 'DESC')
+            ->addSelect('LENGTH(i.number) AS HIDDEN numberLength')
+            ->andWhere('i.number LIKE :numberPrefix')
+            ->setParameter('numberPrefix', addcslashes($numberPrefix, '%_') . '%')
+            ->orderBy('numberLength', 'DESC')
+            ->addOrderBy('i.number', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()

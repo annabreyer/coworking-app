@@ -50,7 +50,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->setSearchMode(SearchMode::ALL_TERMS)
                      ->setHelp(
                          'index',
-                         'Rechnungen können nicht bearbeitet oder gelöscht werden. <br>Suche nach Rechnungen mit der Nachnamen, Rechnungsnummer, Beschreibung, PayPal-Transaktions-ID oder UUID.'
+                         'Rechnungen können nicht gelöscht werden. Nur die Rechnungszeile (Beschreibung) kann bearbeitet werden. <br>Suche nach Rechnungen mit der Nachnamen, Rechnungsnummer, Beschreibung, PayPal-Transaktions-ID oder UUID.'
                      )
                      ->setDefaultSort(['createdAt' => 'DESC'])
                      ->setPaginatorPageSize(20)
@@ -101,6 +101,11 @@ class InvoiceCrudController extends AbstractCrudController
                                   })
         ;
 
+        $editInvoiceLineAction = Action::new('editInvoiceLine', 'Rechnungszeile bearbeiten')
+                                       ->linkToCrudAction(Action::EDIT)
+                                       ->setIcon('fa fa-pencil')
+        ;
+
         $sendInvoicetoFinomail = Action::new('sendInvoiceToFinom', 'Rechnung an DocumentVault senden')
                                        ->linkToCrudAction('sendInvoiceToDocumentVault')
                                        ->setIcon('fa fa-envelope')
@@ -119,6 +124,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add(Crud::PAGE_DETAIL, $invoiceRegeneration)
                      ->add(Crud::PAGE_EDIT, $invoiceRegeneration)
                      ->add(Crud::PAGE_DETAIL, $sendInvoicetoFinomail)
+                     ->add(Crud::PAGE_DETAIL, $editInvoiceLineAction)
         ;
     }
 
@@ -202,7 +208,8 @@ class InvoiceCrudController extends AbstractCrudController
                             ->setFormTypeOption('disabled', true)
             ;
             yield TextField::new('description')
-                           ->setFormTypeOption('disabled', true)
+                           ->setLabel('Rechnungszeile')
+                           ->setHelp('Ersetzt den Text der Rechnungszeile im PDF. Leer lassen, um den automatisch erzeugten Text zu verwenden. Das PDF wird beim Speichern neu generiert.')
             ;
         }
     }
@@ -223,6 +230,19 @@ class InvoiceCrudController extends AbstractCrudController
 
         if (null === $entityInstance->getFilePath()) {
             $this->invoiceManager->generateInvoicePdf($entityInstance);
+        }
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $originalData       = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
+        $descriptionChanged = ($originalData['description'] ?? null) !== $entityInstance->getDescription();
+
+        parent::updateEntity($entityManager, $entityInstance);
+
+        if (true === $descriptionChanged) {
+            $this->invoiceManager->generateInvoicePdf($entityInstance);
+            $this->addFlash('success', 'Rechnungszeile geändert, Rechnung wurde neu generiert.');
         }
     }
 

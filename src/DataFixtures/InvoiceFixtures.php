@@ -11,8 +11,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class InvoiceFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const STANDARD_BOOKING_INVOICE_NUMBER = 'CO20240001';
-    public const VOUCHER_INVOICE_NUMBER          = 'CO20242000';
+    public const STANDARD_BOOKING_INVOICE_NUMBER = 'CO20240005';
+    public const VOUCHER_INVOICE_NUMBER          = 'CO20240006';
 
     public function getDependencies(): array
     {

@@ -105,6 +105,38 @@ class InvoiceManagerTest extends KernelTestCase
         self::assertSame($expectedNumber, $invoiceNumber);
     }
 
+    public function testGetInvoiceNumberIncrementsHighestNumberEvenIfCreatedEarlier(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+
+        $this->persistInvoice('CO20240002', new \DateTimeImmutable('2024-03-01'), new \DateTime('2024-03-01 09:00:00'));
+        $this->persistInvoice('CO20240001', new \DateTimeImmutable('2024-03-01'), new \DateTime('2024-03-01 10:00:00'));
+
+        self::assertSame('CO20240003', $this->getInvoiceManager()->getInvoiceNumber());
+    }
+
+    public function testGetInvoiceNumberIgnoresInvoiceDate(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-01-05'));
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+
+        $this->persistInvoice('CO20240001', new \DateTimeImmutable('2023-12-28'));
+
+        self::assertSame('CO20240002', $this->getInvoiceManager()->getInvoiceNumber());
+    }
+
+    public function testGetInvoiceNumberComparesNumbersOfDifferentLength(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+
+        $this->persistInvoice('CO202410000', new \DateTimeImmutable('2024-03-01'), new \DateTime('2024-03-01 09:00:00'));
+        $this->persistInvoice('CO20249999', new \DateTimeImmutable('2024-03-01'), new \DateTime('2024-03-01 10:00:00'));
+
+        self::assertSame('CO202410001', $this->getInvoiceManager()->getInvoiceNumber());
+    }
+
     public function testCreateAndSaveInvoiceFromBookingThrowsExceptionIfBookingHasNoUser(): void
     {
         $bookingMock    = $this->createMock(Booking::class);
@@ -420,6 +452,26 @@ class InvoiceManagerTest extends KernelTestCase
         ;
 
         $invoiceManagerMock->regenerateInvoicePdf($invoiceMock);
+    }
+
+    private function persistInvoice(string $number, \DateTimeImmutable $date, ?\DateTime $createdAt = null): void
+    {
+        $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+
+        $invoice = new Invoice();
+        $invoice->setNumber($number)
+                ->setDate($date)
+                ->setAmount(100)
+                ->setUser($user)
+        ;
+
+        if (null !== $createdAt) {
+            $invoice->setCreatedAt($createdAt);
+        }
+
+        $entityManager = static::getContainer()->get('doctrine')->getManager();
+        $entityManager->persist($invoice);
+        $entityManager->flush();
     }
 
     private function getInvoiceManager(?InvoiceGenerator $invoiceGenerator = null, ?Filesystem $filesystem = null): InvoiceManager
