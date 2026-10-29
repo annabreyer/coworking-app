@@ -27,16 +27,6 @@ class VoucherTypeFixtures extends Fixture
 
         $this->addReference('voucherType10Units', $voucherType10);
 
-        $voucherType5 = new VoucherType();
-        $voucherType5->setUnits(5);
-        $voucherType5->setValidityMonths(6);
-        $voucherType5->setUnitaryValue(1500);
-
-        $manager->persist($voucherType5);
-        $manager->flush();
-
-        $this->addReference('voucherType5Units', $voucherType5);
-
         $voucherType = new VoucherType();
         $voucherType->setValidityMonths(1)
                     ->setUnits(1)
