@@ -83,7 +83,7 @@ class InvoicePayPalPaymentControllerTest extends WebTestCase
         $bookingUser    = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $client->loginUser($bookingUser);
 
-        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => 'CO202400321']);
+        $invoice = static::getContainer()->get(InvoiceRepository::class)->findOneBy(['number' => 'CO20240002']);
         $client->request('GET', '/invoice/' . $invoice->getUuid() . '/paypal');
 
         static::assertResponseRedirects('/invoice/' . $invoice->getUuid() . '/confirmation');

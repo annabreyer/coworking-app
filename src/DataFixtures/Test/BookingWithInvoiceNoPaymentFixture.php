@@ -16,7 +16,7 @@ use Doctrine\Persistence\ObjectManager;
  */
 class BookingWithInvoiceNoPaymentFixture extends Fixture implements DependentFixtureInterface
 {
-    public const INVOICE_NUMBER = 'INV-NO-PAY-001';
+    public const INVOICE_NUMBER = 'CO20240007';
     public const BOOKING_DATE = '2024-04-02';
 
     public function getDependencies(): array
