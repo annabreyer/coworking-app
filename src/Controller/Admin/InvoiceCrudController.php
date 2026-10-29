@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\EasyAdmin\InvoicePaymentsField;
 use App\Entity\Invoice;
 use App\Manager\InvoiceManager;
+use App\Repository\InvoiceRepository;
 use App\Service\InvoiceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -15,7 +16,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\SearchMode;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -24,7 +28,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Clock\ClockAwareTrait;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class InvoiceCrudController extends AbstractCrudController
 {
@@ -63,6 +70,7 @@ class InvoiceCrudController extends AbstractCrudController
                      ->hideNullValues()
                      ->showEntityActionsInlined()
                      ->setDefaultSort(['number' => 'DESC'])
+                     ->askConfirmationOnBatchActions(false)
         ;
     }
 
@@ -112,6 +120,19 @@ class InvoiceCrudController extends AbstractCrudController
                                        ->setHtmlAttributes(['class' => 'btn btn-primary'])
         ;
 
+        $bulkInvoiceDownload = Action::new('bulkInvoiceDownload', 'Rechnungen herunterladen (ZIP)')
+                                     ->linkToCrudAction('bulkDownloadInvoices')
+                                     ->createAsBatchAction()
+                                     ->setIcon('fa fa-file-archive')
+                                     ->addCssClass('btn btn-primary')
+        ;
+
+        $filteredInvoiceDownload = Action::new('filteredInvoiceDownload', 'Alle gefilterten Rechnungen herunterladen (ZIP)')
+                                         ->linkToCrudAction('downloadFilteredInvoices')
+                                         ->createAsGlobalAction()
+                                         ->setIcon('fa fa-file-archive')
+        ;
+
         return parent::configureActions($actions)
                      ->remove(Crud::PAGE_INDEX, Action::EDIT)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
@@ -125,6 +146,10 @@ class InvoiceCrudController extends AbstractCrudController
                      ->add(Crud::PAGE_EDIT, $invoiceRegeneration)
                      ->add(Crud::PAGE_DETAIL, $sendInvoicetoFinomail)
                      ->add(Crud::PAGE_DETAIL, $editInvoiceLineAction)
+                     ->addBatchAction($bulkInvoiceDownload)
+                     ->add(Crud::PAGE_INDEX, $filteredInvoiceDownload)
+                     ->setPermission('bulkInvoiceDownload', 'ROLE_SUPER_ADMIN')
+                     ->setPermission('filteredInvoiceDownload', 'ROLE_SUPER_ADMIN')
         ;
     }
 
@@ -288,5 +313,80 @@ class InvoiceCrudController extends AbstractCrudController
         ;
 
         return $this->redirect($targetUrl);
+    }
+
+    public function bulkDownloadInvoices(
+        AdminContext $context,
+        BatchActionDto $batchActionDto,
+        AdminUrlGenerator $adminUrlGenerator,
+        InvoiceRepository $invoiceRepository,
+    ): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
+
+        $csrfTokenId = 'ea-batch-action-' . $batchActionDto->getName() . '-' . $batchActionDto->getEntityFqcn();
+        if (false === $this->isCsrfTokenValid($csrfTokenId, $batchActionDto->getCsrfToken())) {
+            return $this->redirectToRoute($context->getDashboardRouteName());
+        }
+
+        if (Invoice::class !== $batchActionDto->getEntityFqcn()) {
+            throw new BadRequestHttpException();
+        }
+
+        $invoices = $invoiceRepository->findBy(['id' => $batchActionDto->getEntityIds()], ['number' => 'ASC']);
+
+        return $this->createInvoiceArchiveResponse($invoices, $adminUrlGenerator);
+    }
+
+    public function downloadFilteredInvoices(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
+
+        $search = $context->getSearch();
+        if (null === $search) {
+            throw new \LogicException('Search context is missing.');
+        }
+
+        $fields   = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        $filters  = $this->container
+                         ->get(FilterFactory::class)
+                         ->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity())
+        ;
+        $invoices = $this->createIndexQueryBuilder($search, $context->getEntity(), $fields, $filters)
+                         ->getQuery()
+                         ->getResult()
+        ;
+
+        return $this->createInvoiceArchiveResponse($invoices, $adminUrlGenerator);
+    }
+
+    /**
+     * @param Invoice[] $invoices
+     */
+    private function createInvoiceArchiveResponse(array $invoices, AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        if (0 === \count($invoices)) {
+            $this->addFlash('warning', 'Keine Rechnungen zum Herunterladen gefunden.');
+
+            $targetUrl = $adminUrlGenerator
+                ->setController(self::class)
+                ->setAction(Crud::PAGE_INDEX)
+                ->generateUrl()
+            ;
+
+            return $this->redirect($targetUrl);
+        }
+
+        $archivePath = $this->invoiceManager->createInvoiceArchive($invoices);
+
+        $response = new BinaryFileResponse($archivePath);
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'Rechnungen_' . $this->now()->format('Y-m-d_His') . '.zip'
+        );
+        $response->deleteFileAfterSend();
+
+        return $response;
     }
 }
