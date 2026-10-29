@@ -52,7 +52,7 @@ class EmailVerifier
             throw new \Exception('This user does not have a valid Id or email');
         }
 
-        $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), (string) $user->getId(), $user->getEmail());
+        $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, (string) $user->getId(), $user->getEmail());
 
         $user->setIsVerified(true);
 
