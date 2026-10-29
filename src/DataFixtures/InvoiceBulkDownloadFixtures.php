@@ -13,20 +13,13 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Clock\ClockAwareTrait;
 
-/**
- * Self-contained demo invoices for trying out the admin bulk download.
- * Does not depend on other fixtures, so it can be appended to an existing database:
- *
- *     php bin/console doctrine:fixtures:load --append --group=InvoiceBulkDownloadFixtures
- *
- * PDFs are not generated here; the bulk download generates missing PDFs on the fly.
- */
 class InvoiceBulkDownloadFixtures extends Fixture
 {
     use ClockAwareTrait;
 
     public const MONTHS             = 3;
     public const INVOICES_PER_MONTH = 4;
+    public const UNPAID_EVERY_NTH   = 3;
 
     private const CUSTOMERS = [
         ['invoice.customer1@annabreyer.dev', 'Erika', 'Mustermann'],
@@ -54,8 +47,6 @@ class InvoiceBulkDownloadFixtures extends Fixture
         $descriptions = array_keys(self::DESCRIPTIONS);
         $firstOfMonth = $this->now()->modify('first day of this month')->setTime(0, 0);
 
-        // InvoiceManager::getInvoiceNumber() looks up the latest invoice by createdAt, which is ambiguous for
-        // invoices created within the same second, so only the first number is taken from it.
         $nextNumber = (int) substr($this->invoiceManager->getInvoiceNumber(), \strlen($this->invoicePrefix));
 
         $count = 0;
@@ -74,8 +65,8 @@ class InvoiceBulkDownloadFixtures extends Fixture
                         ->setNumber($this->invoicePrefix . $nextNumber++)
                 ;
 
-                // leave every third invoice unpaid
-                if (2 !== $count % 3) {
+                $isUnpaid = 0 === ($count + 1) % self::UNPAID_EVERY_NTH;
+                if (false === $isUnpaid) {
                     $payment = new Payment();
                     $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION)
                             ->setAmount(self::DESCRIPTIONS[$description])

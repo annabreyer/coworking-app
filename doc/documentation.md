@@ -128,3 +128,26 @@ Adding a voucher payment, regenerates the invoice with the voucher payment.
 
 
 
+
+# Invoices via Admin
+
+## Bulk download
+Invoices can be downloaded as a ZIP archive from the invoice list in the Admin area. Only super admins can use this.
+
+- **Selected invoices:** select invoices in the list and use the batch action "Rechnungen herunterladen (ZIP)". This only covers the invoices on the current page.
+- **Filtered invoices:** "Alle gefilterten Rechnungen herunterladen (ZIP)" downloads every invoice matching the current search and filters, across all pages. For example, filter by date to export all invoices of one month.
+
+Each PDF in the archive is named after its invoice number. If an invoice has no PDF yet, the PDF is generated before it is added to the archive. The archive is a temporary file and is deleted once it has been sent.
+
+Batch actions on the invoice list are not confirmed, because the ZIP download is the only batch action there. If a destructive batch action is added to the invoice list, the confirmation has to be turned back on.
+
+## Demo invoices
+`InvoiceBulkDownloadFixtures` creates demo invoices for testing the bulk download: four per month over the last three months, for three demo customers. Every third invoice is unpaid, and no PDFs are generated.
+
+The fixture does not depend on other fixtures, so it can be added to an existing database without purging it:
+
+```bash
+php bin/console doctrine:fixtures:load --append --group=InvoiceBulkDownloadFixtures
+```
+
+The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` cannot be called for each invoice, because it finds the latest invoice by `createdAt`, which is only precise to the second. Invoices created within the same second would get the same number.

@@ -164,9 +164,6 @@ class InvoiceManager
     }
 
     /**
-     * Bundles the PDFs of the given invoices into a temporary ZIP archive and returns its path.
-     * Missing PDFs are generated on the fly. The caller is responsible for removing the archive.
-     *
      * @param iterable<Invoice> $invoices
      */
     public function createInvoiceArchive(iterable $invoices): string
