@@ -250,9 +250,9 @@ class VoucherControllerTest extends WebTestCase
 
     public function testIndexFormSubmitRollsBackVouchersAndInvoiceWhenExceptionIsThrown(): void
     {
-        self::markTestIncomplete('There is an issue with the test. The mock is not taken into account. The test fails.');
+        $client = static::createClient();
+        $client->disableReboot();
 
-        $client             = static::createClient();
         $mockVoucherManager = $this->getMockBuilder(VoucherManager::class)
                                    ->disableOriginalConstructor()
                                    ->onlyMethods(['createVouchersForInvoice'])
@@ -277,8 +277,8 @@ class VoucherControllerTest extends WebTestCase
         ]);
         $client->submit($form);
 
-        // Mock seems not to be taken into account ... don't know why. Code is correct.
-        // all the following assertions fail
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('section#flash-messages', 'Ups, irgendwas ist falsch gelaufen.');
 
         $logger = static::getContainer()->get('monolog.logger');
         self::assertNotNull($logger);
@@ -291,13 +291,6 @@ class VoucherControllerTest extends WebTestCase
         }
 
         self::assertNotNull($testHandler);
-
-        foreach ($testHandler->getRecords() as $record) {
-            if (400 === $record['level']) {
-                dump($record['message']);
-            }
-        }
-
         self::assertTrue($testHandler->hasRecordThatContains(
             'Vouchers and Invoice were not created for User ' . $user->getId(),
             Level::fromName('error')
@@ -313,9 +306,6 @@ class VoucherControllerTest extends WebTestCase
                           ->findOneBy(['user' => $user]);
 
         self::assertNull($invoice);
-
-        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        static::assertSelectorTextContains('section#flash-messages', 'An error occurred. Please try again later.');
     }
 
     public function testFormSubmitWithPaymentMethodInvoiceSendsInvoiceByMailAndRedirects(): void
