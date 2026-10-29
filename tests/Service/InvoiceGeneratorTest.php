@@ -8,6 +8,7 @@ use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\DataFixtures\BookingWithOutInvoiceFixture;
 use App\DataFixtures\InvoiceFixtures;
+use App\Entity\BillingAddress;
 use App\Entity\Invoice;
 use App\Repository\BookingRepository;
 use App\Repository\BusinessDayRepository;
@@ -127,6 +128,40 @@ class InvoiceGeneratorTest extends KernelTestCase
         self::assertSame('invoice.description.booking', $this->renderAndGetFirstItemDescription($invoice));
     }
 
+    public function testGenerateBookingInvoicePrintsPersonalAddressWithoutBillingAddress(): void
+    {
+        $invoice = $this->loadBookingInvoiceWithAddress();
+
+        $html = $this->renderInvoiceHtml($invoice);
+
+        self::assertStringContainsString('Anna Muster', $html);
+        self::assertStringContainsString('Dorfstraße 2, 55262 Hahnheim', $html);
+    }
+
+    public function testGenerateBookingInvoicePrintsBillingAddressOfInvoice(): void
+    {
+        $invoice = $this->loadBookingInvoiceWithAddress();
+        $invoice->setBillingAddress($this->getCompanyBillingAddress());
+
+        $html = $this->renderInvoiceHtml($invoice);
+
+        self::assertStringContainsString('ACME GmbH', $html);
+        self::assertStringContainsString('Industriestraße 5, 55128 Mainz', $html);
+        self::assertStringNotContainsString('Anna Muster', $html);
+        self::assertStringNotContainsString('Dorfstraße 2', $html);
+    }
+
+    public function testGenerateBookingInvoiceIgnoresBillingAddressOfUserNotCopiedToInvoice(): void
+    {
+        $invoice = $this->loadBookingInvoiceWithAddress();
+        $invoice->getUser()?->setBillingAddress($this->getCompanyBillingAddress());
+
+        $html = $this->renderInvoiceHtml($invoice);
+
+        self::assertStringContainsString('Dorfstraße 2, 55262 Hahnheim', $html);
+        self::assertStringNotContainsString('ACME GmbH', $html);
+    }
+
     public function testGenerateVoucherInvoiceThrowsExceptionIfInvoiceIsNotPersisted(): void
     {
         $invoice = new Invoice();
@@ -177,6 +212,69 @@ class InvoiceGeneratorTest extends KernelTestCase
         $invoiceGenerator->generateBookingInvoice($invoice);
 
         return $renderedItems[0]['description'] ?? null;
+    }
+
+    private function loadBookingInvoiceWithAddress(): Invoice
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        self::assertNotNull($this->databaseTool);
+        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
+        $invoiceRepository = static::getContainer()->get(InvoiceRepository::class);
+        self::assertInstanceOf(InvoiceRepository::class, $invoiceRepository);
+        $invoice = $invoiceRepository->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        self::assertInstanceOf(Invoice::class, $invoice);
+
+        $invoice->getUser()
+                ?->setFirstName('Anna')
+                ->setLastName('Muster')
+                ->setStreet('Dorfstraße 2')
+                ->setPostCode('55262')
+                ->setCity('Hahnheim')
+        ;
+
+        return $invoice;
+    }
+
+    private function renderInvoiceHtml(Invoice $invoice): string
+    {
+        $html          = '';
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $twig          = $this->getContainer()->get(Environment::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        self::assertInstanceOf(Environment::class, $twig);
+
+        $mockTwig = $this->createMock(Environment::class);
+        $mockTwig->method('render')
+                 ->willReturnCallback(static function (string $template, array $context) use (&$html, $twig): string {
+                     $html = $twig->render($template, $context);
+
+                     return $html;
+                 })
+        ;
+
+        $invoiceGenerator = new InvoiceGenerator(
+            $entityManager,
+            $this->createMock(TranslatorInterface::class),
+            $mockTwig,
+            $this->createMock(Filesystem::class),
+            'invoiceDirectory',
+            'invoiceClientNumberPrefix'
+        );
+        $invoiceGenerator->generateBookingInvoice($invoice);
+
+        return $html;
+    }
+
+    private function getCompanyBillingAddress(): BillingAddress
+    {
+        $billingAddress = new BillingAddress();
+
+        return $billingAddress->setName('ACME GmbH')
+                              ->setStreet('Industriestraße 5')
+                              ->setPostCode('55128')
+                              ->setCity('Mainz')
+        ;
     }
 
     private function getInvoiceGenerator(): InvoiceGenerator

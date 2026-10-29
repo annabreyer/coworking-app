@@ -14,6 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -107,8 +108,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $city = null;
 
+    #[Assert\Valid]
+    #[ORM\Embedded(class: BillingAddress::class, columnPrefix: 'billing_')]
+    private BillingAddress $billingAddress;
+
     public function __construct()
     {
+        $this->billingAddress        = new BillingAddress();
         $this->acceptedTermsOfUse    = new ArrayCollection();
         $this->resetPasswordRequests = new ArrayCollection();
         $this->userActions           = new ArrayCollection();
@@ -510,6 +516,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCity(?string $city): static
     {
         $this->city = $city;
+
+        return $this;
+    }
+
+    public function getBillingAddress(): BillingAddress
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(BillingAddress $billingAddress): static
+    {
+        $this->billingAddress = $billingAddress;
 
         return $this;
     }

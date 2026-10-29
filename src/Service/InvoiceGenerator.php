@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Dto\Invoice\BookingPaymentSpecifics;
 use App\Dto\Invoice\InvoiceLineItem;
 use App\Dto\Invoice\InvoicePdfDocument;
+use App\Entity\BillingAddress;
 use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Payment;
@@ -182,7 +183,9 @@ class InvoiceGenerator
             throw new \InvalidArgumentException('User must be persisted.');
         }
 
-        $hasAddress = $user->hasAddress();
+        $billingAddress    = $invoice->getBillingAddress();
+        $hasBillingAddress = $billingAddress->isComplete();
+        $hasAddress        = $hasBillingAddress || $user->hasAddress();
 
         return new InvoicePdfDocument(
             headerLogo: $this->getAssetDataUri('header_logo.png'),
@@ -190,7 +193,7 @@ class InvoiceGenerator
             invoiceNumber: $invoice->getNumber(),
             invoiceDate: $invoice->getDate()->format('d.m.Y'),
             clientNumber: $this->invoiceClientNumberPrefix . InvoiceManager::getClientNumber($user->getId()),
-            clientName: $user->getFullName(),
+            clientName: $hasBillingAddress ? (string) $billingAddress->getName() : $user->getFullName(),
             invoiceType: $this->translator->trans(
                 $invoice->isRefund() ? 'invoice.type.refund' : 'invoice.type.invoice',
                 [],
@@ -201,10 +204,28 @@ class InvoiceGenerator
                 [],
                 'invoice'
             ),
-            clientStreet: $hasAddress ? $user->getStreet() : null,
-            clientPostCodeAndCity: $hasAddress ? $user->getPostCode() . ' ' . $user->getCity() : null,
+            clientStreet: $this->getClientStreet($billingAddress, $user),
+            clientPostCodeAndCity: $this->getClientPostCodeAndCity($billingAddress, $user),
             clientEmail: $hasAddress ? null : ($user->getEmail() ?? ''),
         );
+    }
+
+    private function getClientStreet(BillingAddress $billingAddress, User $user): ?string
+    {
+        if ($billingAddress->isComplete()) {
+            return $billingAddress->getStreet();
+        }
+
+        return $user->hasAddress() ? $user->getStreet() : null;
+    }
+
+    private function getClientPostCodeAndCity(BillingAddress $billingAddress, User $user): ?string
+    {
+        if ($billingAddress->isComplete()) {
+            return $billingAddress->getPostCode() . ' ' . $billingAddress->getCity();
+        }
+
+        return $user->hasAddress() ? $user->getPostCode() . ' ' . $user->getCity() : null;
     }
 
     private function buildBookingItem(Invoice $invoice, Booking $booking): InvoiceLineItem

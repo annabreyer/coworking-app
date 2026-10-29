@@ -76,6 +76,7 @@ class InvoiceManager
     public function saveInvoice(Invoice $invoice): void
     {
         if (null === $invoice->getid()) {
+            $this->copyBillingAddressFromUser($invoice);
             $this->entityManager->persist($invoice);
         }
 
@@ -132,6 +133,7 @@ class InvoiceManager
         $cancelledAmount = -1 * $invoice->getAmount();
         $refundInvoice   = $this->createInvoice($user, $cancelledAmount);
         $refundInvoice->setDescription($invoice->getPayments()->first()->getComment());
+        $refundInvoice->setBillingAddress($invoice->getBillingAddress());
 
         return $refundInvoice;
     }
@@ -200,5 +202,19 @@ class InvoiceManager
         $zip->close();
 
         return $archivePath;
+    }
+
+    private function copyBillingAddressFromUser(Invoice $invoice): void
+    {
+        if (false === $invoice->getBillingAddress()->isEmpty()) {
+            return;
+        }
+
+        $user = $invoice->getUser();
+        if (null === $user || false === $user->getBillingAddress()->isComplete()) {
+            return;
+        }
+
+        $invoice->setBillingAddress($user->getBillingAddress());
     }
 }

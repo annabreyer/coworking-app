@@ -4,3 +4,4 @@ password.constraint.length.min: 'Your password should be at least %limit% charac
 The password fields must match.: 'Die Passwörter müssen übereinstimmen.'
 Your password should be at least {{ limit }} characters.: 'Dein Passwort sollte mindestens {{ limit }} Zeichen lang sein.'
 There is already an account with this email: 'Es gibt bereits ein Konto mit dieser E-Mail-Adresse'
+user.billing_address.incomplete: 'Please fill in all fields of the billing address or leave them all empty.'

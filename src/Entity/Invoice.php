@@ -56,12 +56,16 @@ class Invoice
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $filePath = null;
 
+    #[ORM\Embedded(class: BillingAddress::class, columnPrefix: 'billing_')]
+    private BillingAddress $billingAddress;
+
     public function __construct()
     {
-        $this->uuid     = Uuid::v7();
-        $this->bookings = new ArrayCollection();
-        $this->payments = new ArrayCollection();
-        $this->vouchers = new ArrayCollection();
+        $this->uuid           = Uuid::v7();
+        $this->billingAddress = new BillingAddress();
+        $this->bookings       = new ArrayCollection();
+        $this->payments       = new ArrayCollection();
+        $this->vouchers       = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -369,5 +373,17 @@ class Invoice
     public function getRemainingAmount(): int
     {
         return $this->getAmount() - $this->getPaidAmount();
+    }
+
+    public function getBillingAddress(): BillingAddress
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(BillingAddress $billingAddress): static
+    {
+        $this->billingAddress = clone $billingAddress;
+
+        return $this;
     }
 }
