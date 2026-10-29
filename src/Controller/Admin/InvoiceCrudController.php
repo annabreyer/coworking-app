@@ -304,7 +304,8 @@ class InvoiceCrudController extends AbstractCrudController
     {
         $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');
 
-        if (false === $this->isCsrfTokenValid('ea-batch-action-' . $batchActionDto->getName() . '-' . $batchActionDto->getEntityFqcn(), $batchActionDto->getCsrfToken())) {
+        $csrfTokenId = 'ea-batch-action-' . $batchActionDto->getName() . '-' . $batchActionDto->getEntityFqcn();
+        if (false === $this->isCsrfTokenValid($csrfTokenId, $batchActionDto->getCsrfToken())) {
             return $this->redirectToRoute($context->getDashboardRouteName());
         }
 
@@ -327,7 +328,10 @@ class InvoiceCrudController extends AbstractCrudController
         }
 
         $fields   = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
-        $filters  = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+        $filters  = $this->container
+                         ->get(FilterFactory::class)
+                         ->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity())
+        ;
         $invoices = $this->createIndexQueryBuilder($search, $context->getEntity(), $fields, $filters)
                          ->getQuery()
                          ->getResult()
@@ -344,10 +348,13 @@ class InvoiceCrudController extends AbstractCrudController
         if (0 === \count($invoices)) {
             $this->addFlash('warning', 'Keine Rechnungen zum Herunterladen gefunden.');
 
-            return $this->redirect($adminUrlGenerator
+            $targetUrl = $adminUrlGenerator
                 ->setController(self::class)
                 ->setAction(Crud::PAGE_INDEX)
-                ->generateUrl());
+                ->generateUrl()
+            ;
+
+            return $this->redirect($targetUrl);
         }
 
         $archivePath = $this->invoiceManager->createInvoiceArchive($invoices);

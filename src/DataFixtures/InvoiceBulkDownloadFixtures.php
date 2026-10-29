@@ -6,14 +6,15 @@ namespace App\DataFixtures;
 
 use App\Entity\Invoice;
 use App\Entity\Payment;
+use App\Entity\Price;
 use App\Entity\User;
 use App\Manager\InvoiceManager;
-use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Clock\ClockAwareTrait;
 
-class InvoiceBulkDownloadFixtures extends Fixture
+class InvoiceBulkDownloadFixtures extends Fixture implements DependentFixtureInterface
 {
     use ClockAwareTrait;
 
@@ -21,31 +22,31 @@ class InvoiceBulkDownloadFixtures extends Fixture
     public const INVOICES_PER_MONTH = 4;
     public const UNPAID_EVERY_NTH   = 3;
 
-    private const CUSTOMERS = [
-        ['invoice.customer1@annabreyer.dev', 'Erika', 'Mustermann'],
-        ['invoice.customer2@annabreyer.dev', 'Max', 'Mustermann'],
-        ['invoice.customer3@annabreyer.dev', 'Lieschen', 'Müller'],
-    ];
-
-    private const DESCRIPTIONS = [
-        'Coworking Tagespass'      => 1500,
-        'Coworking 10er-Karte'     => 13500,
-        'Besprechungsraum 2 Std.'  => 3000,
-        'Coworking Monatsabo'      => 19900,
-    ];
+    private const CUSTOMER_REFERENCES = ['user1', 'user2', 'firstBookingUser'];
+    private const PRICE_REFERENCES    = ['price-single', 'price-voucher'];
 
     public function __construct(
         private readonly InvoiceManager $invoiceManager,
-        private readonly UserRepository $userRepository,
         private readonly string $invoicePrefix,
     ) {
     }
 
+    public function getDependencies(): array
+    {
+        return [
+            BasicFixtures::class,
+            PriceFixtures::class,
+        ];
+    }
+
     public function load(ObjectManager $manager): void
     {
-        $customers    = $this->loadCustomers($manager);
-        $descriptions = array_keys(self::DESCRIPTIONS);
-        $firstOfMonth = $this->now()->modify('first day of this month')->setTime(0, 0);
+        $customers    = $this->getCustomers();
+        $prices       = $this->getPrices();
+        $firstOfMonth = $this->now()
+                             ->modify('first day of this month')
+                             ->setTime(0, 0)
+        ;
 
         $nextNumber = (int) substr($this->invoiceManager->getInvoiceNumber(), \strlen($this->invoicePrefix));
 
@@ -54,13 +55,13 @@ class InvoiceBulkDownloadFixtures extends Fixture
             $monthStart = $firstOfMonth->modify(\sprintf('-%d months', $month));
 
             for ($i = 0; $i < self::INVOICES_PER_MONTH; ++$i) {
-                $description = $descriptions[$count % \count($descriptions)];
+                $price       = $prices[$count % \count($prices)];
                 $date        = \DateTime::createFromImmutable($monthStart->modify(\sprintf('+%d days', 2 + $i * 6)));
 
                 $invoice = new Invoice();
                 $invoice->setUser($customers[$count % \count($customers)])
-                        ->setAmount(self::DESCRIPTIONS[$description])
-                        ->setDescription($description)
+                        ->setAmount($price->getAmount())
+                        ->setDescription($price->getName())
                         ->setDate($date)
                         ->setNumber($this->invoicePrefix . $nextNumber++)
                 ;
@@ -69,7 +70,7 @@ class InvoiceBulkDownloadFixtures extends Fixture
                 if (false === $isUnpaid) {
                     $payment = new Payment();
                     $payment->setType(Payment::PAYMENT_TYPE_TRANSACTION)
-                            ->setAmount(self::DESCRIPTIONS[$description])
+                            ->setAmount($price->getAmount())
                             ->setDate($date)
                     ;
                     $invoice->addPayment($payment);
@@ -86,26 +87,22 @@ class InvoiceBulkDownloadFixtures extends Fixture
     /**
      * @return User[]
      */
-    private function loadCustomers(ObjectManager $manager): array
+    private function getCustomers(): array
     {
-        $customers = [];
-        foreach (self::CUSTOMERS as [$email, $firstName, $lastName]) {
-            $user = $this->userRepository->findOneBy(['email' => $email]);
+        return array_map(
+            fn (string $reference): User => $this->getReference($reference, User::class),
+            self::CUSTOMER_REFERENCES
+        );
+    }
 
-            if (null === $user) {
-                $user = new User();
-                $user->setEmail($email)
-                     ->setFirstName($firstName)
-                     ->setLastName($lastName)
-                     ->setMobilePhone('0151 23456789')
-                ;
-                $manager->persist($user);
-            }
-
-            $customers[] = $user;
-        }
-        $manager->flush();
-
-        return $customers;
+    /**
+     * @return Price[]
+     */
+    private function getPrices(): array
+    {
+        return array_map(
+            fn (string $reference): Price => $this->getReference($reference, Price::class),
+            self::PRICE_REFERENCES
+        );
     }
 }

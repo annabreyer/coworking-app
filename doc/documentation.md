@@ -142,12 +142,12 @@ Each PDF in the archive is named after its invoice number. If an invoice has no 
 Batch actions on the invoice list are not confirmed, because the ZIP download is the only batch action there. If a destructive batch action is added to the invoice list, the confirmation has to be turned back on.
 
 ## Demo invoices
-`InvoiceBulkDownloadFixtures` creates demo invoices for testing the bulk download: four per month over the last three months, for three demo customers. Every third invoice is unpaid, and no PDFs are generated.
+`InvoiceBulkDownloadFixtures` creates demo invoices for testing the bulk download: four per month over the last three months. It builds on `BasicFixtures` and `PriceFixtures`. The invoices go to the existing fixture users (`user1`, `user2`, `firstBookingUser`) and take their description and amount from the existing prices. Every third invoice is unpaid, and no PDFs are generated.
 
-The fixture does not depend on other fixtures, so it can be added to an existing database without purging it:
+Loading the fixture also loads its dependencies, so the database is purged first:
 
 ```bash
-php bin/console doctrine:fixtures:load --append --group=InvoiceBulkDownloadFixtures
+php bin/console doctrine:fixtures:load --group=InvoiceBulkDownloadFixtures
 ```
 
 The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` cannot be called for each invoice, because it finds the latest invoice by `createdAt`, which is only precise to the second. Invoices created within the same second would get the same number.
