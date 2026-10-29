@@ -26,19 +26,11 @@ Clone the project
 `bin/console doctrine:database:create`
 `bin/console doctrine:migrations:migrate`
 `bin/console doctrine:fixtures:load --group=dev`
+loads the test data plus upcoming business days (see Development data in doc/documentation.md). It purges the database first.
+
+`bin/console tailwind:build` (or `--watch`) to build the CSS.
 
 You now have a running application with some test data.
-
-## Development data
-The `dev` fixture group (`DevFixtures`) loads the test fixtures that can be combined: `BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture` and `InvoiceBulkDownloadFixtures`. Loading it purges the database first.
-
-On top of the test fixtures, it adds what the test fixtures leave out for a running app:
-- Business days from the end of the fixture data up to six months ahead, so bookings can be made. Weekends and public holidays are closed.
-- A second active voucher price (5er-Ticket), because the homepage shows two voucher prices.
-
-A plain `doctrine:fixtures:load` without a group does not work: several test fixtures create the same users and invoice numbers. The booking fixtures each extend `BookingFixtures` and load its bookings again, so only one of them is part of the `dev` group.
-
-All fixture users have the password `Passw0rd`. `admin@annabreyer.dev` is a super admin, `user.one@annabreyer.dev` a regular user.
 
 # Technical Choices Codebase
 ## UUId

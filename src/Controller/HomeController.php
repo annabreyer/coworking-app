@@ -15,7 +15,7 @@ class HomeController extends AbstractController
     public function index(PriceRepository $priceRepository): Response
     {
         $voucherPrices = $priceRepository->findActiveVoucherPrices();
-        $unitaryPrice  = $priceRepository->findOneBy(['isUnitary' => true]);
+        $unitaryPrice  = $priceRepository->findOneBy(['isUnitary' => true, 'isActive' => true]);
 
         return $this->render('home/index.html.twig', [
             'voucherPrices' => $voucherPrices,

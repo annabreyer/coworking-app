@@ -103,12 +103,35 @@ booking:
       room.label: 'Raum'
       room.capacity: '%bookings% von %capacity% Plätzen gebucht.'
       action: 'Buchen'
+      next: 'Weiter'
+    days:
+      intro: 'Wähle den Tag, an dem Du bei uns arbeiten möchtest. Mit einem Klick auf „Buchen“ geht es direkt weiter zur Bezahlung.'
+      none: 'In den nächsten zwei Wochen ist leider kein Tag buchbar. Wähle unten einfach ein anderes Datum.'
+      today: 'Heute'
+      empty: 'Noch niemand gebucht – alle %capacity% Plätze frei'
+      full: 'Ausgebucht'
+      choose: 'Auswählen'
+      other_date: 'Anderes Datum wählen'
+      change: 'Anderen Tag wählen'
     prices:
       title: 'Preise'
       voucher_card:
           link: 'Mehrfachkarte kaufen'
       unitary.explanation: 'Wird bei der Bezahlung automatisch angewandt, ausser bei der Zahlung mit Gutschein oder Mehrfachkarte.'
       subscription.explanation: 'Wird monatlich in Rechnung gestellt, jeweils für den Folgemonat.'
+  steps:
+    choose_day: 'Tag wählen'
+    pay: 'Bezahlen'
+    confirmation: 'Bestätigung'
+    sr.label: 'Buchungsschritte'
+  weekday:
+    Mon: 'Mo'
+    Tue: 'Di'
+    Wed: 'Mi'
+    Thu: 'Do'
+    Fri: 'Fr'
+    Sat: 'Sa'
+    Sun: 'So'
   invoice:
     paid: 'Bezahlt'
   recap:

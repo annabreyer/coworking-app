@@ -25,6 +25,8 @@ class BookingController extends AbstractController
 {
     use ClockAwareTrait;
 
+    private const DAY_LIST_LENGTH = 14;
+
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly LoggerInterface $logger,
@@ -42,7 +44,7 @@ class BookingController extends AbstractController
     public function bookingStepDate(Request $request): Response
     {
         if (false === $request->isMethod('POST')) {
-            return $this->renderStepDate(new Response(), $this->now());
+            return $this->renderStepDate(new Response());
         }
 
         $response       = new Response();
@@ -52,7 +54,7 @@ class BookingController extends AbstractController
             $this->addFlash('error', $this->translator->trans('form.general.csrf_token_invalid', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->now());
+            return $this->renderStepDate($response);
         }
 
         $date = $request->request->getString('date');
@@ -60,7 +62,7 @@ class BookingController extends AbstractController
             $this->addFlash('error', $this->translator->trans('form.booking.step_date.no_date', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->now());
+            return $this->renderStepDate($response);
         }
 
         try {
@@ -76,14 +78,14 @@ class BookingController extends AbstractController
             );
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->now());
+            return $this->renderStepDate($response);
         }
 
         if ($dateTime->setTime(0, 0, 0) < $this->now()->setTime(0, 0, 0)) {
             $this->addFlash('error', $this->translator->trans('form.booking.step_date.date_in_past', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->now());
+            return $this->renderStepDate($response);
         }
 
         $businessDay = $this->businessDayRepository->findOneBy(['date' => $dateTime]);
@@ -92,7 +94,7 @@ class BookingController extends AbstractController
             $this->addFlash('error', $this->translator->trans('form.booking.step_room.date_not_possible', [], 'flash'));
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
 
-            return $this->renderStepDate($response, $this->now());
+            return $this->renderStepDate($response);
         }
 
         return $this->redirectToRoute('booking_step_room', ['businessDay' => $businessDay->getId()]);
@@ -246,9 +248,10 @@ class BookingController extends AbstractController
         return $this->redirectToRoute('user_bookings');
     }
 
-    private function renderStepDate(Response $response, \DateTimeImmutable $dateTime): Response
+    private function renderStepDate(Response $response): Response
     {
-        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->now());
+        $today            = $this->now()->setTime(0, 0, 0);
+        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($today);
         $businessDayCount = \count($businessDays);
 
         if (0 === $businessDayCount) {
@@ -266,20 +269,24 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
+        $listLimit         = $today->modify('+' . self::DAY_LIST_LENGTH . ' days');
+        $upcomingDays      = array_filter(
+            $businessDays,
+            static fn (BusinessDay $businessDay) => $businessDay->getDate() < $listLimit
+        );
+
         return $this->render('booking/index.html.twig', [
-            'step'     => 1,
-            'firstDay' => $businessDays[0]->getDate()->format('Y-m-d'),
-            'lastDay'  => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
-            'date'     => $dateTime->format('Y-m-d'),
-            'prices'   => $activePrices,
+            'step'        => 1,
+            'firstDay'    => $businessDays[0]->getDate()->format('Y-m-d'),
+            'lastDay'     => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
+            'dayOverview' => $this->bookingService->generateDayOverview($upcomingDays),
+            'today'       => $today->format('Y-m-d'),
+            'prices'      => $activePrices,
         ], $response);
     }
 
     private function renderStepRoom(Response $response, BusinessDay $businessDay): Response
     {
-        $businessDays     = $this->businessDayRepository->findBusinessDaysStartingWithDate($this->now());
-        $businessDayCount = \count($businessDays);
-
         $activePrices = $this->priceRepository->findActivePrices();
 
         if (empty($activePrices)) {
@@ -289,14 +296,11 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        $bookingOption = $this->bookingService->generateAvailableBookingOptionsForDay($businessDay, false);
+        $bookingOption = $this->bookingService->generateBookingOptionsForRoomsWithCapacity($businessDay);
 
         return $this->render('booking/index.html.twig', [
             'step'          => 2,
-            'firstDay'      => $businessDays[0]->getDate()->format('Y-m-d'),
-            'lastDay'       => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
             'bookingOption' => $bookingOption,
-            'date'          => $businessDay->getDate()->format('Y-m-d'),
             'businessDay'   => $businessDay,
             'prices'        => $activePrices,
         ], $response);

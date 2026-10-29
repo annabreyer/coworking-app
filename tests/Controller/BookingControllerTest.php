@@ -117,7 +117,7 @@ class BookingControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[type="date"]'));
     }
 
-    public function testStepDateTemplateDatepickerIsSetOnCurrentDay(): void
+    public function testStepDateTemplateDatepickerIsEmptyAndStartsOnCurrentDay(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-05-01'));
         $client       = static::createClient();
@@ -132,8 +132,118 @@ class BookingControllerTest extends WebTestCase
         static::assertResponseIsSuccessful();
         $datepicker = $crawler->filter('input[type="date"]');
         self::assertCount(1, $datepicker);
-        self::assertSame('2024-05-01', $datepicker->attr('value'));
+        self::assertNull($datepicker->attr('value'));
         self::assertSame('2024-05-01', $datepicker->attr('min'));
+    }
+
+    public function testStepDateTemplateDatepickerStartsOnCurrentDayDuringTheDay(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-02 14:30'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/booking');
+        static::assertResponseIsSuccessful();
+        self::assertSame('2024-05-02', $crawler->filter('input[type="date"]')->attr('min'));
+        self::assertStringContainsString('02.05.', $crawler->filter('#day-list .day-card')->first()->text());
+        self::assertStringContainsString('Heute', $crawler->filter('#day-list .day-card')->first()->text());
+    }
+
+    public function testStepDateTemplateListsOpenDaysOfTheNextTwoWeeks(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/booking');
+        static::assertResponseIsSuccessful();
+        $dayCards = $crawler->filter('#day-list .day-card');
+        self::assertCount(10, $dayCards);
+        self::assertStringContainsString('Mi 01.05.', $dayCards->first()->text());
+        self::assertStringContainsString('Di 14.05.', $dayCards->last()->text());
+    }
+
+    public function testStepDateTemplateDayCardShowsOccupancy(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-25'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler  = $client->request('GET', '/booking');
+        $dayCards = $crawler->filter('#day-list .day-card')->reduce(
+            static fn ($card) => str_contains($card->text(), '01.04.')
+        );
+        self::assertCount(1, $dayCards);
+        self::assertStringContainsString('7 von 8 Plätzen gebucht.', $dayCards->text());
+
+        $emptyDay = $crawler->filter('#day-list .day-card')->reduce(
+            static fn ($card) => str_contains($card->text(), '03.04.')
+        );
+        self::assertStringContainsString('alle 8 Plätze frei', $emptyDay->text());
+    }
+
+    public function testStepDateTemplateDayCardLinksToRoomStepWithSeveralRooms(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-05-01')]);
+
+        $crawler  = $client->request('GET', '/booking');
+        $firstDay = $crawler->filter('#day-list .day-card')->first();
+        self::assertCount(0, $firstDay->filter('form'));
+        self::assertSame('/booking/' . $businessDay->getId() . '/room', $firstDay->filter('a')->attr('href'));
+    }
+
+    public function testStepDateTemplateDayCardBooksDirectlyWithSingleRoom(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+        $this->closeRoom(BasicFixtures::FULLY_BOOKED_ROOM);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/booking');
+        $form    = $crawler->filter('#day-list .day-card')->first()->filter('form')->form();
+        $client->submit($form);
+
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-05-01')]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $booking     = static::getContainer()->get(BookingRepository::class)
+                         ->findOneBy([
+                             'room'        => $room,
+                             'businessDay' => $businessDay,
+                             'user'        => $testUser,
+                         ])
+        ;
+
+        self::assertNotNull($booking);
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
     }
 
     public function testStepDateTemplateDatepickerMaxMatchesDatabase(): void
@@ -437,7 +547,7 @@ class BookingControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('h1'));
     }
 
-    public function testStepRoomTemplateContainsDatePickerAndSelect(): void
+    public function testStepRoomTemplateContainsSelectWithSeveralRooms(): void
     {
         static::mockTime(new \DateTimeImmutable('2024-03-01'));
         $client       = static::createClient();
@@ -452,10 +562,32 @@ class BookingControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
         static::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('#form-date'));
         self::assertCount(1, $crawler->filter('#form-room'));
-        self::assertCount(1, $crawler->filter('input[type="date"]'));
         self::assertCount(1, $crawler->filter('select'));
+        self::assertCount(2, $crawler->filter('option'));
+        self::assertSame('/booking', $crawler->filter('#change-day')->attr('href'));
+    }
+
+    public function testStepRoomTemplateHasNoSelectWithSingleRoom(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+        $this->closeRoom(BasicFixtures::FULLY_BOOKED_ROOM);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $testUser       = $userRepository->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+        $date        = new \DateTimeImmutable('2024-05-10');
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => $date]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+
+        $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
+        static::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('select'));
+        self::assertSame((string) $room->getId(), $crawler->filter('#form-room input[name="room"]')->attr('value'));
+        self::assertCount(1, $crawler->filter('#form-room button[type="submit"]'));
     }
 
     public function testStepRoomTemplateSelectOptionIsDisabledIfFullyBooked(): void
@@ -910,5 +1042,12 @@ class BookingControllerTest extends WebTestCase
                                  'user'        => $user,
                              ])
         ;
+    }
+
+    private function closeRoom(string $roomName): void
+    {
+        $room = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => $roomName]);
+        $room->setIsOpen(false);
+        static::getContainer()->get('doctrine')->getManager()->flush();
     }
 }

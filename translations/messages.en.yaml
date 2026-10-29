@@ -98,10 +98,36 @@ booking:
       date.label: 'Date'
       room.label: 'Room'
       action: 'Book'
+      room.capacity: '%bookings% of %capacity% desks booked.'
+      next: 'Continue'
+    days:
+      intro: 'Choose the day you would like to work with us. Click "Book" and you go straight to payment.'
+      none: 'Unfortunately no day can be booked within the next two weeks. Simply choose another date below.'
+      today: 'Today'
+      empty: 'Nobody booked yet – all %capacity% desks available'
+      full: 'Fully booked'
+      choose: 'Choose'
+      other_date: 'Choose another date'
+      change: 'Choose another day'
     prices:
       title: 'Prices'
       voucher_card:
           link: 'Buy vouchers'
+      unitary.explanation: 'Applied automatically at payment, except when paying with a voucher or multi-pass.'
+      subscription.explanation: 'Invoiced monthly, always for the following month.'
+  steps:
+    choose_day: 'Choose day'
+    pay: 'Pay'
+    confirmation: 'Confirmation'
+    sr.label: 'Booking steps'
+  weekday:
+    Mon: 'Mon'
+    Tue: 'Tue'
+    Wed: 'Wed'
+    Thu: 'Thu'
+    Fri: 'Fri'
+    Sat: 'Sat'
+    Sun: 'Sun'
   invoice:
     description: 'A coworking desk in room %room% on %date%'
     paid: 'Paid'

@@ -32,6 +32,26 @@
             </div>
         {% endif  %}
 
+        {% if not app.user %}
+            <div class="p-6 mb-8 rounded-lg border border-red bg-yellow-light/50" id="how-to-book">
+                <h3 class="mt-0">{{ 'how_to_book.title'|trans }}</h3>
+                <ol class="flex flex-col md:flex-row gap-4 md:gap-8 text-lg">
+                    {% for stepKey in ['register', 'choose_day', 'pay'] %}
+                        <li class="flex items-center gap-3">
+                            <span class="flex items-center justify-center shrink-0 w-9 h-9 rounded-full bg-red text-yellow font-bold">{{ loop.index }}</span>
+                            <span>{{ ('how_to_book.steps.' ~ stepKey)|trans }}</span>
+                        </li>
+                    {% endfor %}
+                </ol>
+                <div class="flex flex-wrap gap-4 mt-4">
+                    <a href="{{ path('app_register') }}">
+                        <button type="button" class="text-lg !my-0">{{ 'how_to_book.register'|trans }}</button>
+                    </a>
+                    <a href="{{ path('app_login') }}" class="self-center underline text-lg">{{ 'how_to_book.login'|trans }}</a>
+                </div>
+            </div>
+        {% endif %}
+
         {% if app.user %}
             <div class="self-center">
                 <button>
@@ -49,15 +69,20 @@
                 {% endif %}
             </div>
         {% endif %}
-        {% trans with ({
-            '%unitaryPrice%': unitaryPrice.amount/100,
-            '%voucherNameOne%': voucherPrices.0.name,
-            '%voucherNameTwo%': voucherPrices.1.name,
-            '%voucherPriceOne%' : voucherPrices.0.amount/100,
-            '%voucherPriceTwo%' : voucherPrices.1.amount/100,
-            '%registerUrl%' : path('app_register'),
-        }) %}
-        content
-        {% endtrans %}
+        {% trans %}content.prices.intro{% endtrans %}
+
+        {% if unitaryPrice %}
+            <h4>{{ 'content.prices.unitary.title'|trans({'%unitaryPrice%': unitaryPrice.amount/100}) }}</h4>
+            <p class="text-lg mt-0">{{ 'content.prices.unitary.text'|trans }}</p>
+        {% endif %}
+
+        {% if voucherPrices is not empty %}
+            {% for voucherPrice in voucherPrices %}
+                <h4>{{ 'content.prices.voucher.title'|trans({'%voucherName%': voucherPrice.name, '%voucherPrice%': voucherPrice.amount/100}) }}</h4>
+            {% endfor %}
+            {% trans %}content.prices.voucher.text{% endtrans %}
+        {% endif %}
+
+        {% trans with ({'%registerUrl%': path('app_register')}) %}content.details{% endtrans %}
     </section>
 {% endblock %}

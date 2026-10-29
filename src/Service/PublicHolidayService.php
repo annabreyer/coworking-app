@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Symfony\Component\Clock\ClockAwareTrait;
 use Yasumi\Provider\Germany\RhinelandPalatinate;
 use Yasumi\ProviderInterface;
 use Yasumi\Yasumi;
 
 class PublicHolidayService
 {
+    use ClockAwareTrait;
+
     public const NEW_YEARS_DAY        = 'newYearsDay';
     public const GOOD_FRIDAY          = 'goodFriday';
     public const EASTER_MONDAY        = 'easterMonday';
@@ -22,26 +25,24 @@ class PublicHolidayService
     public const SECOND_CHRISTMAS_DAY = 'secondChristmasDay';
     public const NEW_YEARS_EVE        = 'newYearsEve';
 
-    private ProviderInterface $germanPublicHolidays;
+    /** @var array<int, ProviderInterface> */
+    private array $germanPublicHolidays = [];
 
-    public function __construct()
+    public function getGermanPublicHolidays(?int $year = null): ProviderInterface
     {
-        $this->germanPublicHolidays = Yasumi::create(RhinelandPalatinate::class, (int) date('Y'), 'de_DE');
-    }
+        $year ??= (int) $this->now()->format('Y');
 
-    public function getGermanPublicHolidays(): ProviderInterface
-    {
-        return $this->germanPublicHolidays;
+        return $this->germanPublicHolidays[$year] ??= Yasumi::create(RhinelandPalatinate::class, $year, 'de_DE');
     }
 
     public function isGermanPublicHoliday(\DateTimeInterface $date): bool
     {
-        return $this->germanPublicHolidays->isHoliday($date);
+        return $this->getGermanPublicHolidaysForDate($date)->isHoliday($date);
     }
 
     public function getGermanPublicHolidaysNamesForDate(\DateTimeInterface $date): string
     {
-        $holidaysOnThatDay = $this->germanPublicHolidays->on($date);
+        $holidaysOnThatDay = $this->getGermanPublicHolidaysForDate($date)->on($date);
 
         if (0 === $holidaysOnThatDay->count()) {
             return '';
@@ -53,5 +54,10 @@ class PublicHolidayService
         }
 
         return implode(', ', $holidays);
+    }
+
+    private function getGermanPublicHolidaysForDate(\DateTimeInterface $date): ProviderInterface
+    {
+        return $this->getGermanPublicHolidays((int) $date->format('Y'));
     }
 }
