@@ -121,6 +121,21 @@ class BookingRepository extends ServiceEntityRepository
     /**
      * @return Booking[]
      */
+    public function findBookingsForCalendar(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.businessDay', 'bd')
+            ->where('b.isCancelled = false')
+            ->andWhere('b.amount IS NOT NULL')
+            ->orderBy('bd.date', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return Booking[]
+     */
     public function findUnfinishedBookingsSince(\DateTimeInterface $dateTime): array
     {
         return $this->createQueryBuilder('b')
