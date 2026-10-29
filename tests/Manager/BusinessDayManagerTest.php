@@ -158,4 +158,49 @@ class BusinessDayManagerTest extends TestCase
         self::assertInstanceOf(\DatePeriod::class, $period);
         self::assertSame($startDate->format('Ymd'), $period->getStartDate()->format('Ymd'));
     }
+
+    public function testGenerateBusinessDaysUntilClosesPublicHolidaysAcrossYearBoundary(): void
+    {
+        self::mockTime(new \DateTimeImmutable('2026-10-15'));
+
+        $businessDayRepositoryMock = $this->createMock(BusinessDayRepository::class);
+        $businessDayRepositoryMock->method('findLastBusinessDay')
+                                  ->willReturn(new BusinessDay(new \DateTimeImmutable('2026-12-23')));
+        $businessDayRepositoryMock->method('findOneBy')
+                                  ->willReturn(null);
+
+        $persistedBusinessDays = [];
+        $entityManagerMock     = $this->createMock(EntityManagerInterface::class);
+        $entityManagerMock->method('persist')
+                          ->willReturnCallback(function (BusinessDay $businessDay) use (&$persistedBusinessDays): void {
+                              $persistedBusinessDays[$businessDay->getDate()->format('Y-m-d')] = $businessDay->isOpen();
+                          });
+        $entityManagerMock->expects(self::once())
+                          ->method('flush');
+
+        $businessDayManager = new BusinessDayManager(
+            $entityManagerMock,
+            $businessDayRepositoryMock,
+            new PublicHolidayService()
+        );
+
+        $businessDayManager->generateBusinessDaysUntil(new \DateTimeImmutable('2027-01-05'));
+
+        self::assertSame([
+            '2026-12-23' => true,
+            '2026-12-24' => true,
+            '2026-12-25' => false,
+            '2026-12-26' => false,
+            '2026-12-27' => false,
+            '2026-12-28' => true,
+            '2026-12-29' => true,
+            '2026-12-30' => true,
+            '2026-12-31' => false,
+            '2027-01-01' => false,
+            '2027-01-02' => false,
+            '2027-01-03' => false,
+            '2027-01-04' => true,
+            '2027-01-05' => true,
+        ], $persistedBusinessDays);
+    }
 }

@@ -39,6 +39,9 @@ Subscription system is not implemented yet.
 ### Business Day
 Business Days are created by a cron job for 6 months in advance - unless the command is executed manually with another date. 
 Weekends and public holidays are closed by default.
+Public holidays (Rhineland-Palatinate) are resolved for the year of each date, so a run in autumn also closes
+holidays of the following year. `PublicHolidayService::getGermanPublicHolidays()` defaults to the current year of the
+Symfony clock.
 BusinessDays can be administered in the backoffice.
 
 ### Room
