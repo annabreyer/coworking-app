@@ -194,7 +194,11 @@ class BookingCrudController extends AbstractCrudController
     #[AdminAction(routePath: '/booking/{entityId}/cancel', routeName: 'cancel', methods: ['POST'])]
     public function cancelBooking(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
-        $targetUrl = $adminUrlGenerator->setRoute('admin_booking_index')->generateUrl();
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl()
+        ;
         $booking   = $context->getEntity()->getInstance();
 
         if (!$booking instanceof Booking) {
