@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\Booking;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
+use App\Repository\BusinessDayRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
@@ -34,9 +35,12 @@ class BookingCrudController extends AbstractCrudController
 {
     use ClockAwareTrait;
 
+    private const PAST_BOOKING_DAYS = 30;
+
     public function __construct(
         private readonly InvoiceManager $invoiceManager,
         private readonly BookingManager $bookingManager,
+        private readonly BusinessDayRepository $businessDayRepository,
     ) {
     }
 
@@ -146,11 +150,16 @@ class BookingCrudController extends AbstractCrudController
             yield FormField::addColumn(6);
             yield FormField::addFieldset('Booking Details');
             yield AssociationField::new('businessDay')
-                                  ->setQueryBuilder(static function ($queryBuilder) {
+                                  ->setQueryBuilder(function (QueryBuilder $queryBuilder) {
                                       return $queryBuilder
+                                          ->andWhere('entity.date >= :earliestDate')
+                                          ->andWhere('entity.isOpen = :isOpen')
+                                          ->setParameter('earliestDate', $this->getEarliestBookableDate())
+                                          ->setParameter('isOpen', true)
                                           ->orderBy('entity.date', 'ASC')
                                       ;
                                   })
+                                  ->setHelp('Nur geöffnete Tage ab ' . self::PAST_BOOKING_DAYS . ' Tagen in der Vergangenheit. Zum Suchen Datum eintippen, z. B. 29.10.')
             ;
             yield AssociationField::new('user')
                                   ->autocomplete()
@@ -161,6 +170,14 @@ class BookingCrudController extends AbstractCrudController
                             ->setHelp('Rechnung wird automatisch mit diesem Betrag erstellt.')
             ;
         }
+    }
+
+    public function createEntity(string $entityFqcn): Booking
+    {
+        $booking = new Booking();
+        $booking->setBusinessDay($this->businessDayRepository->findOneBy(['date' => $this->now()->setTime(0, 0)]));
+
+        return $booking;
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -190,5 +207,10 @@ class BookingCrudController extends AbstractCrudController
         $this->container->get('event_dispatcher')->dispatch(new AfterEntityUpdatedEvent($booking));
 
         return $this->redirect($targetUrl);
+    }
+
+    private function getEarliestBookableDate(): \DateTimeImmutable
+    {
+        return $this->now()->modify('-' . self::PAST_BOOKING_DAYS . ' days')->setTime(0, 0);
     }
 }
