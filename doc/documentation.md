@@ -174,6 +174,11 @@ Loading all fixtures without a group fails, because the fixtures in `DataFixture
 The booking fixtures extend `BookingFixtures` and load its bookings again, so only `BookingWithInvoiceNoPaymentFixture` is a dependency of `DevFixtures`.
 All fixture users have the password `Passw0rd`. `admin@annabreyer.dev` is a super admin, `user.one@annabreyer.dev` a regular user.
 
+## Email subjects outside prod
+`EmailSubjectPrefixSubscriber` prefixes the subject of every outgoing email with the environment when the app does not run in `prod`, e.g. `[DEV] Deine Buchung` or `[STAGING] Deine Buchung`, so emails from dev or staging can't be mistaken for real ones.
+The test environment is prefixed too (`[TEST] ...`), so tests check the subject the way it is sent outside prod.
+Emails sent through Messenger trigger the mailer's `MessageEvent` twice (once when queued, once when sent), so a subject that already has the prefix is left as is.
+
 ## Tailwind
 The project (`tailwind.config.js`, `@tailwind` directives in `app.css`) is set up for Tailwind v3.
 The version is pinned in `config/packages/symfonycasts_tailwind.yaml`, because without it the bundle downloads the latest release (v4), which fails to build.
