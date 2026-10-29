@@ -22,6 +22,7 @@ class DevFixtures extends Fixture implements DependentFixtureInterface, FixtureG
             UpcomingBusinessDayFixtures::class,
             CoworkingRoomFixtures::class,
             UpcomingBookingFixtures::class,
+            InvoiceBulkDownloadFixtures::class,
         ];
     }
 

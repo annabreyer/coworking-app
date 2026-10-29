@@ -147,9 +147,10 @@ Adding a voucher payment, regenerates the invoice with the voucher payment.
 ## Development data
 `bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures`, which only ties together the fixtures for a running app:
 - the combinable test fixtures (`BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture`),
-- `UpcomingBusinessDayFixtures`: business days from today for the next 6 months. Weekends are closed, public holidays are not (unlike the `app:business-days` command).
+- `UpcomingBusinessDayFixtures`: business days from today for the next 6 months. Weekends and public holidays are closed, like with the `app:business-days` command.
 - `CoworkingRoomFixtures`: a room "Coworking-Raum" with 4 places, like the real space. The test rooms are closed, so that like in production only one room can be booked.
 - `UpcomingBookingFixtures`: one booking on the second open day, the fourth open day is fully booked, so the occupancy on the booking page can be checked.
+- `InvoiceBulkDownloadFixtures`: demo invoices over the last three months for the bulk download (see Demo invoices).
 
 The tests don't use these fixtures, as they rely on fixed dates in 2024.
 
@@ -182,4 +183,6 @@ Loading the fixture also loads its dependencies, so the database is purged first
 php bin/console doctrine:fixtures:load --group=InvoiceBulkDownloadFixtures
 ```
 
-The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` cannot be called for each invoice, because it finds the latest invoice by `createdAt`, which is only precise to the second. Invoices created within the same second would get the same number.
+The fixture is also part of the `dev` group (see Development data).
+
+The fixture takes the first free invoice number once and counts up from there. `InvoiceManager::getInvoiceNumber()` only sees invoices that are already saved, and the fixture saves all its invoices at once.

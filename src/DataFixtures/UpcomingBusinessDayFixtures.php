@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\BusinessDay;
+use App\Service\PublicHolidayService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -16,6 +17,11 @@ class UpcomingBusinessDayFixtures extends Fixture implements DependentFixtureInt
 
     public const BOOKABLE_MONTHS           = 6;
     public const OPEN_DAY_REFERENCE_PREFIX = 'upcomingOpenDay-';
+
+    public function __construct(
+        private readonly PublicHolidayService $publicHolidayService,
+    ) {
+    }
 
     public function getDependencies(): array
     {
@@ -34,7 +40,9 @@ class UpcomingBusinessDayFixtures extends Fixture implements DependentFixtureInt
         foreach ($dateRange as $date) {
             $businessDay = new BusinessDay(\DateTime::createFromImmutable($date));
 
-            if ($date->format('N') > 5) {
+            $isWeekend       = $date->format('N') > 5;
+            $isPublicHoliday = $this->publicHolidayService->isGermanPublicHoliday($date);
+            if ($isWeekend || $isPublicHoliday) {
                 $businessDay->setIsOpen(false);
             } else {
                 $this->addReference(self::OPEN_DAY_REFERENCE_PREFIX . $openDays, $businessDay);
