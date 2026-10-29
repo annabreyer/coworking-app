@@ -103,6 +103,30 @@ class InvoiceGeneratorTest extends KernelTestCase
         $invoiceGenerator->generateBookingInvoice($invoice);
     }
 
+    public function testGenerateBookingInvoiceUsesCustomDescriptionAsLineItem(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
+        $invoice = static::getContainer()->get(InvoiceRepository::class)
+                          ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice->setDescription('Coworking Tagesplatz, angepasst');
+
+        self::assertSame('Coworking Tagesplatz, angepasst', $this->renderAndGetFirstItemDescription($invoice));
+    }
+
+    public function testGenerateBookingInvoiceUsesGeneratedLineItemWhenDescriptionIsEmpty(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $this->databaseTool->loadFixtures([BookingWithInvoiceNoPaymentFixture::class]);
+
+        $invoice = static::getContainer()->get(InvoiceRepository::class)
+                          ->findOneBy(['number' => BookingWithInvoiceNoPaymentFixture::INVOICE_NUMBER]);
+        $invoice->setDescription('   ');
+
+        self::assertSame('invoice.description.booking', $this->renderAndGetFirstItemDescription($invoice));
+    }
+
     public function testGenerateVoucherInvoiceThrowsExceptionIfInvoiceIsNotPersisted(): void
     {
         $invoice = new Invoice();
@@ -125,6 +149,34 @@ class InvoiceGeneratorTest extends KernelTestCase
         $invoiceGenerator = $this->getInvoiceGenerator();
         $expectedPath     = 'invoiceDirectory/2024/03';
         self::assertSame($expectedPath, $invoiceGenerator->getTargetDirectory($invoice));
+    }
+
+    private function renderAndGetFirstItemDescription(Invoice $invoice): ?string
+    {
+        $renderedItems = null;
+        $mockTwig      = $this->createMock(Environment::class);
+        $mockTwig->method('render')
+                 ->willReturnCallback(static function (string $template, array $context) use (&$renderedItems): string {
+                     $renderedItems = $context['items'];
+
+                     return '<html><body></body></html>';
+                 })
+        ;
+
+        $mockTranslator = $this->createMock(TranslatorInterface::class);
+        $mockTranslator->method('trans')->willReturnArgument(0);
+
+        $invoiceGenerator = new InvoiceGenerator(
+            $this->getContainer()->get(EntityManagerInterface::class),
+            $mockTranslator,
+            $mockTwig,
+            $this->createMock(Filesystem::class),
+            'invoiceDirectory',
+            'invoiceClientNumberPrefix'
+        );
+        $invoiceGenerator->generateBookingInvoice($invoice);
+
+        return $renderedItems[0]['description'] ?? null;
     }
 
     private function getInvoiceGenerator(): InvoiceGenerator

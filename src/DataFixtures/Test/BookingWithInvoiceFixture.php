@@ -19,7 +19,7 @@ use Doctrine\Persistence\ObjectManager;
  */
 class BookingWithInvoiceFixture extends Fixture implements DependentFixtureInterface
 {
-    public const INVOICE_NUMBER = 'INV-BOOKING-001';
+    public const INVOICE_NUMBER = 'CO20240008';
     public const BOOKING_DATE = '2024-04-03';
     public const ROOM_REF = 'room3';
 

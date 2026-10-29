@@ -59,7 +59,7 @@ class InvoiceGenerator
         }
 
         $document = $this->buildBaseDocument($invoice, $user);
-        $document->addItem($this->buildBookingItem($invoiceBooking));
+        $document->addItem($this->buildBookingItem($invoice, $invoiceBooking));
 
         $paymentSpecifics = $this->buildBookingPaymentSpecifics($invoice);
         $document->addItems($paymentSpecifics->extraItems);
@@ -102,7 +102,7 @@ class InvoiceGenerator
         $document = $this->buildBaseDocument($invoice, $user);
         $document->addItem(new InvoiceLineItem(
             position: 1,
-            description: $this->translator->trans('invoice.description.voucher', [
+            description: $this->getCustomDescription($invoice) ?? $this->translator->trans('invoice.description.voucher', [
                 '%name%'           => $voucherType->getName(),
                 '%validityMonths%' => $voucherType->getValidityMonths(),
             ], 'invoice'),
@@ -207,7 +207,7 @@ class InvoiceGenerator
         );
     }
 
-    private function buildBookingItem(Booking $booking): InvoiceLineItem
+    private function buildBookingItem(Invoice $invoice, Booking $booking): InvoiceLineItem
     {
         $bookingAmount = $booking->getAmount();
         if (null === $bookingAmount) {
@@ -226,7 +226,7 @@ class InvoiceGenerator
 
         return new InvoiceLineItem(
             position: 1,
-            description: $this->translator->trans('invoice.description.booking', [
+            description: $this->getCustomDescription($invoice) ?? $this->translator->trans('invoice.description.booking', [
                 '%date%' => $bookingDate->format('d.m.Y'),
                 '%room%' => $bookingRoom->getName(),
             ], 'invoice'),
@@ -291,6 +291,13 @@ class InvoiceGenerator
         }
 
         return $items;
+    }
+
+    private function getCustomDescription(Invoice $invoice): ?string
+    {
+        $description = trim((string) $invoice->getDescription());
+
+        return '' === $description ? null : $description;
     }
 
     private function getVoucherCodes(Invoice $invoice): string

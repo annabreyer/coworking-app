@@ -46,7 +46,7 @@ class InvoiceManager
     public function getInvoiceNumber(): string
     {
         $year        = $this->now()->format('Y');
-        $lastInvoice = $this->invoiceRepository->findLatestInvoiceForYear($year);
+        $lastInvoice = $this->invoiceRepository->findInvoiceWithHighestNumber($this->invoicePrefix . $year);
 
         if (null === $lastInvoice || null === $lastInvoice->getNumber()) {
             return $this->invoicePrefix . $year . '0001';

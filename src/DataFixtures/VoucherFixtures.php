@@ -22,7 +22,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
     public const ADMIN_VOUCHER_CODE           = 'VO20240002';
     public const EXPIRED_VOUCHER_CODE         = 'VO20240004';
     public const VOUCHER_WITHOUT_PAYMENT_CODE = 'VO20240033';
-    public const VOUCHER_INVOICE_NUMBER       = 'CO20240002';
+    public const VOUCHER_INVOICE_NUMBER       = 'CO20240009';
     public const ALREADY_USED_VOUCHER_CODE    = 'VO20240044';
 
     public function getDependencies(): array
@@ -105,7 +105,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $invoice->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
                 ->setUser($user)
                 ->setDate(new \DateTime('2024-04-04'))
-                ->setNumber('CO20240011')
+                ->setNumber('CO20240010')
         ;
         $manager->persist($invoice);
         $manager->flush();
@@ -131,7 +131,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $invoice->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
                 ->setUser($user)
                 ->setDate(new \DateTime('2024-04-04'))
-                ->setNumber('CO20240033')
+                ->setNumber('CO20240011')
         ;
         $manager->persist($invoice);
         $manager->flush();
@@ -161,7 +161,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $voucherInvoice->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
                        ->setUser($user)
                        ->setDate($voucherPurchaseDate)
-                       ->setNumber('CO202400304')
+                       ->setNumber('CO20240001')
         ;
         $manager->persist($voucherInvoice);
         $manager->flush();
@@ -199,7 +199,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $bookingInvoice->setAmount(0)
                        ->setUser($user)
                        ->setDate($bookingInvoiceDate)
-                       ->setNumber('CO202400321')
+                       ->setNumber('CO20240002')
         ;
         $manager->persist($bookingInvoice);
         $manager->flush();
