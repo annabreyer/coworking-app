@@ -20,6 +20,7 @@ class BookingWithOutInvoiceFixture extends BookingFixtures
         $businessDay = $this->getReference('businessDay-' . self::BUSINESS_DAY_DATE, \App\Entity\BusinessDay::class);
 
         $booking = new Booking();
+        $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room);
         $booking->setUser($user);

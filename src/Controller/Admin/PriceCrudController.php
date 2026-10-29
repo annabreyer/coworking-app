@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Price;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -30,6 +31,15 @@ class PriceCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield Field::new('name');
+        yield AssociationField::new('bookingType')
+                              ->setQueryBuilder(static function (QueryBuilder $queryBuilder) {
+                                  return $queryBuilder
+                                      ->andWhere('entity.isActive = :isActive')
+                                      ->setParameter('isActive', true)
+                                      ->orderBy('entity.name', 'ASC')
+                                  ;
+                              })
+        ;
         yield MoneyField::new('amount')
                         ->setCurrency('EUR')
         ;

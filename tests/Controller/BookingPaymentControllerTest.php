@@ -9,18 +9,25 @@ use App\DataFixtures\BookingFixtures;
 use App\DataFixtures\BookingWithOutAmountFixture;
 use App\DataFixtures\BookingWithOutInvoiceFixture;
 use App\DataFixtures\BookingWithPaymentFixture;
+use App\DataFixtures\HalfDayPriceFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\DataFixtures\VoucherFixtures;
 use App\DataFixtures\Test\BookingWithInvoiceFixture;
 use App\Entity\Booking;
+use App\Entity\BookingType;
 use App\Entity\Payment;
 use App\Entity\User;
+use App\Entity\VoucherType;
+use App\Manager\BookingManager;
 use App\Repository\BookingRepository;
+use App\Repository\BookingTypeRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\InvoiceRepository;
+use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
 use App\Repository\VoucherRepository;
+use App\Repository\VoucherTypeRepository;
 use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Monolog\Handler\TestHandler;
@@ -823,6 +830,136 @@ class BookingPaymentControllerTest extends WebTestCase
         $expectedUri = '/invoice/' . $invoice->getUuid() . '/download';
         $link        = $crawler->filter('section button a')->first();
         self::assertSame($expectedUri, $link->attr('href'));
+    }
+
+    public function testStepPaymentOffersThePriceOfTheBookingType(): void
+    {
+        $this->mockTime(new \DateTimeImmutable('2024-04-04'));
+        $client = static::createClient();
+        static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([BasicFixtures::class, HalfDayPriceFixtures::class]);
+
+        $bookingUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $halfDayBooking = $this->createBookingOfType($bookingUser, BookingType::NAME_HALF_DAY, '2024-04-22');
+        $fullDayBooking = $this->createBookingOfType($bookingUser, BookingType::NAME_FULL_DAY, '2024-04-23');
+
+        $halfDayPrice = static::getContainer()->get(PriceRepository::class)->findOneBy(['amount' => PriceFixtures::HALF_DAY_SINGLE_PRICE_AMOUNT]);
+        $fullDayPrice = static::getContainer()->get(PriceRepository::class)->findOneBy(['amount' => PriceFixtures::SINGLE_PRICE_AMOUNT]);
+
+        $crawler = $client->request('GET', '/booking/' . $halfDayBooking->getUuid() . '/payment');
+        static::assertResponseIsSuccessful();
+        self::assertSame((string) $halfDayPrice->getId(), $crawler->filter('input[name="priceId"]')->attr('value'));
+
+        $crawler = $client->request('GET', '/booking/' . $fullDayBooking->getUuid() . '/payment');
+        static::assertResponseIsSuccessful();
+        self::assertSame((string) $fullDayPrice->getId(), $crawler->filter('input[name="priceId"]')->attr('value'));
+    }
+
+    public function testStepPaymentFormSubmitRejectsPriceOfAnotherBookingType(): void
+    {
+        $this->mockTime(new \DateTimeImmutable('2024-04-04'));
+        $client = static::createClient();
+        static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([BasicFixtures::class, HalfDayPriceFixtures::class]);
+
+        $bookingUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $fullDayBooking = $this->createBookingOfType($bookingUser, BookingType::NAME_FULL_DAY, '2024-04-22');
+        $halfDayPrice   = static::getContainer()->get(PriceRepository::class)->findOneBy(['amount' => PriceFixtures::HALF_DAY_SINGLE_PRICE_AMOUNT]);
+
+        $crawler = $client->request('GET', '/booking/' . $fullDayBooking->getUuid() . '/payment');
+        $form    = $crawler->filter('form')->form();
+        $form->disableValidation();
+        $form->setValues(['priceId' => (string) $halfDayPrice->getId()]);
+        $client->submit($form);
+
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('section#flash-messages', 'Der ausgewählte Preis konnte nicht gefunden werden.');
+        self::assertNull($fullDayBooking->getAmount());
+    }
+
+    public function testPayWithVoucherFormSubmitErrorWhenVoucherIsForAnotherBookingType(): void
+    {
+        $this->mockTime(new \DateTimeImmutable('2024-04-04'));
+        $client = static::createClient();
+        static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([VoucherFixtures::class, HalfDayPriceFixtures::class]);
+
+        $bookingUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+        $booking = $this->createBookingOfType($bookingUser, BookingType::NAME_HALF_DAY, '2024-04-22', PriceFixtures::HALF_DAY_SINGLE_PRICE_AMOUNT);
+
+        $crawler = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment/voucher');
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('section#flash-messages', 'Dieser Gutscheincode gilt nur für Buchungen vom Typ Ganztag.');
+    }
+
+    public function testPayWithVoucherFormSubmitAcceptsVoucherOfTheSameBookingType(): void
+    {
+        $this->mockTime(new \DateTimeImmutable('2024-04-04'));
+        $client = static::createClient();
+        static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([VoucherFixtures::class, HalfDayPriceFixtures::class]);
+
+        $bookingUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $halfDayType = static::getContainer()->get(BookingTypeRepository::class)->findOneBy(['name' => BookingType::NAME_HALF_DAY]);
+        $voucher     = $bookingUser->getValidVouchers()->first();
+        $voucher->setVoucherType(static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['bookingType' => $halfDayType]));
+        static::getContainer()->get('doctrine.orm.entity_manager')->flush();
+
+        $booking = $this->createBookingOfType($bookingUser, BookingType::NAME_HALF_DAY, '2024-04-22', PriceFixtures::HALF_DAY_SINGLE_PRICE_AMOUNT);
+
+        $crawler = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment/voucher');
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+    }
+
+    public function testPayWithVoucherFormSubmitAcceptsVoucherWithoutBookingTypeForAnyBookingType(): void
+    {
+        $this->mockTime(new \DateTimeImmutable('2024-04-04'));
+        $client = static::createClient();
+        static::getContainer()->get(DatabaseToolCollection::class)->get()->loadFixtures([VoucherFixtures::class, HalfDayPriceFixtures::class]);
+
+        $bookingUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        $client->loginUser($bookingUser);
+
+        $voucher = $bookingUser->getValidVouchers()->first();
+        $voucher->setVoucherType(static::getContainer()->get(VoucherTypeRepository::class)->findOneBy(['name' => VoucherType::NAME_REFUND]));
+        static::getContainer()->get('doctrine.orm.entity_manager')->flush();
+
+        $booking = $this->createBookingOfType($bookingUser, BookingType::NAME_HALF_DAY, '2024-04-22', PriceFixtures::HALF_DAY_SINGLE_PRICE_AMOUNT);
+
+        $crawler = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment/voucher');
+        $form    = $crawler->filter('form')->form();
+        $form->setValues(['voucher' => $voucher->getCode()]);
+        $client->submit($form);
+
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+    }
+
+    private function createBookingOfType(User $user, string $typeName, string $date, ?int $amount = null): Booking
+    {
+        $container   = static::getContainer();
+        $businessDay = $container->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable($date)]);
+        $room        = $container->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $type        = $container->get(BookingTypeRepository::class)->findOneBy(['name' => $typeName]);
+
+        $booking = $container->get(BookingManager::class)->saveBooking($user, $businessDay, $room, $type);
+        if (null !== $amount) {
+            $container->get(BookingManager::class)->addAmountToBooking($booking, $amount);
+        }
+
+        return $booking;
     }
 
     private function getBooking(User $user, \DateTimeImmutable $date): Booking

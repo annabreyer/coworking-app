@@ -21,6 +21,8 @@ final class Version20260918151631 extends AbstractMigration
         $this->addSql("INSERT INTO booking_type (name, is_active, created_at, updated_at) VALUES ('Halbtag', 1, NOW(), NOW())");
 
         $this->addSql('ALTER TABLE booking ADD type_id INT DEFAULT NULL');
+        $this->addSql("UPDATE booking SET type_id = (SELECT id FROM booking_type WHERE name = 'Ganztag' LIMIT 1)");
+        $this->addSql('ALTER TABLE booking MODIFY type_id INT NOT NULL');
         $this->addSql('ALTER TABLE booking ADD CONSTRAINT FK_E00CEDDEC54C8C93 FOREIGN KEY (type_id) REFERENCES booking_type (id)');
         $this->addSql('CREATE INDEX IDX_E00CEDDEC54C8C93 ON booking (type_id)');
 
@@ -31,8 +33,7 @@ final class Version20260918151631 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_CAC822D99FF2C9B3 ON price (booking_type_id)');
 
         $this->addSql('ALTER TABLE voucher_type ADD booking_type_id INT DEFAULT NULL');
-        $this->addSql("UPDATE voucher_type SET booking_type_id = (SELECT id FROM booking_type WHERE name = 'Ganztag' LIMIT 1)");
-        $this->addSql('ALTER TABLE voucher_type MODIFY booking_type_id INT NOT NULL');
+        $this->addSql("UPDATE voucher_type SET booking_type_id = (SELECT id FROM booking_type WHERE name = 'Ganztag' LIMIT 1) WHERE name IS NULL OR name <> 'refund'");
         $this->addSql('ALTER TABLE voucher_type ADD CONSTRAINT FK_8DB3D7919FF2C9B3 FOREIGN KEY (booking_type_id) REFERENCES booking_type (id)');
         $this->addSql('CREATE INDEX IDX_8DB3D7919FF2C9B3 ON voucher_type (booking_type_id)');
 

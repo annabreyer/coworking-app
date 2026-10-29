@@ -29,6 +29,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
     {
         return [
             BasicFixtures::class,
+            BookingTypeFixtures::class,
         ];
     }
 
@@ -48,6 +49,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
 
         for ($i = 0; $i < $room->getCapacity(); ++$i) {
             $booking = new Booking();
+            $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
             $booking->setBusinessDay($businessDay);
             $booking->setRoom($room);
             $booking->setUser($user);
@@ -64,6 +66,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $room = $this->getReference('room3', Room::class);
 
         $booking = new Booking();
+        $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setBusinessDay($this->getReference('businessDay-' . self::BOOKING_STANDARD_DATE, BusinessDay::class));
         $booking->setRoom($room);
         $booking->setUser($user);
@@ -78,6 +81,7 @@ class BookingFixtures extends Fixture implements DependentFixtureInterface
         $room = $this->getReference('room3', Room::class);
 
         $booking = new Booking();
+        $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setBusinessDay($this->getReference('businessDay-' . self::BOOKING_TO_BE_CANCELLED_DATE, BusinessDay::class));
         $booking->setRoom($room);
         $booking->setUser($user);

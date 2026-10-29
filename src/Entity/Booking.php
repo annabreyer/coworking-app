@@ -59,6 +59,7 @@ class Booking
 
     #[Groups(['admin_action_booking'])]
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
     private ?BookingType $type = null;
 
     public function __construct()

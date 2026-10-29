@@ -107,6 +107,7 @@ class BookingCrudController extends AbstractCrudController
             ;
             yield AssociationField::new('user');
             yield AssociationField::new('room');
+            yield AssociationField::new('type');
             yield MoneyField::new('amount')
                             ->setCurrency('EUR')
             ;
@@ -123,6 +124,7 @@ class BookingCrudController extends AbstractCrudController
             ;
             yield AssociationField::new('user');
             yield AssociationField::new('room');
+            yield AssociationField::new('type');
             yield MoneyField::new('amount')
                             ->setCurrency('EUR')
             ;
@@ -165,6 +167,15 @@ class BookingCrudController extends AbstractCrudController
                                   ->autocomplete()
             ;
             yield AssociationField::new('room');
+            yield AssociationField::new('type')
+                                  ->setQueryBuilder(static function (QueryBuilder $queryBuilder) {
+                                      return $queryBuilder
+                                          ->andWhere('entity.isActive = :isActive')
+                                          ->setParameter('isActive', true)
+                                          ->orderBy('entity.name', 'ASC')
+                                      ;
+                                  })
+            ;
             yield MoneyField::new('amount')
                             ->setCurrency('EUR')
                             ->setHelp('Rechnung wird automatisch mit diesem Betrag erstellt.')

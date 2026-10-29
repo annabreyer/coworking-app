@@ -44,7 +44,6 @@ class VoucherType
     private Collection $prices;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
     private ?BookingType $bookingType = null;
 
     public function __construct()

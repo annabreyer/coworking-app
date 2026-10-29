@@ -23,6 +23,11 @@ class BookingTypeRepository extends ServiceEntityRepository
         parent::__construct($registry, BookingType::class);
     }
 
+    public function findFullDayType(): ?BookingType
+    {
+        return $this->findOneBy(['name' => BookingType::NAME_FULL_DAY]);
+    }
+
     /**
      * @return BookingType[]
      */
