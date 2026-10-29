@@ -10,7 +10,7 @@ use App\Manager\InvoiceManager;
 use App\Repository\BusinessDayRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -191,7 +191,7 @@ class BookingCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
-    #[AdminAction(routePath: '/booking/{entityId}/cancel', routeName: 'cancel', methods: ['POST'])]
+    #[AdminRoute('/{entityId}/cancel', name: 'cancel')]
     public function cancelBooking(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
         $targetUrl = $adminUrlGenerator

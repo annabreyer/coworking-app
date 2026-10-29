@@ -35,7 +35,7 @@ class BookingCrudControllerTest extends BaseTestController
 
         $client->followRedirect();
         static::assertResponseStatusCodeSame(Response::HTTP_OK);
-        static::assertStringContainsString('crudAction=index', $client->getRequest()->getUri());
+        static::assertSame('/admin/booking', $client->getRequest()->getPathInfo());
 
         $booking = static::getContainer()->get(BookingRepository::class)->find($bookingId);
         static::assertTrue($booking->isCancelled());

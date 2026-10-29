@@ -10,6 +10,7 @@ use App\Manager\InvoiceManager;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceMailerService;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -271,6 +272,7 @@ class InvoiceCrudController extends AbstractCrudController
         }
     }
 
+    #[AdminRoute('/{entityId}/regenerate', name: 'regenerate')]
     public function regenerateInvoice(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
         $invoice = $context->getEntity()->getInstance();
@@ -291,6 +293,7 @@ class InvoiceCrudController extends AbstractCrudController
         return $this->redirect($targetUrl);
     }
 
+    #[AdminRoute('/{entityId}/send-to-document-vault', name: 'send_to_document_vault')]
     public function sendInvoiceToDocumentVault(
         AdminContext $context,
         AdminUrlGenerator $adminUrlGenerator,
@@ -315,6 +318,7 @@ class InvoiceCrudController extends AbstractCrudController
         return $this->redirect($targetUrl);
     }
 
+    #[AdminRoute('/bulk-download', name: 'bulk_download', options: ['methods' => ['POST']])]
     public function bulkDownloadInvoices(
         AdminContext $context,
         BatchActionDto $batchActionDto,
@@ -338,6 +342,7 @@ class InvoiceCrudController extends AbstractCrudController
         return $this->createInvoiceArchiveResponse($invoices, $adminUrlGenerator);
     }
 
+    #[AdminRoute('/download-filtered', name: 'download_filtered')]
     public function downloadFilteredInvoices(AdminContext $context, AdminUrlGenerator $adminUrlGenerator): Response
     {
         $this->denyAccessUnlessGranted('ROLE_SUPER_ADMIN');

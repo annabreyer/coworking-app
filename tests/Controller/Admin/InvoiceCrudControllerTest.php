@@ -10,6 +10,7 @@ use App\DataFixtures\BookingWithInvoiceNoPaymentFixture;
 use App\Entity\Invoice;
 use App\Repository\InvoiceRepository;
 use App\Tests\Controller\BaseTestController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -107,10 +108,16 @@ class InvoiceCrudControllerTest extends BaseTestController
 
     private function getAdminUrl(string $crudAction, array $parameters = []): string
     {
-        return '/admin?' . http_build_query(array_merge([
-            'crudAction'         => $crudAction,
-            'crudControllerFqcn' => InvoiceCrudController::class,
-        ], $parameters));
+        $adminUrlGenerator = static::getContainer()->get(AdminUrlGenerator::class)
+            ->setController(InvoiceCrudController::class)
+            ->setAction($crudAction)
+        ;
+
+        foreach ($parameters as $name => $value) {
+            $adminUrlGenerator->set($name, $value);
+        }
+
+        return $adminUrlGenerator->generateUrl();
     }
 
     private function getInvoice(string $number): Invoice
