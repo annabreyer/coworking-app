@@ -6,10 +6,13 @@ namespace App\Tests\Controller;
 
 use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\BookingFixtures;
+use App\DataFixtures\HalfDayPriceFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\Entity\Booking;
+use App\Entity\BookingType;
 use App\Entity\User;
 use App\Repository\BookingRepository;
+use App\Repository\BookingTypeRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
@@ -229,7 +232,7 @@ class BookingControllerTest extends WebTestCase
         $client->loginUser($testUser);
 
         $crawler = $client->request('GET', '/booking');
-        $form    = $crawler->filter('#day-list .day-card')->first()->filter('form')->form();
+        $form    = $crawler->filter('#day-list .day-card')->first()->filter('form button[name="bookingType"]')->first()->form();
         $client->submit($form);
 
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-05-01')]);
@@ -803,7 +806,7 @@ class BookingControllerTest extends WebTestCase
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
-        $form    = $crawler->filter('#form-room')->form();
+        $form    = $crawler->filter('#form-room button[name="bookingType"]')->first()->form();
         $form->setValues(['room' => $room->getID()]);
         $client->submit($form);
 
@@ -835,7 +838,7 @@ class BookingControllerTest extends WebTestCase
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
 
         $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
-        $form    = $crawler->filter('#form-room')->form();
+        $form    = $crawler->filter('#form-room button[name="bookingType"]')->first()->form();
         $form->setValues(['room' => $room->getID()]);
         $client->submit($form);
 
@@ -1042,6 +1045,122 @@ class BookingControllerTest extends WebTestCase
                                  'user'        => $user,
                              ])
         ;
+    }
+
+    public function testStepDateTemplateDayCardOffersOneButtonPerBookableType(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, HalfDayPriceFixtures::class]);
+        $this->closeRoom(BasicFixtures::FULLY_BOOKED_ROOM);
+
+        $testUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/booking');
+        $buttons = $crawler->filter('#day-list .day-card')->first()->filter('button[name="bookingType"]');
+
+        self::assertCount(2, $buttons);
+        self::assertStringContainsString(BookingType::NAME_FULL_DAY, $buttons->eq(0)->text());
+        self::assertStringContainsString(BookingType::NAME_HALF_DAY, $buttons->eq(1)->text());
+        self::assertStringContainsString('12 €', $buttons->eq(1)->text());
+    }
+
+    public function testStepDateTemplateDayCardHidesBookingTypeWithoutUnitaryPrice(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-05-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, PriceFixtures::class]);
+        $this->closeRoom(BasicFixtures::FULLY_BOOKED_ROOM);
+
+        $testUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $crawler = $client->request('GET', '/booking');
+        $buttons = $crawler->filter('#day-list .day-card')->first()->filter('button[name="bookingType"]');
+
+        self::assertCount(1, $buttons);
+        self::assertStringContainsString(BookingType::NAME_FULL_DAY, $buttons->text());
+    }
+
+    public function testStepRoomFormSubmitCreatesBookingOfTheChosenType(): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, HalfDayPriceFixtures::class]);
+
+        $testUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-01')]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $halfDay     = static::getContainer()->get(BookingTypeRepository::class)->findOneBy(['name' => BookingType::NAME_HALF_DAY]);
+
+        $crawler = $client->request('GET', '/booking/' . $businessDay->getId() . '/room');
+        $form    = $crawler->filter('#form-room button[name="bookingType"][value="' . $halfDay->getId() . '"]')->form();
+        $form->setValues(['room' => $room->getID()]);
+        $client->submit($form);
+
+        $booking = static::getContainer()->get(BookingRepository::class)
+                         ->findOneBy(['room' => $room, 'businessDay' => $businessDay, 'user' => $testUser])
+        ;
+
+        self::assertNotNull($booking);
+        self::assertSame(BookingType::NAME_HALF_DAY, $booking->getType()->getName());
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+    }
+
+    /**
+     * @dataProvider provideInvalidBookingTypes
+     */
+    public function testStepRoomFormSubmitErrorWithInvalidBookingType(string $bookingTypeCase): void
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        $client       = static::createClient();
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+        $databaseTool->loadFixtures([BookingFixtures::class, HalfDayPriceFixtures::class]);
+
+        $testUser = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'admin@annabreyer.dev']);
+        $client->loginUser($testUser);
+
+        $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-01')]);
+        $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
+        $halfDay     = static::getContainer()->get(BookingTypeRepository::class)->findOneBy(['name' => BookingType::NAME_HALF_DAY]);
+
+        $uri     = '/booking/' . $businessDay->getId() . '/room';
+        $crawler = $client->request('GET', $uri);
+        $token   = $crawler->filter('#form-room input[name="token"]')->attr('value');
+
+        $payload = ['room' => $room->getId(), 'token' => $token];
+        if ('unknown' === $bookingTypeCase) {
+            $payload['bookingType'] = 99999;
+        }
+        if ('inactive' === $bookingTypeCase) {
+            $halfDay->setIsActive(false);
+            static::getContainer()->get('doctrine')->getManager()->flush();
+            $payload['bookingType'] = $halfDay->getId();
+        }
+
+        $client->request('POST', $uri, $payload);
+
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('section#flash-messages', 'Bitte Ganztag oder Halbtag auswählen.');
+        self::assertNull(static::getContainer()->get(BookingRepository::class)->findOneBy(['room' => $room, 'businessDay' => $businessDay, 'user' => $testUser]));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function provideInvalidBookingTypes(): array
+    {
+        return [
+            'missing'  => ['missing'],
+            'unknown'  => ['unknown'],
+            'inactive' => ['inactive'],
+        ];
     }
 
     private function closeRoom(string $roomName): void

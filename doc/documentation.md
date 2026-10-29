@@ -71,14 +71,16 @@ The user selects a business day. At this point, no changes in the database are m
 The open business days of the next 14 days are listed as cards (`BookingController::DAY_LIST_LENGTH`), 
 each showing how many places are already booked, so users can see whether someone else will be there.
 Rooms without capacity are not counted.
-If only one room can be booked, the card's "Buchen" button directly submits the room step for this room,
+If only one room can be booked, the card's booking type buttons directly submit the room step for this room,
 so the booking is created in one click. With several rooms, the card leads to the room step.
 Days further in the future can be chosen with the date field below the list. It starts empty, so that today can be chosen as well.
 
 ### Step Room
 User selects a room. Which creates a booking.
-With only one bookable room, there is no room selection: the page shows the date, the occupancy and a "Buchen" button.
-Bookings made by users are Ganztag until the booking flow offers a choice of the booking type. Halbtag bookings are created in the backoffice.
+With only one bookable room, there is no room selection: the page shows the date and the occupancy.
+The booking type is chosen with the button that creates the booking: there is one button per active booking type with an active unitary price,
+labelled with the type and its price ("Ganztag · 20 €", "Halbtag · 12 €"). The day cards of step date show the same buttons.
+A submitted booking type that is inactive or has no active unitary price is rejected.
 If the user does finalize the booking, it will be removed from the database after one day. 
 
 ### Step Payment

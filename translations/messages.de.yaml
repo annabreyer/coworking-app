@@ -103,9 +103,10 @@ booking:
       room.label: 'Raum'
       room.capacity: '%bookings% von %capacity% Plätzen gebucht.'
       action: 'Buchen'
+      book_type: '%type% · %amount% €'
       next: 'Weiter'
     days:
-      intro: 'Wähle den Tag, an dem Du bei uns arbeiten möchtest. Mit einem Klick auf „Buchen“ geht es direkt weiter zur Bezahlung.'
+      intro: 'Wähle den Tag, an dem Du bei uns arbeiten möchtest. Mit einem Klick auf Ganztag oder Halbtag geht es direkt weiter zur Bezahlung.'
       none: 'In den nächsten zwei Wochen ist leider kein Tag buchbar. Wähle unten einfach ein anderes Datum.'
       today: 'Heute'
       empty: 'Noch niemand gebucht – alle %capacity% Plätze frei'

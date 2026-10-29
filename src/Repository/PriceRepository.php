@@ -52,6 +52,24 @@ class PriceRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return Price[]
+     */
+    public function findActiveUnitaryPrices(): array
+    {
+        return $this->createQueryBuilder('p')
+                    ->innerJoin('p.bookingType', 't')
+                    ->andWhere('p.isActive = :isActive')
+                    ->andWhere('p.isUnitary = :isUnitary')
+                    ->andWhere('t.isActive = :isActive')
+                    ->setParameter('isActive', true)
+                    ->setParameter('isUnitary', true)
+                    ->orderBy('t.name', 'ASC')
+                    ->getQuery()
+                    ->getResult()
+        ;
+    }
+
     public function findActiveUnitaryPrice(BookingType $bookingType): ?Price
     {
         return $this->createQueryBuilder('p')

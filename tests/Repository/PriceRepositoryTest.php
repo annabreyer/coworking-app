@@ -44,6 +44,23 @@ class PriceRepositoryTest extends KernelTestCase
         self::assertNull($this->priceRepository->findActiveUnitaryPrice($halfDay));
     }
 
+    public function testFindActiveUnitaryPricesReturnsOnePricePerActiveBookingType(): void
+    {
+        $types = array_map(static fn ($price) => $price->getBookingType()->getName(), $this->priceRepository->findActiveUnitaryPrices());
+
+        self::assertSame([BookingType::NAME_FULL_DAY, BookingType::NAME_HALF_DAY], $types);
+    }
+
+    public function testFindActiveUnitaryPricesSkipsInactiveBookingTypes(): void
+    {
+        $this->bookingTypeRepository->findOneBy(['name' => BookingType::NAME_HALF_DAY])->setIsActive(false);
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $types = array_map(static fn ($price) => $price->getBookingType()->getName(), $this->priceRepository->findActiveUnitaryPrices());
+
+        self::assertSame([BookingType::NAME_FULL_DAY], $types);
+    }
+
     public function testFindActiveVoucherPricesIncludesThePricesOfAllBookingTypes(): void
     {
         $amounts = array_map(static fn ($price) => $price->getAmount(), $this->priceRepository->findActiveVoucherPrices());

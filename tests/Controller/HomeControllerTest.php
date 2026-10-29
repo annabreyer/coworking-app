@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\DataFixtures\BasicFixtures;
+use App\DataFixtures\HalfDayPriceFixtures;
 use App\DataFixtures\PriceFixtures;
 use App\Entity\BookingType;
 use App\Entity\Price;
@@ -25,7 +26,7 @@ class HomeControllerTest extends BaseTestController
 
         static::assertResponseIsSuccessful();
         static::assertSelectorTextContains('h2', 'Preise');
-        static::assertSelectorTextNotContains('body', 'Einzelbuchungen:');
+        static::assertSelectorTextNotContains('body', 'Einzelbuchung');
         static::assertSelectorTextNotContains('body', self::VOUCHER_TEXT);
     }
 
@@ -37,7 +38,7 @@ class HomeControllerTest extends BaseTestController
         $client->request('GET', '/');
 
         static::assertResponseIsSuccessful();
-        static::assertSelectorTextContains('h4', 'Einzelbuchungen: 15 €');
+        static::assertSelectorTextContains('h4', 'Einzelbuchung Ganztag: 15 €');
         static::assertSelectorTextNotContains('body', '10er-Ticket');
         static::assertSelectorTextNotContains('body', self::VOUCHER_TEXT);
     }
@@ -79,6 +80,15 @@ class HomeControllerTest extends BaseTestController
         static::assertCount(3, $crawler->filter('h4'));
     }
 
+    public function testIndexRendersTheUnitaryPriceOfEachBookingType(): void
+    {
+        $this->setupTestClient('2024-03-01', [HalfDayPriceFixtures::class])->request('GET', '/');
+
+        static::assertResponseIsSuccessful();
+        static::assertSelectorTextContains('body', 'Einzelbuchung Ganztag: 15 €');
+        static::assertSelectorTextContains('body', 'Einzelbuchung Halbtag: 12 €');
+    }
+
     public function testIndexRendersWithoutActiveUnitaryPrice(): void
     {
         $client = $this->setupTestClient('2024-03-01', [PriceFixtures::class]);
@@ -87,7 +97,7 @@ class HomeControllerTest extends BaseTestController
         $client->request('GET', '/');
 
         static::assertResponseIsSuccessful();
-        static::assertSelectorTextNotContains('body', 'Einzelbuchungen:');
+        static::assertSelectorTextNotContains('body', 'Einzelbuchung');
         static::assertSelectorTextContains('h4', '10er-Ticket : 135 €');
     }
 

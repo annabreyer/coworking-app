@@ -71,10 +71,9 @@
         {% endif %}
         {% trans %}content.prices.intro{% endtrans %}
 
-        {% if unitaryPrice %}
-            <h4>{{ 'content.prices.unitary.title'|trans({'%unitaryPrice%': unitaryPrice.amount/100}) }}</h4>
-            <p class="text-lg mt-0">{{ 'content.prices.unitary.text'|trans }}</p>
-        {% endif %}
+        {% for unitaryPrice in unitaryPrices %}
+            <h4>{{ 'content.prices.unitary.title'|trans({'%type%': unitaryPrice.bookingType.name, '%unitaryPrice%': unitaryPrice.amount/100}) }}</h4>
+        {% endfor %}
 
         {% if voucherPrices is not empty %}
             {% for voucherPrice in voucherPrices %}

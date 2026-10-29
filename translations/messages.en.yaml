@@ -98,10 +98,11 @@ booking:
       date.label: 'Date'
       room.label: 'Room'
       action: 'Book'
+      book_type: '%type% · %amount% €'
       room.capacity: '%bookings% of %capacity% desks booked.'
       next: 'Continue'
     days:
-      intro: 'Choose the day you would like to work with us. Click "Book" and you go straight to payment.'
+      intro: 'Choose the day you would like to work with us. Click full day (Ganztag) or half day (Halbtag) and you go straight to payment.'
       none: 'Unfortunately no day can be booked within the next two weeks. Simply choose another date below.'
       today: 'Today'
       empty: 'Nobody booked yet – all %capacity% desks available'

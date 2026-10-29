@@ -8,7 +8,6 @@ use App\Entity\BusinessDay;
 use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Repository\BookingRepository;
-use App\Repository\BookingTypeRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
@@ -37,7 +36,6 @@ class BookingController extends AbstractController
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
         private readonly PriceRepository $priceRepository,
-        private readonly BookingTypeRepository $bookingTypeRepository,
         private readonly string $timeLimitCancelBooking,
     ) {
     }
@@ -169,12 +167,19 @@ class BookingController extends AbstractController
             return $this->renderStepRoom($response, $businessDay);
         }
 
-        $bookingType = $this->bookingTypeRepository->findFullDayType();
-        if (null === $bookingType) {
-            $this->logger->critical('No full day booking type found.');
-            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
+        $bookingTypeId = $request->request->getInt('bookingType');
+        $bookingType   = null;
+        foreach ($this->priceRepository->findActiveUnitaryPrices() as $unitaryPrice) {
+            if ($unitaryPrice->getBookingType()?->getId() === $bookingTypeId) {
+                $bookingType = $unitaryPrice->getBookingType();
+            }
+        }
 
-            return $this->redirectToRoute('home');
+        if (null === $bookingType) {
+            $this->addFlash('error', $this->translator->trans('form.booking.step_room.no_booking_type', [], 'flash'));
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+            return $this->renderStepRoom($response, $businessDay);
         }
 
         $booking = $this->bookingManager->saveBooking($user, $businessDay, $room, $bookingType);
@@ -279,6 +284,14 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
+        $unitaryPrices = $this->priceRepository->findActiveUnitaryPrices();
+        if (empty($unitaryPrices)) {
+            $this->logger->critical('No booking type with an active unitary price found.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
+
+            return $this->redirectToRoute('home');
+        }
+
         $listLimit         = $today->modify('+' . self::DAY_LIST_LENGTH . ' days');
         $upcomingDays      = array_filter(
             $businessDays,
@@ -286,12 +299,13 @@ class BookingController extends AbstractController
         );
 
         return $this->render('booking/index.html.twig', [
-            'step'        => 1,
-            'firstDay'    => $businessDays[0]->getDate()->format('Y-m-d'),
-            'lastDay'     => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
-            'dayOverview' => $this->bookingService->generateDayOverview($upcomingDays),
-            'today'       => $today->format('Y-m-d'),
-            'prices'      => $activePrices,
+            'step'          => 1,
+            'firstDay'      => $businessDays[0]->getDate()->format('Y-m-d'),
+            'lastDay'       => $businessDays[$businessDayCount - 1]->getDate()->format('Y-m-d'),
+            'dayOverview'   => $this->bookingService->generateDayOverview($upcomingDays),
+            'today'         => $today->format('Y-m-d'),
+            'prices'        => $activePrices,
+            'unitaryPrices' => $unitaryPrices,
         ], $response);
     }
 
@@ -306,6 +320,14 @@ class BookingController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
+        $unitaryPrices = $this->priceRepository->findActiveUnitaryPrices();
+        if (empty($unitaryPrices)) {
+            $this->logger->critical('No booking type with an active unitary price found.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
+
+            return $this->redirectToRoute('home');
+        }
+
         $bookingOption = $this->bookingService->generateBookingOptionsForRoomsWithCapacity($businessDay);
 
         return $this->render('booking/index.html.twig', [
@@ -313,6 +335,7 @@ class BookingController extends AbstractController
             'bookingOption' => $bookingOption,
             'businessDay'   => $businessDay,
             'prices'        => $activePrices,
+            'unitaryPrices' => $unitaryPrices,
         ], $response);
     }
 }

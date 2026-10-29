@@ -8,8 +8,7 @@ content:
       <p class="text-lg">Our prices are fair and transparent. We offer different rates to suit your needs. Whether you only need a workspace occasionally or a fixed desk regularly, we have the right offer for you.
       And if you do not find what you are looking for, just talk to us. By e-mail or, even better, in person. We will find a solution.</p>'
     unitary:
-      title: 'Single bookings: %unitaryPrice% €'
-      text: 'Single bookings are only available for a full day.'
+      title: 'Single booking %type%: %unitaryPrice% €'
     voucher:
       title: '%voucherName% : %voucherPrice% €'
       text: '
