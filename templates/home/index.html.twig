@@ -49,15 +49,20 @@
                 {% endif %}
             </div>
         {% endif %}
-        {% trans with ({
-            '%unitaryPrice%': unitaryPrice.amount/100,
-            '%voucherNameOne%': voucherPrices.0.name,
-            '%voucherNameTwo%': voucherPrices.1.name,
-            '%voucherPriceOne%' : voucherPrices.0.amount/100,
-            '%voucherPriceTwo%' : voucherPrices.1.amount/100,
-            '%registerUrl%' : path('app_register'),
-        }) %}
-        content
-        {% endtrans %}
+        {% trans %}content.prices.intro{% endtrans %}
+
+        {% if unitaryPrice %}
+            <h4>{{ 'content.prices.unitary.title'|trans({'%unitaryPrice%': unitaryPrice.amount/100}) }}</h4>
+            <p class="text-lg mt-0">{{ 'content.prices.unitary.text'|trans }}</p>
+        {% endif %}
+
+        {% if voucherPrices is not empty %}
+            {% for voucherPrice in voucherPrices %}
+                <h4>{{ 'content.prices.voucher.title'|trans({'%voucherName%': voucherPrice.name, '%voucherPrice%': voucherPrice.amount/100}) }}</h4>
+            {% endfor %}
+            {% trans %}content.prices.voucher.text{% endtrans %}
+        {% endif %}
+
+        {% trans with ({'%registerUrl%': path('app_register')}) %}content.details{% endtrans %}
     </section>
 {% endblock %}
