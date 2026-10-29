@@ -236,11 +236,11 @@ class InvoiceCrudController extends AbstractCrudController
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $originalData       = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
-        $descriptionChanged  = ($originalData['description'] ?? null) !== $entityInstance->getDescription();
+        $descriptionChanged = ($originalData['description'] ?? null) !== $entityInstance->getDescription();
 
         parent::updateEntity($entityManager, $entityInstance);
 
-        if ($descriptionChanged) {
+        if (true === $descriptionChanged) {
             $this->invoiceManager->generateInvoicePdf($entityInstance);
             $this->addFlash('success', 'Rechnungszeile geändert, Rechnung wurde neu generiert.');
         }
