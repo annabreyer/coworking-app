@@ -29,8 +29,9 @@ No user can be created.
 
 # Prices
 Prices are either unitary, subscription or voucher.
-Only one unitary price can be active at once (UNIQUE CONSTRAINT)
-This way the value of a unit is always clear.
+Every price belongs to a booking type (Ganztag or Halbtag).
+There is one active unitary price per booking type, so the value of a unit is always clear for a booking.
+Voucher prices are the multi-unit packs of a booking type, e.g. ten half days.
 
 Subscription system is not implemented yet.
 
@@ -49,8 +50,13 @@ Rooms can be created in the backoffice. They have a capacity and are either open
 room for a longer period of time.
 Rooms can also have workstations, they have no effect of the capacity of the room.
 
+### Booking Type
+A booking type is either Ganztag (full day) or Halbtag (half day). Types can be activated and deactivated in the backoffice.
+The type only decides which price and which vouchers apply. A half day occupies the room for the whole business day,
+it counts like a full day for the capacity of the room. There is no morning or afternoon.
+
 ### Booking
-Bookings contain the BusinessDay, the room and the user and the amount. The amount usually is the current unitary price. 
+Bookings contain the BusinessDay, the room, the user, the booking type and the amount. The amount usually is the current unitary price of the booking type. 
 They can also contain the workstation.
 If rooms or workstations are used, it will be configurable in the future.
 
@@ -72,9 +78,11 @@ Days further in the future can be chosen with the date field below the list. It 
 ### Step Room
 User selects a room. Which creates a booking.
 With only one bookable room, there is no room selection: the page shows the date, the occupancy and a "Buchen" button.
+Bookings made by users are Ganztag until the booking flow offers a choice of the booking type. Halbtag bookings are created in the backoffice.
 If the user does finalize the booking, it will be removed from the database after one day. 
 
 ### Step Payment
+The price offered is the active unitary price of the booking type. A submitted price of another booking type is rejected.
 User can choose to pay an invoice or pay immediately by voucher or PayPal. 
 Invoice payment is only possible if we are still in the timeframe for a booking to be canceled.
 The choice of the payment method validates the booking and creates an invoice.
@@ -89,15 +97,18 @@ BDs can only be opened or closed.
 Rooms can be opened or closed and also created or deleted.
 
 ### Booking
-Bookings can be created or canceled. 
+Bookings can be created or canceled. The booking type is chosen when a booking is created.
 A new booking automatically creates an invoice.
+
+### Booking Type, Price and Voucher Type
+Prices and voucher types are assigned to a booking type. Booking types can not be deleted.
 
 
 # Vouchers
 The user can buy vouchers.
 
 ## Entities
-VoucherType: Defines how many units a voucher has, and how long it is valid at the value of the sigle voucher.
+VoucherType: Defines how many units a voucher has, and how long it is valid at the value of the sigle voucher. It belongs to a booking type, except the refund voucher type.
 Voucher: The actual voucher with its name that will be used for display and its price, and its voucherType
 
 ## Process
@@ -105,6 +116,8 @@ Vouchers are attached to the User and the Invoice they were bought with.
 Vouchers are not transferable, they can only be used by the user they were bought for.
 They also can only be used once they are paid for.
 A voucher has the value of its voucherType. 
+A voucher can only pay for a booking of the same booking type: a Halbtag voucher does not pay for a Ganztag booking and the other way round.
+Vouchers without a booking type, the refund vouchers, can pay for a booking of any type. A refund voucher is credit for what the user paid, whatever the booking type was.
 
 ### Invoice
 The Invoice for the voucher contains the voucher codes. 
@@ -147,6 +160,7 @@ Adding a voucher payment, regenerates the invoice with the voucher payment.
 ## Development data
 `bin/console doctrine:fixtures:load --group=dev` loads `DevFixtures`, which only ties together the fixtures for a running app:
 - the combinable test fixtures (`BasicFixtures`, `PriceFixtures`, `VoucherFixtures`, `InvoiceFixtures`, `BookingWithInvoiceNoPaymentFixture`),
+- `HalfDayPriceFixtures`: the Halbtag prices next to the Ganztag prices of `PriceFixtures`, 12 € for a single half day and 100 € for ten.
 - `UpcomingBusinessDayFixtures`: business days from today for the next 6 months. Weekends and public holidays are closed, like with the `app:business-days` command.
 - `CoworkingRoomFixtures`: a room "Coworking-Raum" with 4 places, like the real space. The test rooms are closed, so that like in production only one room can be booked.
 - `UpcomingBookingFixtures`: one booking on the second open day, the fourth open day is fully booked, so the occupancy on the booking page can be checked.

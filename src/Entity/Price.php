@@ -39,6 +39,10 @@ class Price
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?BookingType $bookingType = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -131,6 +135,18 @@ class Price
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getBookingType(): ?BookingType
+    {
+        return $this->bookingType;
+    }
+
+    public function setBookingType(?BookingType $bookingType): static
+    {
+        $this->bookingType = $bookingType;
 
         return $this;
     }

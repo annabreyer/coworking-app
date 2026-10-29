@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\DataFixtures\BasicFixtures;
 use App\Entity\User;
 use App\Service\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,6 +31,8 @@ class EmailVerifierTest extends KernelTestCase
                                       ->get('doctrine')
                                       ->getManager()
         ;
+
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
     }
 
     protected function tearDown(): void

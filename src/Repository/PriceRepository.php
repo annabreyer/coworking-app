@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\BookingType;
 use App\Entity\Price;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -51,14 +52,16 @@ class PriceRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findActiveUnitaryPrice(): Price
+    public function findActiveUnitaryPrice(BookingType $bookingType): ?Price
     {
         return $this->createQueryBuilder('p')
                     ->andWhere('p.isActive = :isActive')
                     ->andWhere('p.isUnitary = :isUnitary')
+                    ->andWhere('p.bookingType = :bookingType')
                     ->setParameter('isActive', true)
                     ->setParameter('isUnitary', true)
+                    ->setParameter('bookingType', $bookingType)
                     ->getQuery()
-                    ->getSingleResult();
+                    ->getOneOrNullResult();
     }
 }

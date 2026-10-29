@@ -16,6 +16,7 @@ class DevFixtures extends Fixture implements DependentFixtureInterface, FixtureG
         return [
             BasicFixtures::class,
             PriceFixtures::class,
+            HalfDayPriceFixtures::class,
             VoucherFixtures::class,
             InvoiceFixtures::class,
             BookingWithInvoiceNoPaymentFixture::class,

@@ -26,6 +26,7 @@ form:
         no_voucher_code: 'Bitte einen Gutscheincode eingeben.'
         invalid_code: 'Ungültiger Gutscheincode.'
         not_for_user: 'Gutscheincode kann nicht für diesen Benutzer verwendet werden.'
+        wrong_booking_type: 'Dieser Gutscheincode gilt nur für Buchungen vom Typ %type%.'
         voucher_expired: 'Gutscheincode ist abgelaufen.'
         already_used: 'Gutscheincode wurde bereits am %date% verwendet.'
         not_paid: 'Gutscheincode wurde noch nicht bezahlt und kann somit noch nicht genutzt werden.'

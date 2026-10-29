@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
 use App\Manager\VoucherManager;
+use App\Repository\BookingTypeRepository;
 use App\Repository\InvoiceRepository;
 use App\Repository\PriceRepository;
 use App\Repository\UserRepository;
@@ -72,7 +73,7 @@ class VoucherManagerTest extends KernelTestCase
         $container = static::getContainer();
 
         $this->user        = $container->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
-        $this->singlePrice = $container->get(PriceRepository::class)->findActiveUnitaryPrice();
+        $this->singlePrice = $container->get(PriceRepository::class)->findActiveUnitaryPrice($container->get(BookingTypeRepository::class)->findFullDayType());
         $this->voucherType = $container->get(VoucherTypeRepository::class)->findOneBy(['units' => '10']);
         $this->invoice     = $container->get(InvoiceRepository::class)->findOneBy(['number' => InvoiceFixtures::VOUCHER_INVOICE_NUMBER]);
     }

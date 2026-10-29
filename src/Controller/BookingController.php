@@ -8,6 +8,7 @@ use App\Entity\BusinessDay;
 use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Repository\BookingRepository;
+use App\Repository\BookingTypeRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\PriceRepository;
 use App\Repository\RoomRepository;
@@ -36,6 +37,7 @@ class BookingController extends AbstractController
         private readonly BusinessDayRepository $businessDayRepository,
         private readonly RoomRepository $roomRepository,
         private readonly PriceRepository $priceRepository,
+        private readonly BookingTypeRepository $bookingTypeRepository,
         private readonly string $timeLimitCancelBooking,
     ) {
     }
@@ -167,7 +169,15 @@ class BookingController extends AbstractController
             return $this->renderStepRoom($response, $businessDay);
         }
 
-        $booking = $this->bookingManager->saveBooking($user, $businessDay, $room);
+        $bookingType = $this->bookingTypeRepository->findFullDayType();
+        if (null === $bookingType) {
+            $this->logger->critical('No full day booking type found.');
+            $this->addFlash('error', $this->translator->trans('form.general.sorry_inconvenience', [], 'flash'));
+
+            return $this->redirectToRoute('home');
+        }
+
+        $booking = $this->bookingManager->saveBooking($user, $businessDay, $room, $bookingType);
         $adminMailerService->notifyAdminAboutBooking($booking);
 
         return $this->redirectToRoute('booking_step_payment', ['uuid' => $booking->getUuid()]);

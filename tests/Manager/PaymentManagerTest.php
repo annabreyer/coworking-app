@@ -13,6 +13,7 @@ use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
 use App\Manager\PaymentManager;
 use App\Manager\VoucherManager;
+use App\Repository\BookingTypeRepository;
 use App\Repository\BusinessDayRepository;
 use App\Repository\RoomRepository;
 use App\Repository\UserRepository;
@@ -134,7 +135,7 @@ class PaymentManagerTest extends KernelTestCase
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
-        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room, static::getContainer()->get(BookingTypeRepository::class)->findFullDayType());
         $invoice     = static::getContainer()->get(InvoiceManager::class)->createAndSaveInvoiceFromBooking($booking, 2000);
         $voucher     = $user->getVouchers()->first();
 
@@ -160,7 +161,7 @@ class PaymentManagerTest extends KernelTestCase
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
-        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room, static::getContainer()->get(BookingTypeRepository::class)->findFullDayType());
         $invoice     = static::getContainer()->get(InvoiceManager::class)->createAndSaveInvoiceFromBooking($booking, 2000);
         $voucher     = $user->getVouchers()->first();
 
@@ -184,7 +185,7 @@ class PaymentManagerTest extends KernelTestCase
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
-        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room, static::getContainer()->get(BookingTypeRepository::class)->findFullDayType());
         $invoice     = static::getContainer()->get(InvoiceManager::class)->createAndSaveInvoiceFromBooking($booking, 2000);
         $voucher     = $user->getVouchers()->first();
 
@@ -209,7 +210,7 @@ class PaymentManagerTest extends KernelTestCase
         $user        = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
         $businessDay = static::getContainer()->get(BusinessDayRepository::class)->findOneBy(['date' => new \DateTimeImmutable('2024-04-22')]);
         $room        = static::getContainer()->get(RoomRepository::class)->findOneBy(['name' => BasicFixtures::ROOM_FOR_BOOKINGS]);
-        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room);
+        $booking     = static::getContainer()->get(BookingManager::class)->saveBooking($user, $businessDay, $room, static::getContainer()->get(BookingTypeRepository::class)->findFullDayType());
         $invoice     = static::getContainer()->get(InvoiceManager::class)->createAndSaveInvoiceFromBooking($booking, 1000);
         $voucher     = $user->getVouchers()->first();
 

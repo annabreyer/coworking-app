@@ -73,7 +73,7 @@ class BookingPaymentController extends AbstractController
 
         $price       = $this->priceRepository->find($priceId);
         $priceAmount = $price?->getAmount();
-        if (null === $price || null === $priceAmount) {
+        if (null === $price || null === $priceAmount || $price->getBookingType() !== $booking->getType()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $this->addFlash('error', $this->translator->trans('form.booking.payment.price_not_found', [], 'flash'));
 
@@ -182,6 +182,14 @@ class BookingPaymentController extends AbstractController
             return $this->renderVoucherPayment($response, $booking);
         }
 
+        $voucherBookingType = $voucher->getVoucherType()?->getBookingType();
+        if (null !== $voucherBookingType && $voucherBookingType !== $booking->getType()) {
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.wrong_booking_type', ['%type%' => (string) $voucherBookingType], 'flash'));
+
+            return $this->renderVoucherPayment($response, $booking);
+        }
+
         if ($voucher->isExpired()) {
             $response->setStatusCode(Response::HTTP_BAD_REQUEST);
             $this->addFlash('error', $this->translator->trans('form.booking.payment.voucher.voucher_expired', [], 'flash'));
@@ -242,14 +250,12 @@ class BookingPaymentController extends AbstractController
     private function renderStepPayment(Response $response, Booking $booking): Response
     {
         $bookingDate = $booking->getBusinessDay()?->getDate();
-        if (null === $bookingDate) {
+        $bookingType = $booking->getType();
+        if (null === $bookingDate || null === $bookingType) {
             return $this->redirectToRoute('booking_step_date');
         }
 
-        $unitaryPrice = $this->priceRepository->findOneBy([
-            'isUnitary' => true,
-            'isActive'  => true,
-        ]);
+        $unitaryPrice = $this->priceRepository->findActiveUnitaryPrice($bookingType);
 
         return $this->render('booking/payment.html.twig', [
             'booking'             => $booking,

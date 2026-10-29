@@ -20,6 +20,7 @@ class BookingWithOutAmountFixture extends BookingFixtures
         $room        = $this->getReference('room3', \App\Entity\Room::class);
 
         $booking = new Booking();
+        $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setBusinessDay($businessDay);
         $booking->setRoom($room);
         $booking->setUser($user);

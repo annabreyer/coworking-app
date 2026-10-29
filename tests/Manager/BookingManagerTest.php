@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Manager;
 
 use App\Entity\Booking;
+use App\Entity\BookingType;
 use App\Entity\BusinessDay;
 use App\Entity\Invoice;
 use App\Entity\Payment;
+use App\Entity\Room;
 use App\Entity\User;
 use App\Manager\BookingManager;
 use App\Manager\InvoiceManager;
@@ -259,6 +261,21 @@ class BookingManagerTest extends KernelTestCase
         $bookingManager = $this->getBookingManagerWithMocks('1', null, null, $refundManagerMock);
 
         $bookingManager->refundBooking($bookingMock);
+    }
+
+    public function testSaveBookingStoresTheGivenBookingType(): void
+    {
+        $user        = new User();
+        $businessDay = new BusinessDay(new \DateTime('2024-04-22'));
+        $room        = new Room();
+        $bookingType = (new BookingType())->setName(BookingType::NAME_HALF_DAY);
+
+        $booking = $this->getBookingManagerWithMocks('1')->saveBooking($user, $businessDay, $room, $bookingType);
+
+        self::assertSame($user, $booking->getUser());
+        self::assertSame($businessDay, $booking->getBusinessDay());
+        self::assertSame($room, $booking->getRoom());
+        self::assertSame($bookingType, $booking->getType());
     }
 
     private function getBookingManagerWithMocks(

@@ -29,6 +29,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
     {
         return [
             BasicFixtures::class,
+            BookingTypeFixtures::class,
             PriceFixtures::class,
         ];
     }
@@ -188,6 +189,7 @@ class VoucherFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
 
         $booking = new Booking();
+        $booking->setType($this->getReference(BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setUser($user)
                 ->setAmount(PriceFixtures::SINGLE_PRICE_AMOUNT)
                 ->setBusinessDay($businessDay)

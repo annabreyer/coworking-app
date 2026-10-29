@@ -25,7 +25,7 @@ class BookingWithInvoiceFixture extends Fixture implements DependentFixtureInter
 
     public function getDependencies(): array
     {
-        return [\App\DataFixtures\BasicFixtures::class];
+        return [\App\DataFixtures\BasicFixtures::class, \App\DataFixtures\BookingTypeFixtures::class];
     }
 
     public function load(ObjectManager $manager): void
@@ -35,6 +35,7 @@ class BookingWithInvoiceFixture extends Fixture implements DependentFixtureInter
         $businessDay = $this->getReference('businessDay-' . self::BOOKING_DATE, BusinessDay::class);
 
         $booking = new Booking();
+        $booking->setType($this->getReference(\App\DataFixtures\BookingTypeFixtures::FULL_DAY_REFERENCE, \App\Entity\BookingType::class));
         $booking->setUser($user);
         $booking->setRoom($room);
         $booking->setBusinessDay($businessDay);

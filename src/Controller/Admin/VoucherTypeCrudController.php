@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\VoucherType;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -39,6 +40,16 @@ class VoucherTypeCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield Field::new('name');
+        yield AssociationField::new('bookingType')
+                              ->setHelp('Leer lassen, wenn der Gutschein für alle Buchungsarten gilt (z. B. Erstattungen).')
+                              ->setQueryBuilder(static function (QueryBuilder $queryBuilder) {
+                                  return $queryBuilder
+                                      ->andWhere('entity.isActive = :isActive')
+                                      ->setParameter('isActive', true)
+                                      ->orderBy('entity.name', 'ASC')
+                                  ;
+                              })
+        ;
         yield Field::new('units');
         yield Field::new('validityMonths');
         yield MoneyField::new('unitaryValue')
