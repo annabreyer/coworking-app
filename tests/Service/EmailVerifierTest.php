@@ -82,7 +82,12 @@ class EmailVerifierTest extends KernelTestCase
 
     public function testHandleEmailConformationSetsIsVerified(): void
     {
-        $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
+        $verifyEmailHelper = $this->getMockBuilder(VerifyEmailHelperInterface::class)
+            ->onlyMethods(['generateSignature', 'validateEmailConfirmation'])
+            ->addMethods(['validateEmailConfirmationFromRequest'])
+            ->getMock()
+        ;
+        $verifyEmailHelper->expects($this->once())->method('validateEmailConfirmationFromRequest');
         $emailVerifier     = new EmailVerifier($verifyEmailHelper, $this->entityManager);
 
         $user    = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'user.one@annabreyer.dev']);
