@@ -35,7 +35,6 @@ class WithdrawalCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-                     ->add(Crud::PAGE_INDEX, Action::DETAIL)
                      ->remove(Crud::PAGE_INDEX, Action::NEW)
                      ->remove(Crud::PAGE_INDEX, Action::DELETE)
                      ->remove(Crud::PAGE_DETAIL, Action::DELETE)
