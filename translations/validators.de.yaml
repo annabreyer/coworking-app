@@ -11,3 +11,4 @@ registration.form.terms.agreement.necessary: 'Bitte akzeptiere die Allgemeinen G
 registration.form.code.of.conduct.agreement.necessary: 'Bitte akzeptiere unseren Verhaltenskodex.'
 registration.form.data.protection.agreement.necessary: 'Bitte akzeptiere unsere Datenschutzbestimmungen.'
 user.email.unique: 'Es gibt bereits ein Konto mit dieser E-Mail-Adresse'
+user.billing_address.incomplete: 'Bitte fülle alle Felder der Rechnungsadresse aus oder lass sie alle leer.'

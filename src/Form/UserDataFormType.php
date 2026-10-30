@@ -41,6 +41,10 @@ class UserDataFormType extends AbstractType
             ->add('street')
             ->add('postCode')
             ->add('city')
+            ->add('billingAddress', BillingAddressFormType::class, [
+                'label' => 'user_account.edit_data.billing_address.title',
+                'help'  => 'user_account.edit_data.billing_address.help',
+            ])
         ;
     }
 

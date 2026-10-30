@@ -120,6 +120,12 @@ class UserCrudController extends AbstractCrudController
             yield TextField::new('postCode');
             yield TextField::new('city');
 
+            yield FormField::addFieldset('Billing Address');
+            yield TextField::new('billingAddress.name', 'Name / Company');
+            yield TextField::new('billingAddress.street', 'Street');
+            yield TextField::new('billingAddress.postCode', 'Post Code');
+            yield TextField::new('billingAddress.city', 'City');
+
             yield FormField::addColumn(6);
             yield FormField::addFieldset('Legal Information');
             yield DateField::new('acceptedCodeOfConduct');
@@ -151,6 +157,10 @@ class UserCrudController extends AbstractCrudController
             yield TextField::new('street');
             yield TextField::new('postCode');
             yield TextField::new('city');
+            yield TextField::new('billingAddress.name', 'Billing Name / Company')->setRequired(false);
+            yield TextField::new('billingAddress.street', 'Billing Street')->setRequired(false);
+            yield TextField::new('billingAddress.postCode', 'Billing Post Code')->setRequired(false);
+            yield TextField::new('billingAddress.city', 'Billing City')->setRequired(false);
             yield DateField::new('createdAt');
             yield DateField::new('acceptedCodeOfConduct');
             yield DateField::new('acceptedDataProtection');

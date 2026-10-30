@@ -202,6 +202,10 @@ user_account:
     link: 'Edit my data'
     title: 'My data'
     form.action: 'Save'
+    billing_address:
+      title: 'Different billing address (optional)'
+      help: 'If you enter e.g. a company address, it is used on your invoices instead of your personal address. Please fill in all fields or leave them all empty.'
+      name: 'Name / Company'
     card:
       title: 'My data'
       text: 'You can edit your personal data, including your address.'

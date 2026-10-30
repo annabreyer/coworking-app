@@ -206,6 +206,10 @@ user_account:
     link: 'Meine Daten bearbeiten'
     title: 'Meine Daten'
     form.action: 'Speichern'
+    billing_address:
+      title: 'Abweichende Rechnungsadresse (optional)'
+      help: 'Wenn Du z. B. eine Firmenadresse angibst, wird sie auf Deinen Rechnungen statt Deiner persönlichen Adresse verwendet. Bitte alle Felder ausfüllen oder alle leer lassen.'
+      name: 'Name / Firma'
     card:
       title: 'Meine Daten'
       text: 'Hier kannst Du Deine persönliche Daten inkl. Adresse bearbeiten.'

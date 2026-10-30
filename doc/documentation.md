@@ -17,6 +17,10 @@ Standard password forgotten process
 The user can edit their profile data. 
 The user can not change their password, this needs to be done by the password-reset function. 
 
+### Billing address
+The user can optionally enter a different billing address (name or company, street, post code, city), e.g. a company address. The admin can edit it in the user's edit page as well.
+The billing address is only used when all four fields are filled in. Partially filled billing addresses are rejected by the form validation.
+
 # Back
 Form submits made by the user, that change data in the database are serialized and stored in a user action table.
 Bookings are not stored in the user action table, but payments are.
@@ -135,6 +139,11 @@ Invoice numbers are the prefix `CO`, the current year and a running number with 
 The next number is the highest existing number starting with `CO` + current year, plus one. The invoice date and `createdAt` are not used: invoices can be backdated, and several invoices can share the same `createdAt` (e.g. imported data).
 The highest number is sorted by length first, so `CO202410000` counts as higher than `CO20249999` once a year passes 9999 invoices.
 Fixtures use the same format, numbered in date order without duplicates across fixtures that are loaded together.
+
+### Recipient address
+When an invoice is created (`InvoiceManager::saveInvoice()` for a new invoice), a complete billing address of the user is copied onto the invoice (`billing_*` columns of `invoice`). The PDF prints this copy instead of the user's name and personal address.
+Copying keeps invoices stable for accounting: if the user changes or removes their billing address later, regenerating an existing invoice still prints the address it was issued to. A reversal invoice takes the billing address of the original invoice.
+Invoices without a copied billing address (all invoices created before this feature, or users without a billing address) print the user's current name and personal address as before, or their email address if no personal address is set.
 
 ### Payment by invoice
 The amount due is the voucher or booking price. The invoice contains a mention when its due.

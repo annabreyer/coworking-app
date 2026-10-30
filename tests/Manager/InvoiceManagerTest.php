@@ -8,6 +8,7 @@ use App\DataFixtures\BasicFixtures;
 use App\DataFixtures\BookingWithOutInvoiceFixture;
 use App\DataFixtures\InvoiceFixtures;
 use App\DataFixtures\PriceFixtures;
+use App\Entity\BillingAddress;
 use App\Entity\Booking;
 use App\Entity\Invoice;
 use App\Entity\Payment;
@@ -337,6 +338,75 @@ class InvoiceManagerTest extends KernelTestCase
         self::assertSame('This is a payment comment.', $reversalInvoice->getDescription());
     }
 
+    public function testSaveInvoiceCopiesCompleteBillingAddressOfUserToNewInvoice(): void
+    {
+        $user = $this->loadUserOne();
+        $user->setBillingAddress($this->getCompanyBillingAddress());
+
+        $invoiceManager = $this->getInvoiceManager();
+        $invoice        = $invoiceManager->createInvoice($user, 1500);
+        $invoiceManager->saveInvoice($invoice);
+
+        $user->getBillingAddress()->setName('Other GmbH');
+
+        self::assertSame('ACME GmbH', $invoice->getBillingAddress()->getName());
+        self::assertSame('Industriestraße 5', $invoice->getBillingAddress()->getStreet());
+        self::assertSame('55128', $invoice->getBillingAddress()->getPostCode());
+        self::assertSame('Mainz', $invoice->getBillingAddress()->getCity());
+    }
+
+    public function testSaveInvoiceDoesNotCopyIncompleteBillingAddressOfUser(): void
+    {
+        $user = $this->loadUserOne();
+        $user->getBillingAddress()->setName('ACME GmbH');
+
+        $invoiceManager = $this->getInvoiceManager();
+        $invoice        = $invoiceManager->createInvoice($user, 1500);
+        $invoiceManager->saveInvoice($invoice);
+
+        self::assertTrue($invoice->getBillingAddress()->isEmpty());
+    }
+
+    public function testSaveInvoiceDoesNotChangeBillingAddressOfExistingInvoice(): void
+    {
+        $user           = $this->loadUserOne();
+        $invoiceManager = $this->getInvoiceManager();
+        $invoice        = $invoiceManager->createInvoice($user, 1500);
+        $invoiceManager->saveInvoice($invoice);
+
+        $user->setBillingAddress($this->getCompanyBillingAddress());
+        $invoiceManager->saveInvoice($invoice);
+
+        self::assertTrue($invoice->getBillingAddress()->isEmpty());
+    }
+
+    public function testCreateReversalInvoiceCopiesBillingAddressOfOriginalInvoice(): void
+    {
+        $invoicePaymentMock = $this->createMock(Payment::class);
+        $invoicePaymentMock->method('getType')
+                           ->willReturn(Payment::PAYMENT_TYPE_REFUND);
+        $invoicePaymentMock->method('getComment')
+                           ->willReturn('description');
+        $invoiceMock = $this->createMock(Invoice::class);
+        $invoiceMock->method('getPayments')
+                    ->willReturn(new ArrayCollection([$invoicePaymentMock]))
+        ;
+        $invoiceMock->method('getUser')
+                    ->willReturn(new User())
+        ;
+        $invoiceMock->method('getAmount')
+                    ->willReturn(100)
+        ;
+        $invoiceMock->method('getBillingAddress')
+                    ->willReturn($this->getCompanyBillingAddress())
+        ;
+
+        $invoiceManager  = $this->getInvoiceManager();
+        $reversalInvoice = $invoiceManager->createReversalInvoice($invoiceMock);
+
+        self::assertSame('ACME GmbH', $reversalInvoice->getBillingAddress()->getName());
+    }
+
     public function testProcessReversalInvoice(): void
     {
         $originalInvoice = new Invoice();
@@ -535,6 +605,31 @@ class InvoiceManagerTest extends KernelTestCase
         $entityManager = static::getContainer()->get('doctrine')->getManager();
         $entityManager->persist($invoice);
         $entityManager->flush();
+    }
+
+    private function loadUserOne(): User
+    {
+        static::mockTime(new \DateTimeImmutable('2024-03-01'));
+        self::assertNotNull($this->databaseTool);
+        $this->databaseTool->loadFixtures([BasicFixtures::class]);
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        self::assertInstanceOf(UserRepository::class, $userRepository);
+        $user = $userRepository->findOneBy(['email' => 'user.one@annabreyer.dev']);
+        self::assertInstanceOf(User::class, $user);
+
+        return $user;
+    }
+
+    private function getCompanyBillingAddress(): BillingAddress
+    {
+        $billingAddress = new BillingAddress();
+
+        return $billingAddress->setName('ACME GmbH')
+                              ->setStreet('Industriestraße 5')
+                              ->setPostCode('55128')
+                              ->setCity('Mainz')
+        ;
     }
 
     private function getInvoiceManager(?InvoiceGenerator $invoiceGenerator = null, ?Filesystem $filesystem = null): InvoiceManager
