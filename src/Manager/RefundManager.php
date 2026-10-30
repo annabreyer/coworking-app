@@ -6,7 +6,6 @@ namespace App\Manager;
 
 use App\Entity\Invoice;
 use App\Entity\Payment;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
@@ -101,5 +100,84 @@ class RefundManager
         ->setType(Payment::PAYMENT_TYPE_REFUND);
 
         return $refundPayment;
+    }
+
+    public function refundInvoiceAfterWithdrawal(Invoice $invoice, int $amount): int
+    {
+        if (0 >= $amount || $amount > (int) $invoice->getAmount()) {
+            throw new \InvalidArgumentException('Refund amount must be positive and not higher than the invoice amount.');
+        }
+
+        $payments = $invoice->getPayments();
+        if (0 === $payments->count()) {
+            if ($amount !== $invoice->getAmount()) {
+                throw new \LogicException('Unpaid invoices can only be cancelled completely.');
+            }
+
+            $this->refundInvoiceWithReversalInvoice($invoice);
+
+            return 0;
+        }
+
+        if (0 < $invoice->getRemainingAmount()) {
+            throw new \LogicException('Partially paid invoices must be refunded manually.');
+        }
+
+        $voucherPayments = $payments->filter(static function (Payment $payment) {
+            return $payment->isVoucherPayment();
+        });
+
+        if (0 < $voucherPayments->count()) {
+            $this->refundInvoiceVoucherPayments($voucherPayments);
+        }
+
+        $moneyRefund = min($amount, self::getMoneyPaidAmount($invoice));
+        if (0 < $moneyRefund) {
+            $this->refundPaidInvoiceWithReversalInvoice($invoice, $moneyRefund);
+        }
+
+        return $moneyRefund;
+    }
+
+    public function refundPaidInvoiceWithReversalInvoice(Invoice $invoice, int $amount): Invoice
+    {
+        $user = $invoice->getUser();
+        if (null === $user) {
+            throw new \LogicException('Invoice must have a user.');
+        }
+
+        if (0 >= $amount || $amount > self::getMoneyPaidAmount($invoice)) {
+            throw new \InvalidArgumentException('Refund amount must be positive and not higher than the amount paid by PayPal or transfer.');
+        }
+
+        $description     = $this->translator->trans('invoice.description.withdrawal', ['%invoiceNumber%' => $invoice->getNumber()], 'invoice');
+        $reversalInvoice = $this->invoiceManager->createInvoice($user, -1 * $amount);
+        $reversalInvoice->setDescription($description);
+
+        $refundPayment = new Payment();
+        $refundPayment->setAmount(-1 * $amount)
+                      ->setDate($this->now())
+                      ->setInvoice($reversalInvoice)
+                      ->setComment($description)
+                      ->setType(Payment::PAYMENT_TYPE_REFUND)
+        ;
+        $reversalInvoice->addPayment($refundPayment);
+
+        $this->invoiceManager->saveInvoice($reversalInvoice);
+        $this->invoiceManager->generateInvoicePdf($reversalInvoice);
+
+        return $reversalInvoice;
+    }
+
+    public static function getMoneyPaidAmount(Invoice $invoice): int
+    {
+        $amount = 0;
+        foreach ($invoice->getPayments() as $payment) {
+            if ($payment->isPayPalPayment() || $payment->isTransactionPayment()) {
+                $amount += $payment->getAmount();
+            }
+        }
+
+        return $amount;
     }
 }

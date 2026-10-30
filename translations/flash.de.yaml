@@ -57,3 +57,15 @@ invoice_payment:
   not_found: 'Rechnung konnte nicht gefunden werden.'
   already_paid: 'Rechnung wurde bereits bezahlt.'
   payment_error: 'Bezahlung fehlgeschlagen. Bitte versuche es erneut.'
+admin:
+  withdrawal:
+    not_processable: 'Dieser Widerruf kann nicht bearbeitet werden. Es muss eine Rechnung zugeordnet sein und der Status muss „Eingegangen“ sein.'
+    error: 'Der Widerruf konnte nicht bearbeitet werden: %message%'
+    rejected: 'Der Widerruf wurde abgelehnt und der Nutzer per E-Mail informiert.'
+    success: 'Der Widerruf wurde bearbeitet und der Nutzer per E-Mail informiert.'
+    processed:
+      none: 'Keine Erstattung nötig.'
+      reversal: 'Rechnung war unbezahlt und wurde per Gutschrift storniert.'
+      voucher: 'Mit Gutscheinen bezahlt: Gültigkeit der Gutscheine wurde verlängert.'
+      paypal: 'Erstattung von %amount% € per PayPal: bitte manuell im PayPal-Konto zurückzahlen. Wertersatz: %valueCompensation% €.'
+      transaction: 'Erstattung von %amount% € per Überweisung: bitte manuell zurücküberweisen. Wertersatz: %valueCompensation% €.'

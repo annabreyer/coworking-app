@@ -570,7 +570,129 @@ class RefundManagerTest extends TestCase
         self::assertSame('description', $refundPayment->getComment());
     }
 
-    private function getRefundManager( ?VoucherManager $voucherManager = null, ?TranslatorInterface $translator = null, ?EntityManagerInterface $entityManager = null, ?InvoiceManager $invoiceManager = null,
+    public function testRefundInvoiceAfterWithdrawalThrowsExceptionForInvalidAmount(): void
+    {
+        $invoice = (new Invoice())->setAmount(1500);
+
+        self::expectException(\InvalidArgumentException::class);
+        self::expectExceptionMessage('Refund amount must be positive and not higher than the invoice amount.');
+        $this->getRefundManager()->refundInvoiceAfterWithdrawal($invoice, 2000);
+    }
+
+    public function testRefundInvoiceAfterWithdrawalThrowsExceptionForPartialRefundOfUnpaidInvoice(): void
+    {
+        $invoice = (new Invoice())->setAmount(1500);
+
+        self::expectException(\LogicException::class);
+        self::expectExceptionMessage('Unpaid invoices can only be cancelled completely.');
+        $this->getRefundManager()->refundInvoiceAfterWithdrawal($invoice, 1000);
+    }
+
+    public function testRefundInvoiceAfterWithdrawalCreatesReversalInvoiceForUnpaidInvoice(): void
+    {
+        $invoice = (new Invoice())->setAmount(1500)->setNumber('CO20260001')->setUser(new User());
+
+        $invoiceManagerMock = $this->createMock(InvoiceManager::class);
+        $invoiceManagerMock->expects(self::once())
+                           ->method('processReversalInvoice')
+                           ->with($invoice)
+        ;
+
+        $refund = $this->getRefundManager(invoiceManager: $invoiceManagerMock)->refundInvoiceAfterWithdrawal($invoice, 1500);
+
+        self::assertSame(0, $refund);
+        $refundPayment = $invoice->getPayments()->first();
+        self::assertInstanceOf(Payment::class, $refundPayment);
+        self::assertSame(Payment::PAYMENT_TYPE_REFUND, $refundPayment->getType());
+    }
+
+    public function testRefundInvoiceAfterWithdrawalThrowsExceptionForPartiallyPaidInvoice(): void
+    {
+        $invoice = (new Invoice())->setAmount(1500);
+        $invoice->addPayment((new Payment())->setType(Payment::PAYMENT_TYPE_TRANSACTION)->setAmount(500));
+
+        self::expectException(\LogicException::class);
+        self::expectExceptionMessage('Partially paid invoices must be refunded manually.');
+        $this->getRefundManager()->refundInvoiceAfterWithdrawal($invoice, 1500);
+    }
+
+    public function testRefundInvoiceAfterWithdrawalResetsVouchersWithoutMoneyRefund(): void
+    {
+        $voucher = (new Voucher())->setExpiryDate(new \DateTimeImmutable('Yesterday'));
+        $invoice = (new Invoice())->setAmount(1500);
+        $invoice->addPayment((new Payment())->setType(Payment::PAYMENT_TYPE_VOUCHER)->setAmount(1500)->setVoucher($voucher));
+
+        $voucherManagerMock = $this->createMock(VoucherManager::class);
+        $voucherManagerMock->expects(self::once())
+                           ->method('resetExpiryDate')
+                           ->with($voucher)
+        ;
+        $invoiceManagerMock = $this->createMock(InvoiceManager::class);
+        $invoiceManagerMock->expects(self::never())
+                           ->method('createInvoice')
+        ;
+
+        $refund = $this->getRefundManager($voucherManagerMock, invoiceManager: $invoiceManagerMock)->refundInvoiceAfterWithdrawal($invoice, 1500);
+
+        self::assertSame(0, $refund);
+    }
+
+    public function testRefundInvoiceAfterWithdrawalCreatesPaidReversalInvoiceForPayPalPayment(): void
+    {
+        $user    = new User();
+        $invoice = (new Invoice())->setAmount(13500)->setNumber('CO20260002')->setUser($user);
+        $invoice->addPayment((new Payment())->setType(Payment::PAYMENT_TYPE_PAYPAL)->setAmount(13500));
+
+        $reversalInvoice = (new Invoice())->setAmount(-9450)->setUser($user)->setNumber('CO20260003');
+
+        $invoiceManagerMock = $this->createMock(InvoiceManager::class);
+        $invoiceManagerMock->expects(self::once())
+                           ->method('createInvoice')
+                           ->with($user, -9450)
+                           ->willReturn($reversalInvoice)
+        ;
+        $invoiceManagerMock->expects(self::once())
+                           ->method('saveInvoice')
+                           ->with($reversalInvoice)
+        ;
+        $invoiceManagerMock->expects(self::once())
+                           ->method('generateInvoicePdf')
+                           ->with($reversalInvoice)
+        ;
+
+        $translatorMock = $this->createMock(TranslatorInterface::class);
+        $translatorMock->method('trans')
+                       ->willReturn('Erstattung nach Widerruf von Rechnung Nummer CO20260002.')
+        ;
+
+        $refund = $this->getRefundManager(translator: $translatorMock, invoiceManager: $invoiceManagerMock)->refundInvoiceAfterWithdrawal($invoice, 9450);
+
+        self::assertSame(9450, $refund);
+        self::assertSame(1, $invoice->getPayments()->count());
+        self::assertTrue($invoice->isFullyPaid());
+        self::assertSame('Erstattung nach Widerruf von Rechnung Nummer CO20260002.', $reversalInvoice->getDescription());
+        $refundPayment = $reversalInvoice->getPayments()->first();
+        self::assertInstanceOf(Payment::class, $refundPayment);
+        self::assertSame(-9450, $refundPayment->getAmount());
+        self::assertSame(Payment::PAYMENT_TYPE_REFUND, $refundPayment->getType());
+        self::assertTrue($reversalInvoice->isFullyPaid());
+    }
+
+    public function testRefundPaidInvoiceWithReversalInvoiceThrowsExceptionWhenAmountIsHigherThanMoneyPaid(): void
+    {
+        $invoice = (new Invoice())->setAmount(1500)->setUser(new User());
+        $invoice->addPayment((new Payment())->setType(Payment::PAYMENT_TYPE_VOUCHER)->setAmount(1500));
+
+        self::expectException(\InvalidArgumentException::class);
+        self::expectExceptionMessage('Refund amount must be positive and not higher than the amount paid by PayPal or transfer.');
+        $this->getRefundManager()->refundPaidInvoiceWithReversalInvoice($invoice, 1500);
+    }
+
+    private function getRefundManager(
+        ?VoucherManager $voucherManager = null,
+        ?TranslatorInterface $translator = null,
+        ?EntityManagerInterface $entityManager = null,
+        ?InvoiceManager $invoiceManager = null,
     ): RefundManager {
         if (null === $voucherManager) {
             $voucherManager = $this->createMock(VoucherManager::class);
