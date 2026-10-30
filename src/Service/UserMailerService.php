@@ -11,7 +11,7 @@ use Symfony\Component\Mime\Address;
 
 class UserMailerService
 {
-    public function __construct(private MailerInterface $mailer, private string $env)
+    public function __construct(private MailerInterface $mailer)
     {
     }
 
@@ -24,10 +24,6 @@ class UserMailerService
     {
         if (null === $template) {
             $template = 'email.base.html.twig';
-        }
-
-        if (\in_array($this->env, ['dev', 'staging', 'test'], true)) {
-            $subject = '[' . strtoupper($this->env) . '] ' . $subject;
         }
 
         $email = $this->getTemplatesEmail($userEmail, $subject, $context, $template);

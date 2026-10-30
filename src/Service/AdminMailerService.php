@@ -92,10 +92,6 @@ class AdminMailerService
      */
     private function sendEmailToSupport(string $subject, array $context, ?string $attachmentPath = null): void
     {
-        if (\in_array($this->env, ['dev', 'staging', 'test'], true)) {
-            $subject = '[' . strtoupper($this->env) . '] ' . $subject;
-        }
-
         $email = (new TemplatedEmail())
             ->to($this->supportEmail)
             ->subject($subject)
