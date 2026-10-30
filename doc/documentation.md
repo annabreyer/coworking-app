@@ -102,6 +102,15 @@ Rooms can be opened or closed and also created or deleted.
 Bookings can be created or canceled. The booking type is chosen when a booking is created.
 A new booking automatically creates an invoice.
 
+### Booking calendar
+All bookings can be subscribed to in a calendar app (Apple Calendar, Google Calendar, …) as an iCal feed at
+`/booking-calendar/{token}.ics`. Calendar apps can not log in, so the feed is public and protected by the secret token
+in the URL, set in the environment variable `BOOKING_CALENDAR_TOKEN`. Without a token the feed is disabled, a wrong
+token gives a 404. The admin dashboard shows the feed URL.
+Every booking is an all-day event, also half days, as a half day has no morning or afternoon. The summary is the name
+of the user and the booking type, the location is the room. Cancelled bookings and unfinished bookings (without amount)
+are left out.
+
 ### Booking Type, Price and Voucher Type
 Prices and voucher types are assigned to a booking type. Booking types can not be deleted.
 

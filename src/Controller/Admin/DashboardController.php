@@ -25,15 +25,32 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private readonly string $bookingCalendarToken,
+    ) {
+    }
+
     public function index(): Response
     {
         parent::index();
 
-        return $this->render('admin/dashboard.html.twig');
+        $bookingCalendarUrl = null;
+        if ('' !== $this->bookingCalendarToken) {
+            $bookingCalendarUrl = $this->generateUrl(
+                'app_booking_calendar',
+                ['token' => $this->bookingCalendarToken],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+        }
+
+        return $this->render('admin/dashboard.html.twig', [
+            'bookingCalendarUrl' => $bookingCalendarUrl,
+        ]);
     }
 
     public function configureCrud(): Crud
