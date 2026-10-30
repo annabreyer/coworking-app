@@ -48,6 +48,12 @@
                 {% endif %}
                 <input type="hidden" name="token" value="{{ csrf_token('payment') }}">
                 <br>
+                {% if requireEarlyPerformanceRequest %}
+                    <div class="flex items-start my-4">
+                        <input type="checkbox" id="earlyStartConsent" name="earlyStartConsent" value="1" required class="text-yellow focus:ring-yellow focus:border-yellow mt-1 me-2">
+                        <label for="earlyStartConsent" class="text-sm">{{ 'booking.payment.form.early_performance_request'|trans }}</label>
+                    </div>
+                {% endif %}
                 <button type="submit" class="text-lg">{{ 'booking.payment.form.action'|trans }}</button>
             </form>
             <p class="text-sm mt-4">{{ 'withdrawal.notice.checkout'|trans({'%link%': path('withdrawal_policy')})|raw }}</p>

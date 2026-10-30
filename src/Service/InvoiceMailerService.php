@@ -81,7 +81,7 @@ class InvoiceMailerService
                     [],
                     'email'
                 ),
-                self::EMAIL_STANDARD_ELEMENT_WITHDRAWAL => $this->getWithdrawalNotice($invoice),
+                self::EMAIL_STANDARD_ELEMENT_WITHDRAWAL => $this->getEarlyPerformanceRequestNotice($invoice) . $this->getWithdrawalNotice($invoice),
             ],
         ];
 
@@ -158,6 +158,22 @@ class InvoiceMailerService
         }
 
         $this->userMailer->sendTemplatedEmail($invoice->getUser()->getEmail(), $subject, $context, null, $invoicePath);
+    }
+
+    public function getEarlyPerformanceRequestNotice(Invoice $invoice): string
+    {
+        $booking     = $invoice->getBookings()->first();
+        $requestedAt = false === $booking ? null : $booking->getEarlyPerformanceRequestedAt();
+        if (null === $requestedAt) {
+            return '';
+        }
+
+        $requestedAt = $requestedAt->setTimezone(new \DateTimeZone(WithdrawalMailerService::TIMEZONE));
+
+        return $this->translator->trans('invoice.early_performance_request', [
+            '%date%' => $requestedAt->format('d.m.Y'),
+            '%time%' => $requestedAt->format('H:i'),
+        ], 'email') . '<br><br>';
     }
 
     public function getWithdrawalNotice(Invoice $invoice): string

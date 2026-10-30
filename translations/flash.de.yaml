@@ -23,6 +23,7 @@ form:
       price_not_found: 'Der ausgewählte Preis konnte nicht gefunden werden.'
       no_payment_method: 'Bitte eine Zahlungsmethode auswählen.'
       payment_method_not_found: 'Die ausgewählte Zahlungsmethode konnte nicht gefunden werden.'
+      no_early_performance_request: 'Bitte bestätige, dass die Leistung vor Ablauf der Widerrufsfrist beginnen soll. Ohne diese Zustimmung können wir Buchungen innerhalb der nächsten 14 Tage nicht annehmen.'
       voucher:
         no_voucher_code: 'Bitte einen Gutscheincode eingeben.'
         invalid_code: 'Ungültiger Gutscheincode.'

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\BookingRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -61,6 +62,10 @@ class Booking
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?BookingType $type = null;
+
+    #[Groups(['admin_action_booking'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $earlyPerformanceRequestedAt = null;
 
     public function __construct()
     {
@@ -193,6 +198,18 @@ class Booking
     public function setType(?BookingType $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getEarlyPerformanceRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->earlyPerformanceRequestedAt;
+    }
+
+    public function setEarlyPerformanceRequestedAt(?\DateTimeImmutable $earlyPerformanceRequestedAt): static
+    {
+        $this->earlyPerformanceRequestedAt = $earlyPerformanceRequestedAt;
 
         return $this;
     }

@@ -1,6 +1,6 @@
 # Widerrufsrecht & Widerrufsbutton (§ 356a BGB) – Analysis and Implementation Plan
 
-Status: steps 1 and 3 implemented on `feature/widerrufsbutton` (2026-10-30), steps 2 and 4 open. Not legal advice – the two open legal questions below should be checked by a lawyer.
+Status: steps 1 and 3 implemented on `feature/widerrufsbutton`, step 2 on `feature/widerruf-early-performance` (2026-10-30), step 4 open. Not legal advice – the two open legal questions below should be checked by a lawyer.
 
 ## 1. The law
 
@@ -73,9 +73,9 @@ owes value compensation for those; the rest must be refunded **with the original
 - Checkbox on the booking payment step, required when the business day is within 14 days of the booking:
   "Ich verlange ausdrücklich, dass mit der Leistung vor Ablauf der Widerrufsfrist begonnen wird. Mir ist bekannt,
   dass mein Widerrufsrecht mit vollständiger Vertragserfüllung erlischt."
-- Store it on `Booking` (e.g. `earlyPerformanceRequestedAt` datetime) + migration; validate in
-  `BookingPaymentController::bookingStepThree` and `payWithVoucher`; reject the payment step without it.
-- Repeat the consent in the booking confirmation e-mail (durable medium, required by § 356 Abs. 4).
+- Store it on `Booking` (`earlyPerformanceRequestedAt` datetime) + migration; validate in
+  `BookingPaymentController::bookingStepThree` (`payWithVoucher` builds on that step); reject the payment step without it.
+- Repeat the consent in the booking invoice e-mail (durable medium, required by § 356 Abs. 4).
 - Admin-created bookings (`BookingCrudController`) are not distance contracts concluded online – no checkbox.
 
 ### Step 3 – Withdrawal function (§ 356a)

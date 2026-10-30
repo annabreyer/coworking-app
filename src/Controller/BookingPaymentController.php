@@ -12,6 +12,7 @@ use App\Repository\BookingRepository;
 use App\Repository\PriceRepository;
 use App\Repository\VoucherRepository;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BookingPaymentController extends AbstractController
 {
-    public const BOOKING_STEP_PAYMENT = 'booking_step_payment';
+    use ClockAwareTrait;
+
+    public const BOOKING_STEP_PAYMENT   = 'booking_step_payment';
+    public const WITHDRAWAL_PERIOD_DAYS = 14;
 
     public function __construct(
         private readonly TranslatorInterface $translator,
@@ -86,6 +90,17 @@ class BookingPaymentController extends AbstractController
             $this->addFlash('error', $this->translator->trans('form.booking.payment.no_payment_method', [], 'flash'));
 
             return $this->renderStepPayment($response, $booking);
+        }
+
+        if ($this->isEarlyPerformanceRequestRequired($booking)) {
+            if (false === $request->request->getBoolean('earlyStartConsent')) {
+                $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+                $this->addFlash('error', $this->translator->trans('form.booking.payment.no_early_performance_request', [], 'flash'));
+
+                return $this->renderStepPayment($response, $booking);
+            }
+
+            $this->bookingManager->addEarlyPerformanceRequestToBooking($booking, $this->now());
         }
 
         $bookingAmount = $booking->getAmount();
@@ -258,10 +273,21 @@ class BookingPaymentController extends AbstractController
         $unitaryPrice = $this->priceRepository->findActiveUnitaryPrice($bookingType);
 
         return $this->render('booking/payment.html.twig', [
-            'booking'             => $booking,
-            'unitaryPrice'        => $unitaryPrice,
-            'allowInvoicePayment' => $this->bookingManager->canBookingBeCancelledByUser($bookingDate),
+            'booking'                        => $booking,
+            'unitaryPrice'                   => $unitaryPrice,
+            'allowInvoicePayment'            => $this->bookingManager->canBookingBeCancelledByUser($bookingDate),
+            'requireEarlyPerformanceRequest' => $this->isEarlyPerformanceRequestRequired($booking),
         ], $response);
+    }
+
+    private function isEarlyPerformanceRequestRequired(Booking $booking): bool
+    {
+        $bookingDate = $booking->getBusinessDay()?->getDate();
+        if (null === $bookingDate) {
+            return false;
+        }
+
+        return $bookingDate < $this->now()->modify('+' . self::WITHDRAWAL_PERIOD_DAYS . ' days');
     }
 
     private function renderVoucherPayment(Response $response, Booking $booking): Response
