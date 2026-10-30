@@ -150,6 +150,7 @@ booking:
     form:
       action: 'Bezahlen'
       title: 'Zahlungsmethode'
+      early_performance_request: 'Ich verlange ausdrücklich, dass mit der Leistung vor Ablauf der Widerrufsfrist begonnen wird. Mir ist bekannt, dass mein Widerrufsrecht mit vollständiger Vertragserfüllung erlischt.'
     voucher:
       form:
         label: 'Gutscheincode'

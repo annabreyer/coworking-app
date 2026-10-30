@@ -32,14 +32,10 @@ use App\Service\InvoiceGenerator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Response;
 
-class BookingPaymentControllerTest extends WebTestCase
+class BookingPaymentControllerTest extends BaseTestController
 {
-    use ClockSensitiveTrait;
-
     public const FAKE_UUID = 'hyf-5678-hnbgyu';
 
     public function testStepPaymentLogsErrorAndRedirectsWhenBookingIsNotFound(): void
@@ -248,7 +244,8 @@ class BookingPaymentControllerTest extends WebTestCase
         $crawler = $client->request('GET', $uri);
         $form    = $crawler->filter('form')->form();
         $form->disableValidation();
-        $form['paymentMethod'] = 'creditCard';
+        $form['paymentMethod']     = 'creditCard';
+        $form['earlyStartConsent'] = '1';
         $client->submit($form);
 
         static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -270,10 +267,11 @@ class BookingPaymentControllerTest extends WebTestCase
         $booking = $this->getBooking($bookingUser, $date);
         self::assertNull($booking->getAmount());
 
-        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
-        $crawler               = $client->request('GET', $uri);
-        $form                  = $crawler->filter('form')->form();
-        $form['paymentMethod'] = 'invoice';
+        $uri                       = '/booking/' . $booking->getUuid() . '/payment';
+        $crawler                   = $client->request('GET', $uri);
+        $form                      = $crawler->filter('form')->form();
+        $form['paymentMethod']     = 'invoice';
+        $form['earlyStartConsent'] = '1';
         $client->submit($form);
 
         $booking = static::getContainer()->get(BookingRepository::class)->findOneBy(['uuid' => $booking->getUuid()]);
@@ -333,10 +331,11 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable(BookingWithInvoiceFixture::BOOKING_DATE);
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
-        $crawler               = $client->request('GET', $uri);
-        $form                  = $crawler->filter('form')->form();
-        $form['paymentMethod'] = 'paypal';
+        $uri                       = '/booking/' . $booking->getUuid() . '/payment';
+        $crawler                   = $client->request('GET', $uri);
+        $form                      = $crawler->filter('form')->form();
+        $form['paymentMethod']     = 'paypal';
+        $form['earlyStartConsent'] = '1';
         $client->submit($form);
 
         static::assertResponseRedirects('/invoice/' . $booking->getInvoice()->getUuid() . '/paypal');
@@ -355,10 +354,11 @@ class BookingPaymentControllerTest extends WebTestCase
         $date    = new \DateTimeImmutable(BookingWithInvoiceFixture::BOOKING_DATE);
         $booking = $this->getBooking($bookingUser, $date);
 
-        $uri                   = '/booking/' . $booking->getUuid() . '/payment';
-        $crawler               = $client->request('GET', $uri);
-        $form                  = $crawler->filter('form')->form();
-        $form['paymentMethod'] = 'voucher';
+        $uri                       = '/booking/' . $booking->getUuid() . '/payment';
+        $crawler                   = $client->request('GET', $uri);
+        $form                      = $crawler->filter('form')->form();
+        $form['paymentMethod']     = 'voucher';
+        $form['earlyStartConsent'] = '1';
         $client->submit($form);
 
         static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/voucher');
@@ -949,6 +949,133 @@ class BookingPaymentControllerTest extends WebTestCase
         $client->submit($form);
 
         static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment');
+    }
+
+    public function testStepPaymentShowsEarlyPerformanceRequestWhenBookingIsWithinWithdrawalPeriod(): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20', [BookingWithOutAmountFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE));
+
+        $crawler = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+
+        static::assertResponseIsSuccessful();
+        $checkbox = $crawler->filter('form input[type="checkbox"][name="earlyStartConsent"]');
+        self::assertCount(1, $checkbox);
+        self::assertNotNull($checkbox->attr('required'));
+        static::assertSelectorTextContains('form label[for="earlyStartConsent"]', 'Ich verlange ausdrücklich, dass mit der Leistung vor Ablauf der Widerrufsfrist begonnen wird.');
+    }
+
+    public function testStepPaymentHidesEarlyPerformanceRequestWhenBookingIsAfterWithdrawalPeriod(): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20', [BookingWithOutInvoiceFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE));
+
+        $crawler = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+
+        static::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('input[name="earlyStartConsent"]'));
+    }
+
+    /**
+     * @dataProvider provideStepPaymentFormSubmitWithoutEarlyPerformanceRequestIsRejectedCases
+     */
+    public function testStepPaymentFormSubmitWithoutEarlyPerformanceRequestIsRejected(string $paymentMethod): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20', [BookingWithOutAmountFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE));
+
+        $crawler               = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+        $form                  = $crawler->filter('form')->form();
+        $form['paymentMethod'] = $paymentMethod;
+        $client->submit($form);
+
+        static::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        static::assertSelectorTextContains('section#flash-messages', 'Bitte bestätige, dass die Leistung vor Ablauf der Widerrufsfrist beginnen soll.');
+        static::assertEmailCount(0);
+
+        $booking = $this->findBookingByUuid($booking);
+        self::assertNull($booking->getEarlyPerformanceRequestedAt());
+        self::assertNull($booking->getAmount());
+        self::assertNull($booking->getInvoice());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideStepPaymentFormSubmitWithoutEarlyPerformanceRequestIsRejectedCases(): iterable
+    {
+        yield 'invoice' => ['invoice'];
+        yield 'paypal' => ['paypal'];
+        yield 'voucher' => ['voucher'];
+    }
+
+    public function testStepPaymentFormSubmitWithEarlyPerformanceRequestStoresTimestamp(): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20 10:15:00', [BookingWithOutAmountFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE));
+
+        $crawler                   = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+        $form                      = $crawler->filter('form')->form();
+        $form['paymentMethod']     = 'voucher';
+        $form['earlyStartConsent'] = '1';
+        $client->submit($form);
+
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/voucher');
+        $booking = $this->findBookingByUuid($booking);
+        self::assertSame('2024-02-20 10:15:00', $booking->getEarlyPerformanceRequestedAt()?->format('Y-m-d H:i:s'));
+    }
+
+    public function testStepPaymentFormSubmitWithEarlyPerformanceRequestRepeatsConsentInInvoiceEmail(): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20 10:15:00', [BookingWithOutAmountFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutAmountFixture::BUSINESS_DAY_DATE));
+
+        $crawler                   = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+        $form                      = $crawler->filter('form')->form();
+        $form['paymentMethod']     = 'invoice';
+        $form['earlyStartConsent'] = '1';
+        $client->submit($form);
+
+        static::assertEmailCount(2);
+        $userInvoiceEmail = $this->getMailerMessage(1);
+        self::assertNotNull($userInvoiceEmail);
+        static::assertEmailHtmlBodyContains($userInvoiceEmail, 'Du hast am 20.02.2024');
+        static::assertEmailHtmlBodyContains($userInvoiceEmail, 'ausdrücklich verlangt, dass wir mit der Leistung vor Ablauf der Widerrufsfrist beginnen');
+    }
+
+    public function testStepPaymentFormSubmitAfterWithdrawalPeriodStoresNoEarlyPerformanceRequest(): void
+    {
+        $client  = $this->setupTestClientAndLogin('2024-02-20', [BookingWithOutInvoiceFixture::class, PriceFixtures::class], 'user.one@annabreyer.dev');
+        $booking = $this->getBooking($this->getUserOne(), new \DateTimeImmutable(BookingWithOutInvoiceFixture::BUSINESS_DAY_DATE));
+
+        $crawler               = $client->request('GET', '/booking/' . $booking->getUuid() . '/payment');
+        $form                  = $crawler->filter('form')->form();
+        $form['paymentMethod'] = 'invoice';
+        $client->submit($form);
+
+        static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
+        $booking = $this->findBookingByUuid($booking);
+        self::assertNull($booking->getEarlyPerformanceRequestedAt());
+
+        $userInvoiceEmail = $this->getMailerMessage(1);
+        self::assertNotNull($userInvoiceEmail);
+        static::assertEmailHtmlBodyNotContains($userInvoiceEmail, 'ausdrücklich verlangt');
+    }
+
+    private function getUserOne(): User
+    {
+        $user = $this->getEntity(UserRepository::class, ['email' => 'user.one@annabreyer.dev']);
+        self::assertInstanceOf(User::class, $user);
+
+        return $user;
+    }
+
+    private function findBookingByUuid(Booking $booking): Booking
+    {
+        $booking = $this->getEntity(BookingRepository::class, ['uuid' => $booking->getUuid()]);
+        self::assertInstanceOf(Booking::class, $booking);
+
+        return $booking;
     }
 
     private function createBookingOfType(User $user, string $typeName, string $date, ?int $amount = null): Booking

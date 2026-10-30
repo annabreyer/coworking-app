@@ -65,4 +65,5 @@ withdrawal:
     signature: 'Viele Grüße!'
 
 invoice:
+  early_performance_request: 'Du hast am %date% um %time% Uhr ausdrücklich verlangt, dass wir mit der Leistung vor Ablauf der Widerrufsfrist beginnen, und bestätigt, dass Dir bekannt ist, dass Dein Widerrufsrecht mit vollständiger Vertragserfüllung erlischt.'
   withdrawal: 'Informationen zu Deinem Widerrufsrecht findest Du in unserer <a href="%policyLink%">Widerrufsbelehrung</a>. Widerrufen kannst Du über <a href="%withdrawalLink%">Vertrag widerrufen</a>.'

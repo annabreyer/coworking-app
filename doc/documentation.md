@@ -181,6 +181,26 @@ The confirmation is rate limited per IP (5 per 15 minutes, `config/packages/rate
 The withdrawal period is 14 days, but the admin decides about late withdrawals: a missing or wrong Widerrufsbelehrung
 extends the period, so the form does not refuse any contract.
 
+## Express request to start early (bookings)
+Day bookings are treated as withdrawable services (§ 356 Abs. 4 / § 357a Abs. 2 BGB) instead of relying on the
+uncertain exemption of § 312g Abs. 2 Nr. 9 BGB. Without an express request to start before the end of the 14-day
+withdrawal period, a consumer could withdraw even after having used the desk and owe nothing.
+
+- When the business day of the booking is less than 14 days after now, the payment step shows a required checkbox
+  ("Ich verlange ausdrücklich, dass mit der Leistung vor Ablauf der Widerrufsfrist begonnen wird ...").
+- `BookingPaymentController::bookingStepThree` checks it server side for every payment method, before the amount or
+  the invoice is saved. The voucher payment (`payWithVoucher`) can only be reached through this step. Without the
+  consent the step answers with HTTP 400 and a flash message.
+- With the consent the time from the Symfony clock is stored in `Booking::earlyPerformanceRequestedAt`. A later
+  submit of the step overwrites it.
+- The booking invoice e-mail repeats the consent with its date and time (Europe/Berlin), which is the confirmation on
+  a durable medium required by § 356 Abs. 4 BGB.
+- Bookings further away than 14 days need no consent and the field stays empty. Admin-created bookings
+  (`BookingCrudController`) are not distance contracts concluded online and never ask for it.
+
+The POST field is named `earlyStartConsent`: `UserActionSubscriber` treats every field whose name contains "form" as
+the form name, so a name like `earlyPerformanceRequest` breaks the request logging.
+
 # Create Booking via Admin
 
 Create booking via Admin creates the invoice entity to be paid. 

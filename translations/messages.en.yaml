@@ -150,6 +150,7 @@ booking:
     form:
       action: 'Pay now'
       title: 'Payment method'
+      early_performance_request: 'I expressly request that the service starts before the end of the withdrawal period. I know that my right of withdrawal expires once the contract has been fully performed.'
     voucher:
       form:
         label: 'Voucher code'

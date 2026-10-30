@@ -51,6 +51,12 @@ class BookingManager
         $this->entityManager->flush();
     }
 
+    public function addEarlyPerformanceRequestToBooking(Booking $booking, \DateTimeImmutable $requestedAt): void
+    {
+        $booking->setEarlyPerformanceRequestedAt($requestedAt);
+        $this->entityManager->flush();
+    }
+
     public function handleFinalizedBooking(Booking $booking): void
     {
         $bookingInvoice = $booking->getInvoice();
