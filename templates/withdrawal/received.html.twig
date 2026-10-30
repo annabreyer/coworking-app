@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'withdrawal.received.title'|trans }}{% endblock %}
+{% block header %}{{ 'withdrawal.received.title'|trans }}{% endblock %}
+
+{% block content %}
+    <section class="self-center max-w-md mx-auto" id="withdrawal-received">
+        <p>{{ 'withdrawal.received.text'|trans({
+                '%contract%': withdrawal.contractReference,
+                '%date%': withdrawal.receivedAt|date('d.m.Y', 'Europe/Berlin'),
+                '%time%': withdrawal.receivedAt|date('H:i:s', 'Europe/Berlin'),
+            }) }}</p>
+        <p>{{ 'withdrawal.received.email'|trans({'%email%': withdrawal.email}) }}</p>
+    </section>
+{% endblock %}

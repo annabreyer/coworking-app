@@ -259,3 +259,29 @@ footer:
   link:
     imprint: Imprint
     data_protection: Data protection
+    withdrawal_policy: Cancellation policy
+
+withdrawal:
+  button:
+    withdraw: 'Withdraw from contract'
+    confirm: 'Confirm withdrawal'
+  notice:
+    checkout: 'Information about your right of withdrawal can be found in the <a href="%link%" class="underline">cancellation policy</a>.'
+  form:
+    intro: 'Here you can withdraw from a contract with us within the withdrawal period. You do not need an account and you do not have to give a reason.'
+    input:
+      name: 'Name'
+      email: 'Email address for the confirmation of receipt'
+      contract: 'Contract (invoice number)'
+      contract_help: 'You can find the number on your invoice, e.g. CO20260001.'
+    button: 'Continue'
+  confirm:
+    title: 'Review withdrawal'
+    declaration: 'I hereby withdraw from the contract %contract% concluded by me.'
+    back: 'Change details'
+  received:
+    title: 'Withdrawal received'
+    text: 'Your withdrawal for the contract %contract% was received on %date% at %time%.'
+    email: 'We have sent a confirmation of receipt to %email%.'
+  policy:
+    title: 'Cancellation policy'

@@ -152,6 +152,35 @@ The user is redirected to PayPal, and after the payment is done, the invoice is 
 
 
 
+# Widerruf
+Consumers have a statutory right of withdrawal of 14 days for contracts concluded online (§ 312g BGB).
+Since 19 June 2026 the electronic withdrawal function of § 356a BGB is mandatory ("Widerrufsbutton").
+The analysis and the remaining steps are in `doc/widerrufsrecht-plan.md`.
+
+## Widerrufsbelehrung
+The Widerrufsbelehrung with the Muster-Widerrufsformular is the public page `/widerruf`. The text is in the
+translations (`withdrawal.policy`) and follows the statutory model of Anlage 1 and 2 to Art. 246a EGBGB.
+It is linked in the footer of every page, below the payment forms of bookings and vouchers, and in the
+booking and voucher invoice e-mails.
+
+## Withdrawal function
+`/vertrag-widerrufen` is public, it must not require a login. The footer link "Vertrag widerrufen" is on every page.
+1. The user enters their name, the e-mail address for the receipt, and the contract (invoice number). No reason is asked.
+   Logged-in users get their name and e-mail prefilled and their invoices of the last 14 days as suggestions.
+   The invoice e-mails link to the form with the invoice number prefilled (`?contract=`).
+2. A summary page shows the declaration, and the button "Widerruf bestätigen" sends it.
+
+On confirmation a `Withdrawal` is saved with the time of receipt, the user gets the Eingangsbestätigung by e-mail
+(content of the declaration, date and time of receipt in Europe/Berlin) and the admin is notified.
+If the invoice number exists and belongs to the logged-in user or to the entered e-mail address, the invoice and its user
+are attached to the withdrawal. Nothing is cancelled or refunded automatically: the admin processes the withdrawal
+in the backoffice (Widerrufe) and sets the status to processed or rejected.
+A failed e-mail is logged, the withdrawal is still saved.
+The confirmation is rate limited per IP (5 per 15 minutes, `config/packages/rate_limiter.yaml`), not in the test environment.
+
+The withdrawal period is 14 days, but the admin decides about late withdrawals: a missing or wrong Widerrufsbelehrung
+extends the period, so the form does not refuse any contract.
+
 # Create Booking via Admin
 
 Create booking via Admin creates the invoice entity to be paid. 

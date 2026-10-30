@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'withdrawal.confirm.title'|trans }}{% endblock %}
+{% block header %}{{ 'withdrawal.confirm.title'|trans }}{% endblock %}
+
+{% block content %}
+    <section class="self-center">
+        <form method="post" action="{{ path('withdrawal_form') }}" class="max-w-md mx-auto" id="withdrawal-confirm-form">
+            <p class="mb-5">{{ 'withdrawal.confirm.declaration'|trans({'%contract%': data.contractReference}) }}</p>
+            <dl class="mb-5">
+                <dt class="font-semibold">{{ 'withdrawal.form.input.name'|trans }}</dt>
+                <dd class="mb-2">{{ data.name }}</dd>
+                <dt class="font-semibold">{{ 'withdrawal.form.input.email'|trans }}</dt>
+                <dd class="mb-2">{{ data.email }}</dd>
+                <dt class="font-semibold">{{ 'withdrawal.form.input.contract'|trans }}</dt>
+                <dd class="mb-2">{{ data.contractReference }}</dd>
+            </dl>
+            <input type="hidden" name="name" value="{{ data.name }}">
+            <input type="hidden" name="email" value="{{ data.email }}">
+            <input type="hidden" name="contractReference" value="{{ data.contractReference }}">
+            <input type="hidden" name="step" value="confirm">
+            <input type="hidden" name="token" value="{{ csrf_token('withdrawal') }}">
+            <button type="submit">{{ 'withdrawal.button.confirm'|trans }}</button>
+        </form>
+        <p class="max-w-md mx-auto mt-4">
+            <a href="{{ path('withdrawal_form', {'contract': data.contractReference}) }}" class="underline">{{ 'withdrawal.confirm.back'|trans }}</a>
+        </p>
+    </section>
+{% endblock %}

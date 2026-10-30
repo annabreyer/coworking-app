@@ -143,6 +143,9 @@
                             {% block explanation %}
                             <p style="font-family: Helvetica, sans-serif; font-size: 16px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.explanation|raw }}</p>
                             {% endblock %}
+                            {% if texts.withdrawal is defined and texts.withdrawal is not empty %}
+                            <p style="font-family: Helvetica, sans-serif; font-size: 14px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.withdrawal|raw }}</p>
+                            {% endif %}
                             {% block signature %}
                             <p style="font-family: Helvetica, sans-serif; font-size: 16px; color:#38011b; font-weight: normal; margin: 0; margin-bottom: 16px;">{{ texts.signature }}</p>
                             {% endblock %}
