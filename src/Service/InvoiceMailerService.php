@@ -81,6 +81,7 @@ class InvoiceMailerService
                     [],
                     'email'
                 ),
+                self::EMAIL_STANDARD_ELEMENT_WITHDRAWAL => $this->getWithdrawalNotice($invoice),
             ],
         ];
 
@@ -147,6 +148,7 @@ class InvoiceMailerService
                     [],
                     'email'
                 ),
+                self::EMAIL_STANDARD_ELEMENT_WITHDRAWAL => $this->getWithdrawalNotice($invoice),
             ],
         ];
 
@@ -156,6 +158,18 @@ class InvoiceMailerService
         }
 
         $this->userMailer->sendTemplatedEmail($invoice->getUser()->getEmail(), $subject, $context, null, $invoicePath);
+    }
+
+    public function getWithdrawalNotice(Invoice $invoice): string
+    {
+        return $this->translator->trans('invoice.withdrawal', [
+            '%policyLink%'     => $this->urlGenerator->generate('withdrawal_policy', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            '%withdrawalLink%' => $this->urlGenerator->generate(
+                'withdrawal_form',
+                ['contract' => $invoice->getNumber()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ),
+        ], 'email');
     }
 
     public function sendInvoiceToDocumentVault(Invoice $invoice): void

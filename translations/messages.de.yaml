@@ -272,6 +272,7 @@ footer:
   link:
     imprint: Impressum
     data_protection: Datenschutz
+    withdrawal_policy: Widerrufsbelehrung
 
 
 Log out: Abmelden
@@ -287,3 +288,56 @@ To change your passwort, please request a passwort reset via the password forgot
 
 
 
+
+withdrawal:
+  button:
+    withdraw: 'Vertrag widerrufen'
+    confirm: 'Widerruf bestätigen'
+  notice:
+    checkout: 'Informationen zu Deinem Widerrufsrecht findest Du in der <a href="%link%" class="underline">Widerrufsbelehrung</a>.'
+  form:
+    intro: 'Hier kannst Du einen Vertrag mit uns innerhalb der Widerrufsfrist widerrufen. Ein Benutzerkonto ist dafür nicht nötig, und Du musst keinen Grund angeben.'
+    input:
+      name: 'Name'
+      email: 'E-Mail-Adresse für die Eingangsbestätigung'
+      contract: 'Vertrag (Rechnungsnummer)'
+      contract_help: 'Die Nummer findest Du auf Deiner Rechnung, z. B. CO20260001.'
+    button: 'Weiter'
+  confirm:
+    title: 'Widerruf prüfen'
+    declaration: 'Hiermit widerrufe ich den von mir abgeschlossenen Vertrag %contract%.'
+    back: 'Angaben ändern'
+  received:
+    title: 'Widerruf eingegangen'
+    text: 'Dein Widerruf für den Vertrag %contract% ist am %date% um %time% Uhr bei uns eingegangen.'
+    email: 'Wir haben Dir eine Eingangsbestätigung an %email% geschickt.'
+  policy:
+    title: 'Widerrufsbelehrung'
+    intro: 'Verbraucher haben das folgende Widerrufsrecht. Verbraucher ist jede natürliche Person, die ein Rechtsgeschäft zu Zwecken abschließt, die überwiegend weder ihrer gewerblichen noch ihrer selbständigen beruflichen Tätigkeit zugerechnet werden können.'
+    right:
+      title: 'Widerrufsrecht'
+      text: 'Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.'
+      period: 'Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.'
+      how: 'Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Ensemble Anna Breyer, Bahnhofstr. 9, 55278 Hahnheim, E-Mail: <a href="mailto:%supportEmail%" class="underline">%supportEmail%</a>) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das unten stehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist. Sie können den Widerruf auch über die Schaltfläche „Vertrag widerrufen“ auf unserer Website erklären. In diesem Fall übermitteln wir Ihnen unverzüglich per E-Mail eine Bestätigung über den Eingang des Widerrufs.'
+      deadline: 'Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.'
+    consequences:
+      title: 'Folgen des Widerrufs'
+      refund: 'Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.'
+      services: 'Haben Sie verlangt, dass die Dienstleistungen während der Widerrufsfrist beginnen sollen, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.'
+    expiry:
+      title: 'Erlöschen des Widerrufsrechts'
+      text: 'Das Widerrufsrecht erlischt bei einem Vertrag über die Erbringung von Dienstleistungen, wenn wir die Dienstleistung vollständig erbracht haben und mit der Ausführung der Dienstleistung erst begonnen haben, nachdem Sie dazu Ihre ausdrückliche Zustimmung gegeben haben und gleichzeitig Ihre Kenntnis davon bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung durch uns verlieren.'
+    cancellation:
+      title: 'Stornierung von Buchungen'
+      text: 'Unabhängig vom gesetzlichen Widerrufsrecht können Sie Buchungen in Ihrem Benutzerkonto unter „Meine Buchungen“ stornieren, solange die Stornierungsfrist noch nicht abgelaufen ist.'
+    form:
+      title: 'Muster-Widerrufsformular'
+      intro: 'Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.'
+      recipient: 'An Ensemble Anna Breyer, Bahnhofstr. 9, 55278 Hahnheim, E-Mail: %supportEmail%'
+      declaration: 'Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung (*): …'
+      ordered_on: 'Bestellt am (*): …'
+      consumer_name: 'Name des/der Verbraucher(s): …'
+      consumer_address: 'Anschrift des/der Verbraucher(s): …'
+      signature: 'Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier): …'
+      date: 'Datum: …'
+      footnote: '(*) Unzutreffendes streichen.'

@@ -313,6 +313,10 @@ class BookingPaymentControllerTest extends WebTestCase
 
         $email = $this->getMailerMessage();
         static::assertEmailAttachmentCount($email, 1);
+
+        $userInvoiceEmail = $this->getMailerMessage(1);
+        static::assertEmailHtmlBodyContains($userInvoiceEmail, 'Widerrufsbelehrung');
+        static::assertEmailHtmlBodyContains($userInvoiceEmail, '/vertrag-widerrufen?contract=');
         static::assertResponseRedirects('/booking/' . $booking->getUuid() . '/payment/confirmation');
     }
 

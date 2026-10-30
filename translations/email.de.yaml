@@ -50,3 +50,19 @@ registration:
     explanation: 'Dieser Link ist %timeLimit% lang gültig.'
     signature: Viele Grüße!
     button_text: E-Mail-Adresse bestätigen
+
+withdrawal:
+  receipt:
+    subject: 'Coworking Hahnheim: Eingangsbestätigung Deines Widerrufs'
+    salutation: 'Hallo %name%!'
+    instructions: 'Wir haben Deinen Widerruf am %date% um %time% Uhr erhalten.<br><br>
+    Inhalt Deiner Erklärung:<br>
+    „Hiermit widerrufe ich den von mir abgeschlossenen Vertrag %contract%.“<br>
+    Name: %name%<br>
+    E-Mail: %email%<br>
+    Vertrag: %contract%'
+    explanation: 'Wir bearbeiten Deinen Widerruf und melden uns bei Dir, sobald er abgeschlossen ist.'
+    signature: 'Viele Grüße!'
+
+invoice:
+  withdrawal: 'Informationen zu Deinem Widerrufsrecht findest Du in unserer <a href="%policyLink%">Widerrufsbelehrung</a>. Widerrufen kannst Du über <a href="%withdrawalLink%">Vertrag widerrufen</a>.'

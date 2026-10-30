@@ -46,6 +46,11 @@ form:
     no_payment_method: 'Bitte eine Zahlungsmethode auswählen.'
     payment_method_not_valid: 'Die ausgewählte Zahlungsmethode ist nicht verfügbar.'
     success: 'Gutschein/Mehrfachkarte erfolgreich gekauft. Die Rechnung wurde per E-Mail zugesendet. Bei Zahlungen auf Rechnung sind die Gutscheine erst nach eingegangener Zahlung gültig.'
+  withdrawal:
+    invalid_name: 'Bitte gib Deinen Namen an.'
+    invalid_email: 'Bitte gib eine gültige E-Mail-Adresse an.'
+    invalid_contractReference: 'Bitte gib an, welchen Vertrag Du widerrufen möchtest, z. B. die Rechnungsnummer.'
+    too_many_requests: 'Zu viele Anfragen. Bitte versuche es in ein paar Minuten erneut oder schreibe uns eine E-Mail.'
 invoice_download:
   not_found: 'Rechnung konnte nicht gefunden werden.'
 invoice_payment:

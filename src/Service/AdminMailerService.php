@@ -6,8 +6,10 @@ namespace App\Service;
 
 use App\Controller\Admin\BookingCrudController;
 use App\Controller\Admin\InvoiceCrudController;
+use App\Controller\Admin\WithdrawalCrudController;
 use App\Entity\Booking;
 use App\Entity\Invoice;
+use App\Entity\Withdrawal;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -78,6 +80,30 @@ class AdminMailerService
             'text' => \sprintf(
                 'Die Rechnung mit der Nummer %s hat einen negativen Betrag',
                 $invoice->getNumber()
+            ),
+            'link' => $link,
+        ];
+
+        $this->sendEmailToSupport($subject, $context);
+    }
+
+    public function notifyAdminAboutWithdrawal(Withdrawal $withdrawal): void
+    {
+        $link = $this->adminUrlGenerator
+            ->setController(WithdrawalCrudController::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($withdrawal->getId())
+            ->generateUrl()
+        ;
+
+        $subject = 'Neuer Widerruf: ' . $withdrawal->getContractReference();
+        $context = [
+            'text' => \sprintf(
+                'Es ist ein neuer Widerruf von %s (%s) für den Vertrag %s eingegangen. %s',
+                $withdrawal->getName(),
+                $withdrawal->getEmail(),
+                $withdrawal->getContractReference(),
+                null === $withdrawal->getInvoice() ? 'Es konnte keine passende Rechnung gefunden werden.' : 'Die Rechnung wurde zugeordnet.'
             ),
             'link' => $link,
         ];

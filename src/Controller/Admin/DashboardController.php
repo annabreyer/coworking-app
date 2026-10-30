@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Entity\UserAction;
 use App\Entity\Voucher;
 use App\Entity\VoucherType;
+use App\Entity\Withdrawal;
 use App\Entity\WorkStation;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -95,6 +96,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('VoucherType', 'fas fa-vote-yea', VoucherType::class);
         yield MenuItem::linkToCrud('Price', 'fas fa-euro-sign', Price::class);
         yield MenuItem::linkToCrud('BookingType', 'fas fa-clock', BookingType::class);
+        yield MenuItem::linkToCrud('Widerrufe', 'fas fa-undo', Withdrawal::class);
 
         yield MenuItem::section('Action Log');
         yield MenuItem::linkToCrud('UserAction', 'fas fa-home', UserAction::class);

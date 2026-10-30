@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% set inputClass = 'text-gray-900 bg-gray-50 rounded-lg block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-yellow focus:border-yellow dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 text-lg font-Helvetica' %}
+
+{% block title %}{{ 'withdrawal.button.withdraw'|trans }}{% endblock %}
+{% block header %}{{ 'withdrawal.button.withdraw'|trans }}{% endblock %}
+
+{% block content %}
+    <section class="self-center">
+        <form method="post" action="{{ path('withdrawal_form') }}" class="max-w-md mx-auto" id="withdrawal-form">
+            <p class="mb-5">{{ 'withdrawal.form.intro'|trans }}</p>
+            <div class="mb-5">
+                <label for="withdrawal-name">{{ 'withdrawal.form.input.name'|trans }}</label>
+                <input type="text" name="name" id="withdrawal-name" value="{{ data.name }}" maxlength="255"
+                       class="{{ inputClass }}" autocomplete="name" required>
+            </div>
+            <div class="mb-5">
+                <label for="withdrawal-email">{{ 'withdrawal.form.input.email'|trans }}</label>
+                <input type="email" name="email" id="withdrawal-email" value="{{ data.email }}" maxlength="180"
+                       class="{{ inputClass }}" autocomplete="email" required>
+            </div>
+            <div class="mb-5">
+                <label for="withdrawal-contract">{{ 'withdrawal.form.input.contract'|trans }}</label>
+                <input type="text" name="contractReference" id="withdrawal-contract" value="{{ data.contractReference }}" maxlength="255"
+                       class="{{ inputClass }}" list="withdrawal-invoices" required>
+                <p class="text-sm mt-1">{{ 'withdrawal.form.input.contract_help'|trans }}</p>
+                {% if invoices is not empty %}
+                    <datalist id="withdrawal-invoices">
+                        {% for invoice in invoices %}
+                            <option value="{{ invoice.number }}">{{ invoice.date|date('d.m.Y') }} · {{ invoice.description }}</option>
+                        {% endfor %}
+                    </datalist>
+                {% endif %}
+            </div>
+            <input type="hidden" name="step" value="review">
+            <input type="hidden" name="token" value="{{ csrf_token('withdrawal') }}">
+            <button type="submit">{{ 'withdrawal.form.button'|trans }}</button>
+        </form>
+        <p class="max-w-md mx-auto mt-4">
+            <a href="{{ path('withdrawal_policy') }}" class="underline">{{ 'withdrawal.policy.title'|trans }}</a>
+        </p>
+    </section>
+{% endblock %}

@@ -12,4 +12,5 @@ trait EmailContextTrait
     public const EMAIL_STANDARD_ELEMENT_SIGNATURE    = 'signature';
     public const EMAIL_STANDARD_ELEMENT_SUBJECT      = 'subject';
     public const EMAIL_STANDARD_ELEMENT_BUTTON_TEXT  = 'button_text';
+    public const EMAIL_STANDARD_ELEMENT_WITHDRAWAL   = 'withdrawal';
 }

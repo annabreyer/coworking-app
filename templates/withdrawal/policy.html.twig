@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'withdrawal.policy.title'|trans }}{% endblock %}
+{% block header %}{{ 'withdrawal.policy.title'|trans }}{% endblock %}
+
+{% block content %}
+    <section class="self-center max-w-3xl mx-auto" id="withdrawal-policy">
+        <p>{{ 'withdrawal.policy.intro'|trans }}</p>
+        <h2>{{ 'withdrawal.policy.right.title'|trans }}</h2>
+        <p>{{ 'withdrawal.policy.right.text'|trans }}</p>
+        <p>{{ 'withdrawal.policy.right.period'|trans }}</p>
+        <p>{{ 'withdrawal.policy.right.how'|trans({'%supportEmail%': support_email})|raw }}</p>
+        <p>
+            <a href="{{ path('withdrawal_form') }}" class="underline font-semibold">{{ 'withdrawal.button.withdraw'|trans }}</a>
+        </p>
+        <p>{{ 'withdrawal.policy.right.deadline'|trans }}</p>
+
+        <h2>{{ 'withdrawal.policy.consequences.title'|trans }}</h2>
+        <p>{{ 'withdrawal.policy.consequences.refund'|trans }}</p>
+        <p>{{ 'withdrawal.policy.consequences.services'|trans }}</p>
+
+        <h2>{{ 'withdrawal.policy.expiry.title'|trans }}</h2>
+        <p>{{ 'withdrawal.policy.expiry.text'|trans }}</p>
+
+        <h2>{{ 'withdrawal.policy.cancellation.title'|trans }}</h2>
+        <p>{{ 'withdrawal.policy.cancellation.text'|trans }}</p>
+
+        <h2>{{ 'withdrawal.policy.form.title'|trans }}</h2>
+        <p>{{ 'withdrawal.policy.form.intro'|trans }}</p>
+        <div class="border border-gray-300 rounded-lg p-4 my-4" id="withdrawal-model-form">
+            <p>{{ 'withdrawal.policy.form.recipient'|trans({'%supportEmail%': support_email}) }}</p>
+            <p>{{ 'withdrawal.policy.form.declaration'|trans }}</p>
+            <p>{{ 'withdrawal.policy.form.ordered_on'|trans }}</p>
+            <p>{{ 'withdrawal.policy.form.consumer_name'|trans }}</p>
+            <p>{{ 'withdrawal.policy.form.consumer_address'|trans }}</p>
+            <p>{{ 'withdrawal.policy.form.signature'|trans }}</p>
+            <p>{{ 'withdrawal.policy.form.date'|trans }}</p>
+            <p class="text-sm">{{ 'withdrawal.policy.form.footnote'|trans }}</p>
+        </div>
+    </section>
+{% endblock %}
