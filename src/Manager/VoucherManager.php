@@ -137,4 +137,10 @@ class VoucherManager
         $voucher->setUseDate($this->now());
         $this->entityManager->flush();
     }
+
+    public function invalidateVoucher(Voucher $voucher): void
+    {
+        $voucher->setExpiryDate($this->now()->modify('-1 day'));
+        $this->entityManager->flush();
+    }
 }

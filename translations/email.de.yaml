@@ -63,6 +63,28 @@ withdrawal:
     Vertrag: %contract%'
     explanation: 'Wir bearbeiten Deinen Widerruf und melden uns bei Dir, sobald er abgeschlossen ist.'
     signature: 'Viele Grüße!'
+  result:
+    salutation: 'Hallo %name%!'
+    explanation: 'Wenn Du Fragen hast, melde Dich gerne bei uns.'
+    signature: 'Viele Grüße!'
+    reason:
+      performed: 'Der gebuchte Tag hat bereits stattgefunden, die Leistung wurde vollständig erbracht. Damit ist Dein Widerrufsrecht erloschen (§ 356 Abs. 4 BGB).'
+      already_cancelled: 'Die Buchung wurde bereits storniert.'
+      vouchers_used: 'Alle Gutscheine dieser Rechnung wurden bereits eingelöst, die Leistung wurde vollständig erbracht. Damit ist Dein Widerrufsrecht erloschen (§ 356 Abs. 4 BGB).'
+  processed:
+    subject: 'Coworking Hahnheim: Dein Widerruf wurde bearbeitet'
+    instructions: 'wir haben Deinen Widerruf vom %date% für den Vertrag %contract% bearbeitet.'
+    refund:
+      none: 'Eine Erstattung ist nicht nötig.'
+      reversal: 'Du hattest die Rechnung noch nicht bezahlt. Wir haben sie storniert, Du musst nichts bezahlen.'
+      voucher: 'Du hattest mit Gutscheinen bezahlt. Diese Gutscheine sind wieder gültig und Du kannst sie für eine andere Buchung einlösen.'
+      paypal: 'Wir erstatten Dir %amount% € über PayPal, so wie Du bezahlt hast. Das Geld ist spätestens 14 Tage nach Eingang Deines Widerrufs bei Dir.'
+      transaction: 'Wir überweisen Dir %amount% € auf das Konto, von dem Du bezahlt hast. Das Geld ist spätestens 14 Tage nach Eingang Deines Widerrufs bei Dir.'
+    value_compensation: 'Für die bereits eingelösten Gutscheine behalten wir anteilig %amount% € als Wertersatz ein. Die übrigen Gutscheine sind nicht mehr gültig.'
+  rejected:
+    subject: 'Coworking Hahnheim: Dein Widerruf'
+    instructions: 'wir haben Deinen Widerruf vom %date% für den Vertrag %contract% geprüft und können ihn leider nicht annehmen.<br><br>
+    Begründung: %reason%'
 
 invoice:
   withdrawal: 'Informationen zu Deinem Widerrufsrecht findest Du in unserer <a href="%policyLink%">Widerrufsbelehrung</a>. Widerrufen kannst Du über <a href="%withdrawalLink%">Vertrag widerrufen</a>.'

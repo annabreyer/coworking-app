@@ -1,6 +1,7 @@
 # Widerrufsrecht & Widerrufsbutton (§ 356a BGB) – Analysis and Implementation Plan
 
-Status: steps 1 and 3 implemented on `feature/widerrufsbutton` (2026-10-30), steps 2 and 4 open. Not legal advice – the two open legal questions below should be checked by a lawyer.
+Status: steps 1 and 3 implemented on `feature/widerrufsbutton` (2026-10-30), step 4 on `feature/widerruf-bearbeiten`
+(2026-10-30), step 2 open. Not legal advice – the two open legal questions below should be checked by a lawyer.
 
 ## 1. The law
 
@@ -94,15 +95,18 @@ owes value compensation for those; the rest must be refunded **with the original
   is open, pointing to the same flow prefilled.
 - Rate limit + CSRF on the public form (Symfony RateLimiter).
 
-### Step 4 – Processing in the admin
+### Step 4 – Processing in the admin (implemented)
 - EasyAdmin CRUD for `Withdrawal` (list, filter by status, link to invoice).
-- Action "Widerruf bearbeiten":
-  - Booking not yet used → reuse `BookingManager::cancelBooking` (refund logic already exists).
-  - Booking already used with early-start consent → reject with comment (right expired).
-  - Voucher invoice → mark unused vouchers of the invoice as invalid, compute refund = price − value of used units,
-    record a refund `Payment` / reversal invoice via `RefundManager` / `InvoiceManager::createReversalInvoice`,
-    and pay back via PayPal or bank transfer manually.
-- E-mail to the user when processed.
+- Action "Widerruf bearbeiten" (`WithdrawalCrudController::processWithdrawal`, logic in
+  `WithdrawalManager::processWithdrawal`), see "Processing a withdrawal in the admin" in `doc/documentation.md`:
+  - Booking in the future (or today and not used) → bookings cancelled without the refund voucher of
+    `BookingManager::cancelBooking`: unpaid → reversal invoice, paid by voucher → voucher expiry reset,
+    paid by PayPal / transfer → reversal invoice with refund `Payment`, the admin pays back manually.
+  - Booking already used → rejected with comment (right expired). Until step 2 is done there is no stored early-start
+    consent, so the admin should check this case before rejecting.
+  - Voucher invoice → unused vouchers invalidated, refund = price − pro-rata value of used vouchers, recorded as
+    above.
+- E-mail to the user with the result (processed or rejected).
 
 ### Step 5 – Tests and docs
 - Functional tests: public form without login, two-step confirmation, receipt e-mail content (date/time), checkbox

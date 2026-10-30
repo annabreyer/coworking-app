@@ -1,0 +1,60 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Widerruf bearbeiten{% endblock %}
+
+{% block main %}
+    <dl class="row">
+        <dt class="col-sm-3">Eingegangen</dt>
+        <dd class="col-sm-9">{{ withdrawal.receivedAt|date('d.m.Y H:i:s', 'Europe/Berlin') }}</dd>
+        <dt class="col-sm-3">Name / E-Mail</dt>
+        <dd class="col-sm-9">{{ withdrawal.name }} / {{ withdrawal.email }}</dd>
+        <dt class="col-sm-3">Rechnung</dt>
+        <dd class="col-sm-9">{{ invoice.number }} vom {{ invoice.date|date('d.m.Y') }}, {{ (invoice.amount / 100)|number_format(2, ',', '.') }} €</dd>
+        <dt class="col-sm-3">Zahlungen</dt>
+        <dd class="col-sm-9">
+            {% for payment in invoice.payments %}
+                {{ payment }}<br>
+            {% else %}
+                Nicht bezahlt
+            {% endfor %}
+        </dd>
+        {% if invoice.bookingInvoice %}
+            <dt class="col-sm-3">Buchungen</dt>
+            <dd class="col-sm-9">
+                {% for booking in invoice.bookings %}
+                    {{ booking.businessDay.date|date('d.m.Y') }}{% if booking.cancelled %} (storniert){% endif %}<br>
+                {% endfor %}
+            </dd>
+        {% endif %}
+        {% if invoice.voucherInvoice %}
+            <dt class="col-sm-3">Gutscheine</dt>
+            <dd class="col-sm-9">
+                {% for voucher in invoice.vouchers %}
+                    {{ voucher.code }}: {{ voucher.useDate ? 'eingelöst am ' ~ voucher.useDate|date('d.m.Y') : 'nicht eingelöst' }}<br>
+                {% endfor %}
+            </dd>
+        {% endif %}
+    </dl>
+
+    <div class="alert alert-info">
+        Buchung: ein zukünftiger Tag wird storniert, ein vergangener Tag führt zur Ablehnung.
+        Gutscheine: nicht eingelöste Gutscheine werden ungültig, der Wertersatz für eingelöste Gutscheine wird anteilig einbehalten.
+        Geld (PayPal, Überweisung) wird nicht automatisch zurückgezahlt: die Erstattung wird nur gebucht.
+    </div>
+
+    <form method="post">
+        <input type="hidden" name="token" value="{{ csrf_token('process_withdrawal') }}">
+        {% if hasTodaysBooking %}
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="todaysBookingUnused" value="1" id="todaysBookingUnused">
+                <label class="form-check-label" for="todaysBookingUnused">Die Buchung ist heute und der Platz wurde nicht genutzt</label>
+            </div>
+        {% endif %}
+        <div class="mb-3">
+            <label class="form-label" for="adminComment">Kommentar (bei Ablehnung die Begründung für den Nutzer, leer lassen für den Standardtext)</label>
+            <textarea class="form-control" name="adminComment" id="adminComment" rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Widerruf bearbeiten</button>
+        <a href="{{ detailUrl }}" class="btn btn-secondary">Abbrechen</a>
+    </form>
+{% endblock %}

@@ -86,6 +86,12 @@ class BookingManager
         $this->refundBooking($booking);
     }
 
+    public function cancelBookingAfterWithdrawal(Booking $booking): void
+    {
+        $booking->setIsCancelled(true);
+        $this->entityManager->flush();
+    }
+
     /**
      * @throws \DateMalformedStringException
      */

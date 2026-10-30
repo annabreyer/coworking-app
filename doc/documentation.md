@@ -181,6 +181,46 @@ The confirmation is rate limited per IP (5 per 15 minutes, `config/packages/rate
 The withdrawal period is 14 days, but the admin decides about late withdrawals: a missing or wrong Widerrufsbelehrung
 extends the period, so the form does not refuse any contract.
 
+## Processing a withdrawal in the admin
+In the backoffice (Widerrufe) the action "Widerruf bearbeiten" is shown for withdrawals with status received and an
+attached invoice. Withdrawals without an invoice (unknown number or other e-mail) are handled manually: attach the
+invoice in the edit form first, or set the status and comment by hand.
+The action opens a page with the invoice, its payments, bookings or vouchers, a comment field and, for a booking of
+today, the checkbox "the desk was not used". The logic is in `WithdrawalManager::processWithdrawal`.
+
+Booking invoice:
+- All not cancelled bookings of the invoice must be in the future (or today and marked as not used). Otherwise the
+  withdrawal is rejected: the service has been fully performed and the right of withdrawal expired (§ 356 Abs. 4 BGB).
+  This only holds if the user asked for the service to start before the end of the withdrawal period
+  (step 2 of `doc/widerrufsrecht-plan.md`); the admin can overwrite the rejection text with the comment.
+- If all bookings are already cancelled, the withdrawal is rejected.
+- Otherwise the bookings are cancelled with `BookingManager::cancelBookingAfterWithdrawal`. It does not create a
+  refund voucher and does not send the booking cancellation e-mail: a withdrawal must be refunded with the original
+  payment method (§ 357 BGB), the user gets the withdrawal result e-mail instead.
+
+Voucher invoice:
+- If all vouchers have been used, the withdrawal is rejected (fully performed).
+- Unused vouchers are invalidated (`VoucherManager::invalidateVoucher`, expiry date set to yesterday).
+- Refund = invoice amount − value compensation (Wertersatz). The value compensation is pro rata on the price paid:
+  invoice amount × used vouchers / all vouchers of the invoice, rounded down in favour of the user.
+- Vouchers of an unpaid invoice can not have been used; if they were, the manager refuses and the admin decides.
+
+Refund (`RefundManager::refundInvoiceAfterWithdrawal`):
+- Unpaid invoice: cancelled with a reversal invoice (`refundInvoiceWithReversalInvoice`), nothing to pay back.
+- Paid by voucher: the expiry date of the vouchers is reset (same as a normal cancellation).
+- Paid by PayPal or bank transfer: `refundPaidInvoiceWithReversalInvoice` creates a reversal invoice of the refund
+  amount with a refund `Payment` of the negative amount, so the reversal invoice is settled and the original invoice
+  stays paid. **The money is not paid back automatically** (`PayPalService` has no refund call): the admin gets a
+  warning with the amount and must refund it in the PayPal account or by bank transfer within 14 days of the receipt
+  of the withdrawal.
+- Partially paid invoices are refused, the admin handles them manually.
+
+The withdrawal gets the status processed or rejected. The admin comment is the text entered on the processing page,
+or a default text: the refund summary for processed withdrawals, the rejection reason for rejected ones.
+The user gets an e-mail at the address of the withdrawal (`WithdrawalMailerService`): for processed withdrawals the
+refund (reversal, vouchers valid again, amount and payment method, value compensation), for rejected ones the admin
+comment as reason. A failed e-mail is logged, the status is still saved.
+
 # Create Booking via Admin
 
 Create booking via Admin creates the invoice entity to be paid. 
